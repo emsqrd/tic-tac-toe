@@ -8,13 +8,18 @@ import { Component } from '@angular/core';
   styleUrl: './game-board.component.scss',
 })
 export class GameBoardComponent {
-  gameBoardPieces = new Array(9);
-  player1 = new Array(9);
-  player2 = [];
+  squares = new Array(9);
+  currentMove = 1;
 
   makeChoice(gridIndex: number) {
-    console.log(gridIndex);
-    this.gameBoardPieces[gridIndex] = 'X';
-    this.player1[gridIndex] = gridIndex;
+    let isNext = this.currentMove % 2 === 0;
+
+    if (isNext) {
+      this.squares[gridIndex] = 'O';
+    } else {
+      this.squares[gridIndex] = 'X';
+    }
+
+    this.currentMove++;
   }
 }

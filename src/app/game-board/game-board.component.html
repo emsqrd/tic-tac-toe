@@ -1,9 +1,9 @@
 <article class="game-board-container">
   <section class="game-board-content">
     <div class="game-board-grid">
-      @for (piece of gameBoardPieces; track $index){
+      @for (square of squares; track $index){
       <div class="game-board-square" (click)="makeChoice($index)">
-        {{ piece }}
+        {{ square }}
       </div>
       }
     </div>
