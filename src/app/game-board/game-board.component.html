@@ -1,15 +1,11 @@
 <article class="game-board-container">
   <section class="game-board-content">
     <div class="game-board-grid">
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">O</div>
-      <div class="game-board-square">O</div>
-      <div class="game-board-square">O</div>
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">X</div>
+      @for (piece of gameBoardPieces; track $index){
+      <div class="game-board-square" (click)="makeChoice($index)">
+        {{ piece }}
+      </div>
+      }
     </div>
   </section>
 </article>
