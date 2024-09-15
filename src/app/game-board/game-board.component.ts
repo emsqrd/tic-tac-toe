@@ -10,15 +10,16 @@ import { Component } from '@angular/core';
 export class GameBoardComponent {
   squares = new Array(9);
   currentMove = 1;
-  gameOver: boolean = false;
+  isResult: boolean = false;
+  isDraw: boolean = false;
   winningPlayer: string | undefined;
 
-  makeChoice(gridIndex: number) {
-    let isNext = this.currentMove % 2 === 0;
-
-    if (this.squares[gridIndex]) {
+  makeMove(gridIndex: number) {
+    if (this.isResult || this.squares[gridIndex]) {
       return;
     }
+
+    let isNext = this.currentMove % 2 === 0;
 
     if (isNext) {
       this.squares[gridIndex] = 'O';
@@ -29,8 +30,10 @@ export class GameBoardComponent {
     let winner = this.calculateWinner(this.squares);
 
     if (winner) {
-      this.gameOver = true;
+      this.isResult = true;
       this.winningPlayer = this.squares[gridIndex];
+    } else if (this.currentMove === this.squares.length) {
+      this.isDraw = true;
     }
 
     this.currentMove++;
@@ -39,7 +42,8 @@ export class GameBoardComponent {
   resetBoard() {
     this.squares = new Array(9);
     this.currentMove = 1;
-    this.gameOver = false;
+    this.isResult = false;
+    this.isDraw = false;
   }
 
   calculateWinner(squares: string[]) {
