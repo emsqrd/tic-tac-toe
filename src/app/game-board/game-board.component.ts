@@ -26,7 +26,6 @@ export class GameBoardComponent {
       this.squares[gridIndex] = 'X';
     }
 
-    console.log(this.squares);
     let winner = this.calculateWinner(this.squares);
 
     if (winner) {
