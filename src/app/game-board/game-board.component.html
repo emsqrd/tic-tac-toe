@@ -1,4 +1,10 @@
 <article class="game-board-container">
+  <header>
+    <button (click)="resetBoard()">Reset Board</button>
+    @if (gameOver){
+    <div>{{ winningPlayer }} wins!</div>
+    }
+  </header>
   <section class="game-board-content">
     <div class="game-board-grid">
       @for (square of squares; track $index){
