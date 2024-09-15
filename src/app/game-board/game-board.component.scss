@@ -12,9 +12,10 @@
 
 .game-board-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  width: calc(100% + 2px);
-  height: calc(100% + 2px);
+  grid-template-columns: repeat(3, 166px);
+  grid-template-rows: repeat(3, 166px);
+  width: 100%;
+  height: 100%;
 }
 
 .game-board-square {
@@ -24,6 +25,7 @@
   justify-content: center;
   align-items: center;
   font-size: 100px;
+  box-sizing: border-box;
 }
 
 .game-board-square:nth-of-type(3n + 3) {

@@ -1,15 +1,19 @@
 <article class="game-board-container">
+  <header>
+    <button (click)="resetBoard()">Reset Board</button>
+    @if (isResult){
+    <div>{{ winningPlayer }} wins!</div>
+    } @if (isDraw){
+    <div>It's a draw!</div>
+    }
+  </header>
   <section class="game-board-content">
     <div class="game-board-grid">
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">O</div>
-      <div class="game-board-square">O</div>
-      <div class="game-board-square">O</div>
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">X</div>
-      <div class="game-board-square">X</div>
+      @for (square of squares; track $index){
+      <div class="game-board-square" (click)="makeMove($index)">
+        {{ square }}
+      </div>
+      }
     </div>
   </section>
 </article>
