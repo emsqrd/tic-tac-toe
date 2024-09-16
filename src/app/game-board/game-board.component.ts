@@ -36,6 +36,8 @@ export class GameBoardComponent {
       this.isDraw = true;
     }
 
+    console.log('hi');
+
     this.currentMove++;
   }
 
