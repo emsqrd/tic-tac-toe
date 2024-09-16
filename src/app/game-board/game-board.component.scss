@@ -1,19 +1,32 @@
 .game-board-container {
-  display: flex;
+  --viewport-padding: 32px;
+  display: grid;
   justify-content: center;
-  padding: 32px;
+  grid-template-columns:
+    1fr min(44rem, calc(100% - var(--viewport-padding) * 2))
+    1fr;
+  grid-template-areas:
+    ". header ."
+    ". content .";
+  padding: var(--viewport-padding);
+}
+
+.game-board-container > header {
+  grid-area: header;
+  padding-bottom: 2rem;
 }
 
 .game-board-content {
   width: 500px;
   aspect-ratio: 1 / 1;
   position: relative;
+  grid-area: content;
 }
 
 .game-board-grid {
   display: grid;
-  grid-template-columns: repeat(3, 166px);
-  grid-template-rows: repeat(3, 166px);
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
   width: 100%;
   height: 100%;
 }
