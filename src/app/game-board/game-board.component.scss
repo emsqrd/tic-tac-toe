@@ -11,9 +11,11 @@
   padding: var(--viewport-padding);
 }
 
-.game-board-container > header {
+.game-board-header {
   grid-area: header;
   padding-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
 }
 
 .game-board-content {
@@ -38,7 +40,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 3rem;
+  font-size: 6rem;
   box-sizing: border-box;
 }
 
@@ -48,6 +50,12 @@
 
 .game-board-square:nth-of-type(n + 7) {
   border-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .game-board-square {
+    font-size: 4rem;
+  }
 }
 
 @media (max-width: 750px) {
