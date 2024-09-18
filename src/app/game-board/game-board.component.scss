@@ -3,16 +3,16 @@
   display: grid;
   justify-content: center;
   grid-template-columns:
-    1fr min(44rem, calc(100% - var(--viewport-padding) * 2))
+    1fr min(32rem, calc(100% - var(--viewport-padding) * 2))
     1fr;
   grid-template-areas:
-    ". header ."
-    ". content .";
+    "winner content ."
+    ". player-info .";
   padding: var(--viewport-padding);
 }
 
-.game-board-header {
-  grid-area: header;
+.game-board-winner {
+  grid-area: winner;
   padding-bottom: 2rem;
   display: flex;
   justify-content: space-between;
@@ -20,7 +20,7 @@
 
 .game-board-content {
   justify-self: center;
-  width: 500px;
+  width: 100%;
   aspect-ratio: 1 / 1;
   position: relative;
   grid-area: content;
@@ -62,4 +62,10 @@
     width: 100%;
     max-width: 400px;
   }
+}
+
+.player-info {
+  grid-area: player-info;
+  display: flex;
+  justify-content: space-between;
 }

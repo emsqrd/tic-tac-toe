@@ -1,11 +1,11 @@
 <article class="game-board-container">
-  <header class="game-board-header">
+  <div class="game-board-winner">
     @if (isResult){
     <div>{{ winningPlayer }} wins!</div>
     } @if (isDraw){
     <div>It's a draw!</div>
     }
-  </header>
+  </div>
   <section class="game-board-content">
     <div class="game-board-grid">
       @for (square of squares; track $index){
@@ -15,4 +15,24 @@
       }
     </div>
   </section>
+  <div class="player-info">
+    <div>
+      <div>Player 1</div>
+      <span>
+        {{ player1Wins }}
+      </span>
+    </div>
+    <div>
+      <div>Draws</div>
+      <span>
+        {{ draws }}
+      </span>
+    </div>
+    <div>
+      <div>Player 2</div>
+      <span>
+        {{ player2Wins }}
+      </span>
+    </div>
+  </div>
 </article>

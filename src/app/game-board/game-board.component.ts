@@ -9,6 +9,12 @@ import { Component } from '@angular/core';
 })
 export class GameBoardComponent {
   squares = new Array(9);
+  player1 = new Array(9);
+  player2 = new Array(9);
+
+  player1Wins = 0;
+  player2Wins = 0;
+  draws = 0;
   currentMove = 1;
   isResult: boolean = false;
   isDraw: boolean = false;
@@ -44,8 +50,15 @@ export class GameBoardComponent {
     if (winner) {
       this.isResult = true;
       this.winningPlayer = this.squares[gridIndex];
+
+      if (this.winningPlayer === 'X') {
+        this.player1Wins++;
+      } else {
+        this.player2Wins++;
+      }
     } else if (this.currentMove === this.squares.length) {
       this.isDraw = true;
+      this.draws++;
     }
 
     this.currentMove++;
