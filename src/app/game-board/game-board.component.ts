@@ -14,6 +14,18 @@ export class GameBoardComponent {
   isDraw: boolean = false;
   winningPlayer: string | undefined;
 
+  public get gameOver() {
+    return this.isResult || this.isDraw;
+  }
+
+  squareClick(square: number) {
+    if (!this.gameOver) {
+      this.makeMove(square);
+    } else {
+      this.resetBoard();
+    }
+  }
+
   makeMove(gridIndex: number) {
     if (this.isResult || this.squares[gridIndex]) {
       return;
