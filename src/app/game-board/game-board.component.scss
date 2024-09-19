@@ -7,7 +7,7 @@
     1fr;
   grid-template-areas:
     "winner content ."
-    ". player-info .";
+    ". scoring .";
   padding: var(--viewport-padding);
 }
 
@@ -64,8 +64,26 @@
   }
 }
 
-.player-info {
-  grid-area: player-info;
+.scoring-container {
+  grid-area: scoring;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
+  margin-top: 2rem;
+}
+
+.scoring-label {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #676767;
+}
+
+.scoring-value {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 0.5rem;
+  font-size: 1.4375rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
