@@ -8,7 +8,7 @@
   </div>
   <section class="game-board-content">
     <div class="game-board-grid">
-      @for (square of squares; track $index){
+      @for (square of gameBoard; track $index){
       <div class="game-board-square" (click)="squareClick($index)">
         {{ square }}
       </div>
@@ -19,7 +19,7 @@
     <div class="scoring-player">
       <div class="scoring-label">Player 1 (X)</div>
       <span class="scoring-value">
-        {{ player1Wins }}
+        {{ player1.wins }}
       </span>
     </div>
     <div class="scoring-player">
@@ -31,7 +31,7 @@
     <div class="scoring-player">
       <div class="scoring-label">Player 2 (O)</div>
       <span class="scoring-value">
-        {{ player2Wins }}
+        {{ player2.wins }}
       </span>
     </div>
   </div>
