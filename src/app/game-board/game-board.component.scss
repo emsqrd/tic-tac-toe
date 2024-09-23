@@ -11,13 +11,6 @@
   padding: var(--viewport-padding);
 }
 
-.game-board-winner {
-  grid-area: winner;
-  padding-bottom: 2rem;
-  display: flex;
-  justify-content: space-between;
-}
-
 .game-board-content {
   justify-self: center;
   width: 100%;
