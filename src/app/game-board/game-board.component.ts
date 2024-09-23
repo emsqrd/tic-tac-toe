@@ -9,25 +9,23 @@ import { Player } from '../models/player';
   styleUrl: './game-board.component.scss',
 })
 export class GameBoardComponent {
-  ///TODO: I think I'm on to something here, but need to work through the logic
-  /// The idea is that I have a currentPlayer object that I can do my manipulating with
-  /// but the individual player1 and player2 also get updated when needed
-
   gameBoard = new Array(9);
 
   player1: Player = {
     name: 'Player 1',
     piece: 'X',
     wins: 0,
-    isNext: true,
+    isCurrent: true,
   };
 
   player2: Player = {
     name: 'Player 2',
     piece: 'O',
     wins: 0,
-    isNext: false,
+    isCurrent: false,
   };
+
+  winningPlayer: Player | null = null;
 
   draws = 0;
 
@@ -35,14 +33,13 @@ export class GameBoardComponent {
 
   isResult: boolean = false;
   isDraw: boolean = false;
-  winningPlayer: Player | null = null;
 
   public get gameOver() {
     return this.isResult || this.isDraw;
   }
 
   get currentPlayer(): Player {
-    if (this.player1.isNext) {
+    if (this.player1.isCurrent) {
       return this.player1;
     } else {
       return this.player2;
@@ -62,14 +59,6 @@ export class GameBoardComponent {
       return;
     }
 
-    // let isNext = this.currentMove % 2 === 0;
-
-    // if (isNext) {
-    //   this.squares[square] = 'O';
-    // } else {
-    //   this.squares[square] = 'X';
-    // }
-
     this.gameBoard[square] = this.currentPlayer.piece;
 
     let winner = this.calculateWinner(this.gameBoard);
@@ -78,20 +67,20 @@ export class GameBoardComponent {
       this.isResult = true;
 
       this.setWinner(this.currentPlayer);
-
-      // this.winningPlayer = this.gameBoard[square];
-
-      // if (this.winningPlayer === 'X') {
-      //   this.player1Wins++;
-      // } else {
-      //   this.player2Wins++;
-      // }
     } else if (this.currentMove === this.gameBoard.length) {
       this.isDraw = true;
       this.draws++;
     }
 
-    this.currentPlayer.isNext = this.currentMove % 2 === 0;
+    if (this.player1.isCurrent) {
+      this.player2.isCurrent = true;
+      this.player1.isCurrent = false;
+    } else {
+      this.player1.isCurrent = true;
+      this.player2.isCurrent = false;
+    }
+
+    this.currentMove++;
   }
   setWinner(currentPlayer: Player) {
     if ((currentPlayer = this.player1)) {
@@ -103,7 +92,7 @@ export class GameBoardComponent {
 
   /// TODO: This breaks if we ever have more than two players
   setCurrentPlayer(): Player {
-    if (this.player1.isNext) {
+    if (this.player1.isCurrent) {
       return this.player1;
     } else {
       return this.player2;
