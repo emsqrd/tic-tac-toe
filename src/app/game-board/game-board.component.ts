@@ -29,6 +29,7 @@ export class GameBoardComponent {
 
   draws = 0;
 
+  // So far, this is only used in determining a draw. I'd like to have a better way of figuring that out.
   currentMove = 1;
 
   isResult: boolean = false;
@@ -67,6 +68,7 @@ export class GameBoardComponent {
       this.isResult = true;
       this.setWinner(this.currentPlayer);
     } else if (this.currentMove === this.gameBoard.length) {
+      // Is there a better way to determine a draw?
       this.isDraw = true;
       this.draws++;
     }
@@ -89,7 +91,6 @@ export class GameBoardComponent {
     }
   }
 
-  /// TODO: This breaks if we ever have more than two players
   setCurrentPlayer(): Player {
     if (this.player1.isCurrent) {
       return this.player1;
