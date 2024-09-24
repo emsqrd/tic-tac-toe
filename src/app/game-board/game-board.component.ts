@@ -1,15 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Player } from '../models/player';
+import { Square } from '../models/square';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-game-board',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './game-board.component.html',
   styleUrl: './game-board.component.scss',
 })
-export class GameBoardComponent {
-  gameBoard = new Array(9);
+export class GameBoardComponent implements OnInit {
+  gameBoard: Square[] = [];
 
   player1: Player = {
     name: 'Player 1',
@@ -25,8 +27,6 @@ export class GameBoardComponent {
     isCurrent: false,
   };
 
-  winningPlayer: Player | null = null;
-
   draws = 0;
 
   // So far, this is only used in determining a draw. I'd like to have a better way of figuring that out.
@@ -34,6 +34,23 @@ export class GameBoardComponent {
 
   isResult: boolean = false;
   isDraw: boolean = false;
+
+  ngOnInit(): void {
+    this.buildGameBoard();
+  }
+
+  private buildGameBoard() {
+    this.gameBoard = [];
+
+    for (let i = 0; i < 9; i++) {
+      let square: Square = {
+        gamePiece: '',
+        isWinner: false,
+      };
+
+      this.gameBoard.push(square);
+    }
+  }
 
   public get gameOver() {
     return this.isResult || this.isDraw;
@@ -56,11 +73,10 @@ export class GameBoardComponent {
   }
 
   makeMove(square: number) {
-    if (this.isResult || this.gameBoard[square]) {
+    if (this.isResult || this.gameBoard[square].gamePiece) {
       return;
     }
-
-    this.gameBoard[square] = this.currentPlayer.piece;
+    this.gameBoard[square].gamePiece = this.currentPlayer.piece;
 
     let winner = this.calculateWinner(this.gameBoard);
 
@@ -100,13 +116,13 @@ export class GameBoardComponent {
   }
 
   resetBoard() {
-    this.gameBoard = new Array(9);
+    this.buildGameBoard();
     this.currentMove = 1;
     this.isResult = false;
     this.isDraw = false;
   }
 
-  calculateWinner(gameBoard: string[]) {
+  calculateWinner(gameBoard: Square[]) {
     const winConditions = [
       [0, 1, 2],
       [3, 4, 5],
@@ -121,11 +137,14 @@ export class GameBoardComponent {
     for (let i = 0; i < winConditions.length; i++) {
       const [a, b, c] = winConditions[i];
       if (
-        gameBoard[a] &&
-        gameBoard[a] === gameBoard[b] &&
-        gameBoard[a] === gameBoard[c]
+        gameBoard[a].gamePiece &&
+        gameBoard[a].gamePiece === gameBoard[b].gamePiece &&
+        gameBoard[a].gamePiece === gameBoard[c].gamePiece
       ) {
-        return gameBoard[a];
+        gameBoard[a].isWinner = true;
+        gameBoard[b].isWinner = true;
+        gameBoard[c].isWinner = true;
+        return gameBoard[a].gamePiece;
       }
     }
     return null;
