@@ -34,6 +34,7 @@ export class GameBoardComponent implements OnInit {
 
   isResult: boolean = false;
   isDraw: boolean = false;
+  isGameOver: boolean = false;
 
   ngOnInit(): void {
     this.buildGameBoard();
@@ -78,16 +79,7 @@ export class GameBoardComponent implements OnInit {
     }
     this.gameBoard[square].gamePiece = this.currentPlayer.piece;
 
-    let winner = this.calculateWinner(this.gameBoard);
-
-    if (winner) {
-      this.isResult = true;
-      this.setWinner(this.currentPlayer);
-    } else if (this.currentMove === this.gameBoard.length) {
-      // Is there a better way to determine a draw?
-      this.isDraw = true;
-      this.draws++;
-    }
+    this.determineResult();
 
     if (this.player1.isCurrent) {
       this.player2.isCurrent = true;
@@ -99,6 +91,20 @@ export class GameBoardComponent implements OnInit {
 
     this.currentMove++;
   }
+  
+  private determineResult() {
+    let winner = this.calculateWinner(this.gameBoard);
+
+    if (winner) {
+      this.isResult = true;
+      this.setWinner(this.currentPlayer);
+    } else if (this.currentMove === this.gameBoard.length) {
+      // Is there a better way to determine a draw?
+      this.isDraw = true;
+      this.draws++;
+    }
+  }
+
   setWinner(currentPlayer: Player) {
     if (currentPlayer === this.player1) {
       this.player1.wins++;
