@@ -1,9 +1,13 @@
 <article class="game-board-container">
-  <section class="game-board-content">
+  <section class="game-board-content" [ngClass]="isDraw ? 'draw' : ''">
     <div class="game-board-grid">
       @for (square of gameBoard; track $index){
-      <div class="game-board-square" (click)="squareClick($index)">
-        {{ square }}
+      <div
+        class="game-board-square"
+        [ngClass]="square.isWinner ? 'win' : ''"
+        (click)="squareClick($index)"
+      >
+        <div>{{ square.gamePiece }}</div>
       </div>
       }
     </div>

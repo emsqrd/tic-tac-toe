@@ -34,6 +34,8 @@
   justify-content: center;
   align-items: center;
   font-size: 6rem;
+  transition: background-color 0.1s;
+  cursor: pointer;
 }
 
 .game-board-square:nth-of-type(3n + 3) {
@@ -79,4 +81,18 @@
   font-size: 1.4375rem;
   font-weight: 700;
   line-height: 1.25;
+}
+
+@keyframes blink {
+  50% {
+    visibility: hidden;
+  }
+}
+
+.win > div {
+  animation: blink 0.3s steps(1) 3;
+}
+
+.draw > div {
+  animation: blink 0.3s steps(1) 3;
 }
