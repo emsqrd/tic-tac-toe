@@ -83,6 +83,18 @@
   line-height: 1.25;
 }
 
+.scoring-player {
+  padding: calc(1rem + 3px);
+}
+
+.current-player {
+  // padding: 1rem;
+  // border-radius: 8px;
+  // border: 3px solid #676767;
+  font-weight: 700;
+  color: black;
+}
+
 @keyframes blink {
   50% {
     visibility: hidden;
