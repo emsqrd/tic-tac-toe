@@ -88,9 +88,11 @@
 }
 
 .current-player {
-  padding: 1rem;
-  border-radius: 8px;
-  border: 3px solid #676767;
+  // padding: 1rem;
+  // border-radius: 8px;
+  // border: 3px solid #676767;
+  font-weight: 700;
+  color: black;
 }
 
 @keyframes blink {

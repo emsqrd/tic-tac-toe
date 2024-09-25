@@ -13,26 +13,30 @@
     </div>
   </section>
   <div class="scoring-container">
-    <div
-      class="scoring-player"
-      [ngClass]="player1.isCurrent ? 'current-player' : ''"
-    >
-      <div class="scoring-label">Player 1 (X)</div>
+    <div class="scoring-player">
+      <div
+        class="scoring-label"
+        [ngClass]="player1.isCurrent ? 'current-player' : ''"
+      >
+        Player 1 (X)
+      </div>
       <span class="scoring-value">
         {{ player1.wins }}
       </span>
     </div>
     <div class="scoring-player">
-      <div class="scoring-label">Draws</div>
+      <div class="scoring-label">Draw</div>
       <span class="scoring-value">
         {{ draws }}
       </span>
     </div>
-    <div
-      class="scoring-player"
-      [ngClass]="player2.isCurrent ? 'current-player' : ''"
-    >
-      <div class="scoring-label">Player 2 (O)</div>
+    <div class="scoring-player">
+      <div
+        class="scoring-label"
+        [ngClass]="player2.isCurrent ? 'current-player' : ''"
+      >
+        Player 2 (O)
+      </div>
       <span class="scoring-value">
         {{ player2.wins }}
       </span>

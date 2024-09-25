@@ -53,10 +53,6 @@ export class GameBoardComponent implements OnInit {
     }
   }
 
-  public get gameOver() {
-    return this.isResult || this.isDraw;
-  }
-
   get currentPlayer(): Player {
     if (this.player1.isCurrent) {
       return this.player1;
@@ -66,7 +62,7 @@ export class GameBoardComponent implements OnInit {
   }
 
   squareClick(square: number) {
-    if (!this.gameOver) {
+    if (!this.isGameOver) {
       this.makeMove(square);
     } else {
       this.resetBoard();
@@ -77,10 +73,19 @@ export class GameBoardComponent implements OnInit {
     if (this.isResult || this.gameBoard[square].gamePiece) {
       return;
     }
+
     this.gameBoard[square].gamePiece = this.currentPlayer.piece;
 
     this.determineResult();
 
+    if (!this.isGameOver) {
+      this.setNextCurrentPlayer();
+
+      this.currentMove++;
+    }
+  }
+
+  private setNextCurrentPlayer() {
     if (this.player1.isCurrent) {
       this.player2.isCurrent = true;
       this.player1.isCurrent = false;
@@ -88,20 +93,20 @@ export class GameBoardComponent implements OnInit {
       this.player1.isCurrent = true;
       this.player2.isCurrent = false;
     }
-
-    this.currentMove++;
   }
-  
+
   private determineResult() {
     let winner = this.calculateWinner(this.gameBoard);
 
     if (winner) {
       this.isResult = true;
       this.setWinner(this.currentPlayer);
+      this.isGameOver = true;
     } else if (this.currentMove === this.gameBoard.length) {
       // Is there a better way to determine a draw?
       this.isDraw = true;
       this.draws++;
+      this.isGameOver = true;
     }
   }
 
@@ -113,19 +118,13 @@ export class GameBoardComponent implements OnInit {
     }
   }
 
-  setCurrentPlayer(): Player {
-    if (this.player1.isCurrent) {
-      return this.player1;
-    } else {
-      return this.player2;
-    }
-  }
-
   resetBoard() {
     this.buildGameBoard();
     this.currentMove = 1;
     this.isResult = false;
     this.isDraw = false;
+    this.isGameOver = false;
+    this.setNextCurrentPlayer();
   }
 
   calculateWinner(gameBoard: Square[]) {
