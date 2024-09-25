@@ -32,9 +32,8 @@ export class GameBoardComponent implements OnInit {
   // So far, this is only used in determining a draw. I'd like to have a better way of figuring that out.
   currentMove = 1;
 
-  isResult: boolean = false;
   isDraw: boolean = false;
-  isGameOver: boolean = false;
+  isWinner: boolean = false;
 
   ngOnInit(): void {
     this.buildGameBoard();
@@ -61,6 +60,10 @@ export class GameBoardComponent implements OnInit {
     }
   }
 
+  get isGameOver(): boolean {
+    return this.isDraw || this.isWinner;
+  }
+
   squareClick(square: number) {
     if (!this.isGameOver) {
       this.makeMove(square);
@@ -70,7 +73,7 @@ export class GameBoardComponent implements OnInit {
   }
 
   makeMove(square: number) {
-    if (this.isResult || this.gameBoard[square].gamePiece) {
+    if (this.gameBoard[square].gamePiece) {
       return;
     }
 
@@ -79,13 +82,13 @@ export class GameBoardComponent implements OnInit {
     this.determineResult();
 
     if (!this.isGameOver) {
-      this.setNextCurrentPlayer();
+      this.setCurrentPlayer();
 
       this.currentMove++;
     }
   }
 
-  private setNextCurrentPlayer() {
+  private setCurrentPlayer() {
     if (this.player1.isCurrent) {
       this.player2.isCurrent = true;
       this.player1.isCurrent = false;
@@ -97,16 +100,16 @@ export class GameBoardComponent implements OnInit {
 
   private determineResult() {
     let winner = this.calculateWinner(this.gameBoard);
+    // Is there a better way to determine a draw?
+    this.isDraw = this.currentMove === this.gameBoard.length;
 
     if (winner) {
-      this.isResult = true;
+      this.isWinner = true;
       this.setWinner(this.currentPlayer);
-      this.isGameOver = true;
-    } else if (this.currentMove === this.gameBoard.length) {
-      // Is there a better way to determine a draw?
-      this.isDraw = true;
+    }
+
+    if (this.isDraw) {
       this.draws++;
-      this.isGameOver = true;
     }
   }
 
@@ -121,10 +124,10 @@ export class GameBoardComponent implements OnInit {
   resetBoard() {
     this.buildGameBoard();
     this.currentMove = 1;
-    this.isResult = false;
     this.isDraw = false;
-    this.isGameOver = false;
-    this.setNextCurrentPlayer();
+    this.isWinner = false;
+    // this.isGameOver = false;
+    this.setCurrentPlayer();
   }
 
   calculateWinner(gameBoard: Square[]) {
