@@ -1,2 +1,2 @@
 [build]
-  command = "ng test --watch=false && ng build --prod"
+  command = "ng test --watch=false --browsers=ChromeHeadless && ng build --prod"
