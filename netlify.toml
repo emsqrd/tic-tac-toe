@@ -1,0 +1,7 @@
+[build]
+  command = "npm install && npm run test && npm run build"
+  publish = "dist/tic-tac-toe/browser"
+
+[build.environment]
+  CI = "true"
+
