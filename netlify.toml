@@ -1,0 +1,2 @@
+[build]
+  command = "ng test --watch=false && ng build --prod"
