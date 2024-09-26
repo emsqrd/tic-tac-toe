@@ -94,9 +94,7 @@ describe('GameBoardComponent', () => {
     expect(currentMove).toBe(GAME_BOARD_DRAW_MOCK.length);
   });
 
-  it('should result in x winning on last turn', () => {});
+  xit('should result in x winning on last turn', () => {});
 
-  xit('should animate the top row if x chooses the top row and wins', () => {
-    // let winner = component.calculateWinner(GAME_BOARD_MOCK);
-  });
+  xit('should animate the top row if x chooses the top row and wins', () => {});
 });
