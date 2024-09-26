@@ -50,7 +50,7 @@ describe('GameBoardComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [GameBoardComponent],
-      providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
+      // providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(GameBoardComponent);
@@ -63,9 +63,6 @@ describe('GameBoardComponent', () => {
   });
 
   it('should result in X winning', () => {
-    // let winner = component.calculateWinner(GAME_BOARD_X_WINS_MOCK);
-    // expect(winner).toBe('X');
-
     component.squareClick(0, 'X');
     component.squareClick(4, 'O');
     component.squareClick(1, 'X');
@@ -76,12 +73,7 @@ describe('GameBoardComponent', () => {
     expect(component.player2.isWinner).toBeFalse();
   });
 
-  fit('should result in O winning', () => {
-    // let winner = component.calculateWinner(GAME_BOARD_O_WINS_MOCK);
-    // expect(winner).toBe('O');
-    component.player1.isCurrent = false;
-    component.player2.isCurrent = true;
-
+  it('should result in O winning', () => {
     component.squareClick(0, 'O');
     component.squareClick(3, 'X');
     component.squareClick(1, 'O');
@@ -89,6 +81,7 @@ describe('GameBoardComponent', () => {
     component.squareClick(2, 'O');
 
     expect(component.player2.isWinner).toBeTrue();
+    expect(component.player1.isWinner).toBeFalse();
   });
 
   it('should result in a draw', () => {

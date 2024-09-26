@@ -35,7 +35,6 @@ export class GameBoardComponent implements OnInit {
   currentMove = 1;
 
   isDraw: boolean = false;
-  isWinner: boolean = false;
   winningPlayer: Player | undefined;
 
   ngOnInit(): void {
@@ -56,15 +55,15 @@ export class GameBoardComponent implements OnInit {
   }
 
   get currentPlayer(): Player {
-    if (this.player1.isCurrent) {
-      return this.player1;
-    } else {
-      return this.player2;
-    }
+    return this.player1.isCurrent ? this.player1 : this.player2;
+  }
+
+  get winningResult(): boolean {
+    return this.player1.isWinner || this.player2.isWinner;
   }
 
   get isGameOver(): boolean {
-    return this.isDraw || this.isWinner;
+    return this.isDraw || this.winningResult;
   }
 
   squareClick(square: number, playerPiece: string) {
@@ -98,24 +97,26 @@ export class GameBoardComponent implements OnInit {
 
   private determineResult() {
     let winner = this.calculateWinner(this.gameBoard);
-    // Is there a better way to determine a draw?
-    this.isDraw = this.currentMove === this.gameBoard.length;
 
     if (winner) {
-      this.isWinner = true;
-      this.setWinner(this.currentPlayer);
-    } else if (this.isDraw) {
+      this.setWinner(winner);
+    } else if (this.currentMove === this.gameBoard.length) {
+      // Is there a better way to determine a draw?
+      this.isDraw = true;
       this.draws++;
     }
   }
 
-  setWinner(currentPlayer: Player) {
-    if (currentPlayer === this.player1) {
-      this.player1.isWinner = true;
-      this.player1.wins++;
-    } else {
-      this.player2.isWinner = true;
-      this.player2.wins++;
+  setWinner(winner: string) {
+    switch (winner) {
+      case this.player1.piece:
+        this.player1.isWinner = true;
+        this.player1.wins++;
+        break;
+      case this.player2.piece:
+        this.player2.isWinner = true;
+        this.player2.wins++;
+        break;
     }
   }
 
@@ -123,7 +124,6 @@ export class GameBoardComponent implements OnInit {
     this.buildGameBoard();
     this.currentMove = 1;
     this.isDraw = false;
-    this.isWinner = false;
     this.player1.isWinner = false;
     this.player2.isWinner = false;
     this.setCurrentPlayer();
