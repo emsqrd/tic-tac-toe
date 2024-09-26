@@ -29,7 +29,12 @@ module.exports = function (config) {
       subdir: ".",
       reporters: [{ type: "html" }, { type: "text-summary" }],
     },
-    reporters: ["progress", "kjhtml"],
+    reporters: ["progress", "html"],
+    htmlReporter: {
+      outputFile: "tests/units.html",
+      pageTitle: "Test Reports",
+      subPageTitle: "Tic-Tac-Toe Results",
+    },
     browsers: ["ChromeHeadless"],
     restartOnFileChange: true,
   });
