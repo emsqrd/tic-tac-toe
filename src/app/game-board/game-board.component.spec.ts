@@ -1,4 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  ComponentFixtureAutoDetect,
+  TestBed,
+} from '@angular/core/testing';
 
 import { GameBoardComponent } from './game-board.component';
 import { Square } from '../models/square';
@@ -46,6 +50,7 @@ describe('GameBoardComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [GameBoardComponent],
+      providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(GameBoardComponent);
@@ -60,6 +65,7 @@ describe('GameBoardComponent', () => {
   it('should result in X winning', () => {
     // let winner = component.calculateWinner(GAME_BOARD_X_WINS_MOCK);
     // expect(winner).toBe('X');
+
     component.squareClick(0, 'X');
     component.squareClick(4, 'O');
     component.squareClick(1, 'X');
@@ -70,14 +76,16 @@ describe('GameBoardComponent', () => {
     expect(component.player2.isWinner).toBeFalse();
   });
 
-  it('should result in O winning', () => {
+  fit('should result in O winning', () => {
     // let winner = component.calculateWinner(GAME_BOARD_O_WINS_MOCK);
     // expect(winner).toBe('O');
+    component.player1.isCurrent = false;
+    component.player2.isCurrent = true;
 
     component.squareClick(0, 'O');
-    component.squareClick(4, 'X');
+    component.squareClick(3, 'X');
     component.squareClick(1, 'O');
-    component.squareClick(5, 'X');
+    component.squareClick(4, 'X');
     component.squareClick(2, 'O');
 
     expect(component.player2.isWinner).toBeTrue();

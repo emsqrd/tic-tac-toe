@@ -92,13 +92,8 @@ export class GameBoardComponent implements OnInit {
   }
 
   private setCurrentPlayer() {
-    if (this.player1.isCurrent) {
-      this.player2.isCurrent = true;
-      this.player1.isCurrent = false;
-    } else {
-      this.player1.isCurrent = true;
-      this.player2.isCurrent = false;
-    }
+    this.player1.isCurrent = !this.player1.isCurrent;
+    this.player2.isCurrent = !this.player2.isCurrent;
   }
 
   private determineResult() {
