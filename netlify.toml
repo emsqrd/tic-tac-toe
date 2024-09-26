@@ -4,3 +4,10 @@
 
 [build.environment]
   CI = "true"
+
+[[plugins]]
+  package = "@netlify/plugin-copy"
+
+[plugins.inputs]
+  from = "tests/units.html"
+  to = "dist/tic-tac-toe/tests/units.html"
