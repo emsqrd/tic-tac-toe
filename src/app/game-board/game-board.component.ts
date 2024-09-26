@@ -18,6 +18,7 @@ export class GameBoardComponent implements OnInit {
     piece: 'X',
     wins: 0,
     isCurrent: true,
+    isWinner: false,
   };
 
   player2: Player = {
@@ -25,6 +26,7 @@ export class GameBoardComponent implements OnInit {
     piece: 'O',
     wins: 0,
     isCurrent: false,
+    isWinner: false,
   };
 
   draws = 0;
@@ -34,6 +36,7 @@ export class GameBoardComponent implements OnInit {
 
   isDraw: boolean = false;
   isWinner: boolean = false;
+  winningPlayer: Player | undefined;
 
   ngOnInit(): void {
     this.buildGameBoard();
@@ -64,20 +67,20 @@ export class GameBoardComponent implements OnInit {
     return this.isDraw || this.isWinner;
   }
 
-  squareClick(square: number) {
+  squareClick(square: number, playerPiece: string) {
     if (!this.isGameOver) {
-      this.makeMove(square);
+      this.makeMove(square, playerPiece);
     } else {
       this.resetBoard();
     }
   }
 
-  makeMove(square: number) {
+  makeMove(square: number, playerPiece: string) {
     if (this.gameBoard[square].gamePiece) {
       return;
     }
 
-    this.gameBoard[square].gamePiece = this.currentPlayer.piece;
+    this.gameBoard[square].gamePiece = playerPiece;
 
     this.determineResult();
 
@@ -106,17 +109,17 @@ export class GameBoardComponent implements OnInit {
     if (winner) {
       this.isWinner = true;
       this.setWinner(this.currentPlayer);
-    }
-
-    if (this.isDraw) {
+    } else if (this.isDraw) {
       this.draws++;
     }
   }
 
   setWinner(currentPlayer: Player) {
     if (currentPlayer === this.player1) {
+      this.player1.isWinner = true;
       this.player1.wins++;
     } else {
+      this.player2.isWinner = true;
       this.player2.wins++;
     }
   }
@@ -126,7 +129,8 @@ export class GameBoardComponent implements OnInit {
     this.currentMove = 1;
     this.isDraw = false;
     this.isWinner = false;
-    // this.isGameOver = false;
+    this.player1.isWinner = false;
+    this.player2.isWinner = false;
     this.setCurrentPlayer();
   }
 

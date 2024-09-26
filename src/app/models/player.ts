@@ -3,4 +3,5 @@ export interface Player {
   piece: string;
   wins: number;
   isCurrent: boolean;
+  isWinner: boolean;
 }

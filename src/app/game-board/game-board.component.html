@@ -5,7 +5,7 @@
       <div
         class="game-board-square"
         [ngClass]="square.isWinner ? 'win' : ''"
-        (click)="squareClick($index)"
+        (click)="squareClick($index, currentPlayer.piece)"
       >
         <div>{{ square.gamePiece }}</div>
       </div>
@@ -20,13 +20,16 @@
       >
         Player 1 (X)
       </div>
-      <span class="scoring-value">
+      <span
+        class="scoring-value"
+        [ngClass]="player1.isWinner ? 'winning-player' : ''"
+      >
         {{ player1.wins }}
       </span>
     </div>
     <div class="scoring-player">
       <div class="scoring-label">Draw</div>
-      <span class="scoring-value">
+      <span class="scoring-value" [ngClass]="isDraw ? 'winning-player' : ''">
         {{ draws }}
       </span>
     </div>
@@ -37,7 +40,10 @@
       >
         Player 2 (O)
       </div>
-      <span class="scoring-value">
+      <span
+        class="scoring-value"
+        [ngClass]="player2.isWinner ? 'winning-player' : ''"
+      >
         {{ player2.wins }}
       </span>
     </div>
