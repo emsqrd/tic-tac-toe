@@ -9,9 +9,23 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "akamud.vscode-theme-onedark",
+        "angular.ng-template",
+        "bradlc.vscode-tailwindcss",
+        "csstools.postcss",
         "dbaeumer.vscode-eslint",
+        "dotjoshjohnson.xml",
+        "eamodio.gitlens",
         "esbenp.prettier-vscode",
-        "angular.ng-template"
+        "github.vscode-github-actions",
+        "johnpapa.angular-essentials",
+        "johnpapa.angular2",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-wsl",
+        "ms-vsliveshare.vsliveshare",
+        "pkief.material-icon-theme",
+        "redhat.vscode-xml",
+        "vunguyentuan.vscode-postcss"
       ]
     }
   }
