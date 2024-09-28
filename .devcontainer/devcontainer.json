@@ -4,6 +4,9 @@
     "dockerfile": "Dockerfile",
     "context": "."
   },
+  "runArgs": [
+    "--mount", "type=volume,source=puppeteer_cache,target=/workspace/node/.cache/puppeteer"
+  ],
   "forwardPorts": [4200],
   "postCreateCommand": "npm install",
   "customizations": {
@@ -26,6 +29,9 @@
         "pkief.material-icon-theme",
         "redhat.vscode-xml",
         "vunguyentuan.vscode-postcss"
+      ],
+      "settings": [
+        
       ]
     }
   }
