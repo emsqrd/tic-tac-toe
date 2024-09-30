@@ -1,50 +1,40 @@
 {
-  // For more information, visit: https://go.microsoft.com/fwlink/?LinkId=733558
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "serve",
-      "type": "shell",
-      "command": "ng serve -o",
-      "group": "build",
-      "presentation": {
-        "reveal": "always",
-        "panel": "dedicated",
-        "echo": false
+      "type": "npm",
+      "script": "start",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "(.*?)"
+          },
+          "endsPattern": {
+            "regexp": "bundle generation complete"
+          }
+        }
       }
     },
     {
-      "label": "test",
-      "type": "shell",
-      "command": "npm test",
-      "group": "build",
-      "presentation": {
-        "reveal": "always",
-        "panel": "new",
-        "echo": false,
-        "showReuseMessage": false,
-        "clear": false,
-        "focus": true
-      },
-      "isBackground": false
-    },
-    {
-      "label": "ng",
-      "type": "shell",
-      "command": "",
-      "group": "build",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared",
-        "echo": true
-      }
-    },
-    {
-      "label": "build all",
-      "dependsOn": ["serve", "test", "bash"],
-      "group": "build",
-      "runOptions": {
-        "runOn": "default"
+      "type": "npm",
+      "script": "test",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": "$tsc",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "(.*?)"
+          },
+          "endsPattern": {
+            "regexp": "bundle generation complete"
+          }
+        }
       }
     }
   ]
