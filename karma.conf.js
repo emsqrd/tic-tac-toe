@@ -30,12 +30,14 @@ module.exports = function (config) {
       reporters: [{ type: "html" }, { type: "text-summary" }],
     },
     reporters: ["progress", "kjhtml"],
-    browsers: ["ChromeHeadlessNoSandbox"],
+    browsers: ["ChromeHeadlessCustom"],
     customLaunchers: {
-      ChromeHeadlessNoSandbox: {
-        base: 'ChromeHeadless',
-        flags: ['--no-sandbox', '--disable-setuid-sandbox']
-      }
+      ChromeHeadlessCustom: {
+        base: "ChromeHeadless",
+        flags: ["--no-sandbox", "--disable-gpu"],
+        // Explicitly point to the system-installed Chromium binary
+        executablePath: process.env.CHROME_BIN || "/usr/bin/chromium",
+      },
     },
     restartOnFileChange: true,
   });

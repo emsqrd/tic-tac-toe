@@ -4,8 +4,10 @@
     "dockerfile": "Dockerfile",
     "context": "."
   },
+  // "image": "emsqrd/vsc-tic-tac-toe-42747a64f1a3c5afcc528e91d74c5b40f40a9b06d1673897c4c97b987937b157:latest",
   "runArgs": [
-    "--mount", "type=volume,source=puppeteer_cache,target=/workspace/node/.cache/puppeteer"
+    "--mount",
+    "type=volume,source=puppeteer_cache,target=/workspace/node/.cache/puppeteer"
   ],
   "forwardPorts": [4200],
   "postCreateCommand": "npm install",
@@ -30,9 +32,7 @@
         "redhat.vscode-xml",
         "vunguyentuan.vscode-postcss"
       ],
-      "settings": [
-        
-      ]
+      "settings": []
     }
   }
 }
