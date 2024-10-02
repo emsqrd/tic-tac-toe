@@ -1,11 +1,11 @@
 <article class="game-board-container">
-  <section class="game-board-content" [ngClass]="isDraw ? 'draw' : ''">
+  <section class="game-board-content" [ngClass]="{ draw: isDraw }">
     <div class="game-board-grid">
       @for (square of gameBoard; track $index){
       <div
         class="game-board-square"
-        [ngClass]="square.isWinner ? 'win' : ''"
-        (click)="squareClick($index, currentPlayer.piece)"
+        [ngClass]="{ win: square.isWinner }"
+        (click)="squareClick($index)"
       >
         <div>{{ square.gamePiece }}</div>
       </div>
@@ -16,33 +16,33 @@
     <div class="scoring-player">
       <div
         class="scoring-label"
-        [ngClass]="player1.isCurrent ? 'current-player' : ''"
+        [ngClass]="{ 'current-player': player1.isCurrent }"
       >
         Player 1 (X)
       </div>
       <span
         class="scoring-value"
-        [ngClass]="player1.isWinner ? 'winning-player' : ''"
+        [ngClass]="{ 'winning-player': player1.isWinner }"
       >
         {{ player1.wins }}
       </span>
     </div>
     <div class="scoring-player">
       <div class="scoring-label">Draw</div>
-      <span class="scoring-value" [ngClass]="isDraw ? 'winning-player' : ''">
+      <span class="scoring-value" [ngClass]="{ 'winning-player': isDraw }">
         {{ draws }}
       </span>
     </div>
     <div class="scoring-player">
       <div
         class="scoring-label"
-        [ngClass]="player2.isCurrent ? 'current-player' : ''"
+        [ngClass]="{ 'current-player': player2.isCurrent }"
       >
         Player 2 (O)
       </div>
       <span
         class="scoring-value"
-        [ngClass]="player2.isWinner ? 'winning-player' : ''"
+        [ngClass]="{ 'winning-player': player2.isWinner }"
       >
         {{ player2.wins }}
       </span>
