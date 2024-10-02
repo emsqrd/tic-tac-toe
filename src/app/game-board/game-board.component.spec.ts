@@ -1,47 +1,5 @@
-import {
-  ComponentFixture,
-  ComponentFixtureAutoDetect,
-  TestBed,
-} from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GameBoardComponent } from './game-board.component';
-import { Square } from '../models/square';
-
-const GAME_BOARD_X_WINS_MOCK: Square[] = [
-  { gamePiece: 'X', isWinner: true },
-  { gamePiece: 'X', isWinner: true },
-  { gamePiece: 'X', isWinner: true },
-  { gamePiece: 'O', isWinner: false },
-  { gamePiece: '', isWinner: false },
-  { gamePiece: 'O', isWinner: false },
-  { gamePiece: '', isWinner: false },
-  { gamePiece: '', isWinner: false },
-  { gamePiece: '', isWinner: false },
-];
-
-const GAME_BOARD_O_WINS_MOCK: Square[] = [
-  { gamePiece: 'X', isWinner: false },
-  { gamePiece: '', isWinner: false },
-  { gamePiece: 'X', isWinner: false },
-  { gamePiece: 'O', isWinner: true },
-  { gamePiece: 'O', isWinner: true },
-  { gamePiece: 'O', isWinner: true },
-  { gamePiece: '', isWinner: false },
-  { gamePiece: '', isWinner: false },
-  { gamePiece: '', isWinner: false },
-];
-
-const GAME_BOARD_DRAW_MOCK: Square[] = [
-  { gamePiece: 'X', isWinner: false },
-  { gamePiece: 'O', isWinner: false },
-  { gamePiece: 'X', isWinner: false },
-  { gamePiece: 'X', isWinner: false },
-  { gamePiece: 'O', isWinner: false },
-  { gamePiece: 'O', isWinner: false },
-  { gamePiece: 'O', isWinner: false },
-  { gamePiece: 'X', isWinner: false },
-  { gamePiece: 'O', isWinner: false },
-];
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -50,7 +8,6 @@ describe('GameBoardComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [GameBoardComponent],
-      // providers: [{ provide: ComponentFixtureAutoDetect, useValue: true }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(GameBoardComponent);
@@ -63,38 +20,123 @@ describe('GameBoardComponent', () => {
   });
 
   it('should result in X winning', () => {
-    component.squareClick(0, 'X');
-    component.squareClick(4, 'O');
-    component.squareClick(1, 'X');
-    component.squareClick(5, 'O');
-    component.squareClick(2, 'X');
+    component.makeMove(0, 'X');
+    component.makeMove(4, 'O');
+    component.makeMove(1, 'X');
+    component.makeMove(5, 'O');
+    component.makeMove(2, 'X');
+
+    expect(component.player1.isWinner).toBeTrue();
+    expect(component.player1.wins).toBe(1);
+    expect(component.gameBoard[0].isWinner).toBeTrue();
+    expect(component.gameBoard[1].isWinner).toBeTrue();
+    expect(component.gameBoard[2].isWinner).toBeTrue();
+
+    expect(component.player2.isWinner).toBeFalse();
+    expect(component.player2.wins).toBe(0);
+  });
+
+  it('should result in O winning', () => {
+    component.makeMove(0, 'O');
+    component.makeMove(3, 'X');
+    component.makeMove(1, 'O');
+    component.makeMove(4, 'X');
+    component.makeMove(2, 'O');
+
+    expect(component.player2.isWinner).toBeTrue();
+    expect(component.player2.wins).toBe(1);
+    expect(component.gameBoard[0].isWinner).toBeTrue();
+    expect(component.gameBoard[1].isWinner).toBeTrue();
+    expect(component.gameBoard[2].isWinner).toBeTrue();
+
+    expect(component.player1.isWinner).toBeFalse();
+    expect(component.player1.wins).toBe(0);
+  });
+
+  it('should result in a draw', () => {
+    component.makeMove(0, 'X');
+    component.makeMove(1, 'O');
+    component.makeMove(3, 'X');
+    component.makeMove(4, 'O');
+    component.makeMove(7, 'X');
+    component.makeMove(6, 'O');
+    component.makeMove(2, 'X');
+    component.makeMove(5, 'O');
+    component.makeMove(8, 'X');
+
+    expect(component.isDraw).toBeTrue();
+    expect(component.draws).toBe(1);
+    expect(component.player1.isWinner).toBeFalse();
+    expect(component.player2.isWinner).toBeFalse();
+  });
+
+  it('should result in x winning on last turn', () => {
+    component.makeMove(0, 'X');
+    component.makeMove(1, 'O');
+    component.makeMove(2, 'X');
+    component.makeMove(3, 'O');
+    component.makeMove(4, 'X');
+    component.makeMove(5, 'O');
+    component.makeMove(6, 'O');
+    component.makeMove(7, 'X');
+    component.makeMove(8, 'X');
 
     expect(component.player1.isWinner).toBeTrue();
     expect(component.player2.isWinner).toBeFalse();
   });
 
-  it('should result in O winning', () => {
-    component.squareClick(0, 'O');
-    component.squareClick(3, 'X');
-    component.squareClick(1, 'O');
-    component.squareClick(4, 'X');
-    component.squareClick(2, 'O');
+  it('should reset the board when clicking square and the game is over', () => {
+    spyOn(component, 'resetBoard');
 
-    expect(component.player2.isWinner).toBeTrue();
+    component.player1.isWinner = true;
+
+    component.squareClick(0);
+
+    expect(component.resetBoard).toHaveBeenCalled();
+  });
+
+  it('should not increment current move if clicked square is already taken', () => {
+    expect(component.currentMove).toBe(1);
+
+    component.makeMove(0, 'X');
+    expect(component.currentMove).toBe(2);
+
+    component.makeMove(0, 'O');
+    expect(component.currentMove).toBe(2);
+  });
+
+  it('should reset the board', () => {
+    component.player1.isCurrent = true;
+
+    component.resetBoard();
+
+    // check that all of the game pieces on the board are empty
+    let gameBoard = component.gameBoard;
+    let freshBoard = gameBoard.filter((x) => x.gamePiece === '');
+
+    expect(freshBoard.length).toBe(9);
+    expect(component.currentMove).toBe(1);
+    expect(component.isDraw).toBe(false);
     expect(component.player1.isWinner).toBeFalse();
+    expect(component.player2.isWinner).toBeFalse();
+    expect(component.player2.isCurrent).toBeTrue();
   });
 
-  it('should result in a draw', () => {
-    let winner = component.calculateWinner(GAME_BOARD_DRAW_MOCK);
-    let currentMove = GAME_BOARD_DRAW_MOCK.filter(
-      (x) => x.gamePiece?.includes('X') || x.gamePiece?.includes('O')
-    ).length;
+  it('should return the correct current player', () => {
+    component.player1.isCurrent = true;
+    component.player2.isCurrent = false;
 
-    expect(winner).toBeNull();
-    expect(currentMove).toBe(GAME_BOARD_DRAW_MOCK.length);
+    expect(component.currentPlayer).toBe(component.player1);
+
+    component.player2.isCurrent = true;
+    component.player1.isCurrent = false;
+
+    expect(component.currentPlayer).toBe(component.player2);
   });
 
-  xit('should result in x winning on last turn', () => {});
+  it('should make a move when clicking the square if the game is not over', () => {
+    component.squareClick(0);
 
-  xit('should animate the top row if x chooses the top row and wins', () => {});
+    expect(component.currentMove).toBe(2);
+  });
 });

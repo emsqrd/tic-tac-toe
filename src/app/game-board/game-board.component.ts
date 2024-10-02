@@ -66,9 +66,9 @@ export class GameBoardComponent implements OnInit {
     return this.isDraw || this.winningResult;
   }
 
-  squareClick(square: number, playerPiece: string) {
+  squareClick(square: number) {
     if (!this.isGameOver) {
-      this.makeMove(square, playerPiece);
+      this.makeMove(square, this.currentPlayer.piece);
     } else {
       this.resetBoard();
     }
@@ -148,12 +148,16 @@ export class GameBoardComponent implements OnInit {
         gameBoard[a].gamePiece === gameBoard[b].gamePiece &&
         gameBoard[a].gamePiece === gameBoard[c].gamePiece
       ) {
-        gameBoard[a].isWinner = true;
-        gameBoard[b].isWinner = true;
-        gameBoard[c].isWinner = true;
+        this.setWinningGamePieces([a, b, c]);
         return gameBoard[a].gamePiece;
       }
     }
     return null;
+  }
+
+  setWinningGamePieces([a, b, c]: [number, number, number]) {
+    [this.gameBoard[a], this.gameBoard[b], this.gameBoard[c]].forEach(
+      (x) => (x.isWinner = true)
+    );
   }
 }
