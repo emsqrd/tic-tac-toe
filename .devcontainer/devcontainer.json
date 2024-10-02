@@ -31,7 +31,14 @@
         "vunguyentuan.vscode-postcss"
       ],
       "settings": [
-        
+        {
+          "workbench.colorTheme": "Atom One Dark",
+          "editor.minimap.enabled": false,
+          "javascript.updateImportsOnFileMove.enabled": "always",
+          "git.postCommitCommand": "push",
+          "git.enableSmartCommit": true,
+          "git.autofetch": true
+        }
       ]
     }
   }
