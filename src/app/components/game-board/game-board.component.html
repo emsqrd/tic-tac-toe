@@ -2,13 +2,18 @@
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
     <div class="game-board-grid">
       @for (square of gameBoard; track $index){
-      <div
+      <t3-square
+        [isWinner]="square.isWinner"
+        [gamePiece]="square.gamePiece"
+        (squareClicked)="squareClick($index)"
+      ></t3-square>
+      <!-- <div
         class="game-board-square"
         [ngClass]="{ win: square.isWinner }"
         (click)="squareClick($index)"
       >
         <div>{{ square.gamePiece }}</div>
-      </div>
+      </div> -->
       }
     </div>
   </section>
