@@ -27,6 +27,31 @@
   height: 100%;
 }
 
+.game-board-square {
+  border-right: 4px solid black;
+  border-bottom: 4px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 6rem;
+  transition: background-color 0.1s;
+  cursor: pointer;
+}
+
+.game-board-square:nth-of-type(3n + 3) {
+  border-right: 0;
+}
+
+.game-board-square:nth-of-type(n + 7) {
+  border-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .game-board-square {
+    font-size: 4rem;
+  }
+}
+
 @media (max-width: 750px) {
   .game-board-content {
     width: 100%;
@@ -61,16 +86,6 @@
 .current-player {
   font-weight: 700;
   color: black;
-}
-
-@keyframes blink {
-  50% {
-    visibility: hidden;
-  }
-}
-
-.win > div {
-  animation: blink 0.3s steps(1) 3;
 }
 
 .draw > div {

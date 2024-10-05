@@ -1,7 +1,3 @@
-<div
-  class="game-board-square"
-  [ngClass]="{ win: isWinner }"
-  (click)="handleSquareClick()"
->
+<div [ngClass]="{ win: isWinner }">
   <div>{{ gamePiece }}</div>
 </div>

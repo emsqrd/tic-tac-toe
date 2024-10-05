@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Square } from '../../models/square';
 
 @Component({
   selector: 't3-square',
@@ -9,12 +10,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './square.component.scss',
 })
 export class SquareComponent {
-  @Input() isWinner: boolean = false;
-  @Input() gamePiece = '';
-
-  @Output() squareClicked = new EventEmitter<number>();
-
-  handleSquareClick() {
-    this.squareClicked.emit();
-  }
+  @Input() isWinner: boolean | undefined;
+  @Input() gamePiece: string | undefined;
+  @Input() square: Square = new Square();
 }
