@@ -12,5 +12,4 @@ import { Square } from '../../models/square';
 export class SquareComponent {
   @Input() isWinner: boolean | undefined;
   @Input() gamePiece: string | undefined;
-  @Input() square: Square = new Square();
 }

@@ -8,9 +8,8 @@ describe('SquareComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SquareComponent]
-    })
-    .compileComponents();
+      imports: [SquareComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(SquareComponent);
     component = fixture.componentInstance;
@@ -19,5 +18,27 @@ describe('SquareComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should display the game piece when a move is made', () => {
+    const gamePieceDiv =
+      fixture.debugElement.nativeElement.querySelector('#gamePiece');
+
+    component.gamePiece = 'X';
+
+    fixture.detectChanges();
+
+    expect(gamePieceDiv.innerHTML).toBe('X');
+  });
+
+  it('should apply the win css class when the square is a winning square', () => {
+    const squareContainerDiv =
+      fixture.debugElement.nativeElement.querySelector('#squareContainer');
+
+    component.isWinner = true;
+
+    fixture.detectChanges();
+
+    expect(squareContainerDiv).toHaveClass('win');
   });
 });
