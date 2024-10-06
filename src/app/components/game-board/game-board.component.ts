@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Player } from '../models/player';
-import { Square } from '../models/square';
+import { Player } from '../../models/player';
+import { Square } from '../../models/square';
 import { CommonModule } from '@angular/common';
+import { SquareComponent } from '../square/square.component';
 
 @Component({
-  selector: 'app-game-board',
+  selector: 't3-game-board',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SquareComponent],
   templateUrl: './game-board.component.html',
   styleUrl: './game-board.component.scss',
 })
