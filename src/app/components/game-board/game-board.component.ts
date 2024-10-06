@@ -3,11 +3,12 @@ import { Player } from '../../models/player';
 import { Square } from '../../models/square';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
+import { ScoringComponent } from '../scoring/scoring.component';
 
 @Component({
   selector: 't3-game-board',
   standalone: true,
-  imports: [CommonModule, SquareComponent],
+  imports: [CommonModule, SquareComponent, ScoringComponent],
   templateUrl: './game-board.component.html',
   styleUrl: './game-board.component.scss',
 })

@@ -11,40 +11,16 @@
       }
     </div>
   </section>
-  <div class="scoring-container">
-    <div class="scoring-player">
-      <div
-        class="scoring-label"
-        [ngClass]="{ 'current-player': player1.isCurrent }"
-      >
-        Player 1 (X)
-      </div>
-      <span
-        class="scoring-value"
-        [ngClass]="{ 'winning-player': player1.isWinner }"
-      >
-        {{ player1.wins }}
-      </span>
-    </div>
-    <div class="scoring-player">
-      <div class="scoring-label">Draw</div>
-      <span class="scoring-value" [ngClass]="{ 'winning-player': isDraw }">
-        {{ draws }}
-      </span>
-    </div>
-    <div class="scoring-player">
-      <div
-        class="scoring-label"
-        [ngClass]="{ 'current-player': player2.isCurrent }"
-      >
-        Player 2 (O)
-      </div>
-      <span
-        class="scoring-value"
-        [ngClass]="{ 'winning-player': player2.isWinner }"
-      >
-        {{ player2.wins }}
-      </span>
-    </div>
-  </div>
+  <section class="scoring-container">
+    <t3-scoring
+      [player1IsCurrent]="player1.isCurrent"
+      [player1IsWinner]="player1.isWinner"
+      [player1Wins]="player1.wins"
+      [player2IsCurrent]="player2.isCurrent"
+      [player2IsWinner]="player2.isWinner"
+      [player2Wins]="player2.wins"
+      [draws]="draws"
+      [isDraw]="isDraw"
+    ></t3-scoring>
+  </section>
 </article>

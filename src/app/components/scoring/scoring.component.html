@@ -1,0 +1,22 @@
+<div class="scoring-player">
+  <div class="scoring-label" [ngClass]="{ 'current-player': player1IsCurrent }">
+    Player 1 (X)
+  </div>
+  <span class="scoring-value" [ngClass]="{ 'winning-player': player1IsWinner }">
+    {{ player1Wins }}
+  </span>
+</div>
+<div class="scoring-player">
+  <div class="scoring-label">Draw</div>
+  <span class="scoring-value" [ngClass]="{ 'winning-player': isDraw }">
+    {{ draws }}
+  </span>
+</div>
+<div class="scoring-player">
+  <div class="scoring-label" [ngClass]="{ 'current-player': player2IsCurrent }">
+    Player 2 (O)
+  </div>
+  <span class="scoring-value" [ngClass]="{ 'winning-player': player2IsWinner }">
+    {{ player2Wins }}
+  </span>
+</div>
