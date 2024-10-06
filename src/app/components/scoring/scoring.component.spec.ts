@@ -8,9 +8,8 @@ describe('ScoringComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ScoringComponent]
-    })
-    .compileComponents();
+      imports: [ScoringComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ScoringComponent);
     component = fixture.componentInstance;
@@ -19,5 +18,11 @@ describe('ScoringComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should identify the current player', () => {
+    const currentPlayer = fixture.debugElement.nativeElement.querySelector();
+
+    component.player1IsCurrent = true;
   });
 });

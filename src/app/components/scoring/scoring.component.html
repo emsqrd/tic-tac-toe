@@ -1,8 +1,20 @@
 <div class="scoring-player">
-  <div class="scoring-label" [ngClass]="{ 'current-player': player1IsCurrent }">
+  <div
+    class="scoring-label"
+    [ngClass]="{
+      'current-player': player1IsCurrent,
+      'winning-player': player1IsWinner
+    }"
+  >
     Player 1 (X)
   </div>
-  <span class="scoring-value" [ngClass]="{ 'winning-player': player1IsWinner }">
+  <span
+    class="scoring-value"
+    [ngClass]="{
+      'current-player': player1IsCurrent,
+      'winning-player': player1IsWinner
+    }"
+  >
     {{ player1Wins }}
   </span>
 </div>
@@ -13,10 +25,22 @@
   </span>
 </div>
 <div class="scoring-player">
-  <div class="scoring-label" [ngClass]="{ 'current-player': player2IsCurrent }">
+  <div
+    class="scoring-label"
+    [ngClass]="{
+      'current-player': player2IsCurrent,
+      'winning-player': player2IsWinner
+    }"
+  >
     Player 2 (O)
   </div>
-  <span class="scoring-value" [ngClass]="{ 'winning-player': player2IsWinner }">
+  <span
+    class="scoring-value"
+    [ngClass]="{
+      'current-player': player2IsCurrent,
+      'winning-player': player2IsWinner
+    }"
+  >
     {{ player2Wins }}
   </span>
 </div>
