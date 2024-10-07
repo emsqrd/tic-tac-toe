@@ -29,8 +29,8 @@ describe('ScoringComponent', () => {
     component.player1IsCurrent = true;
     fixture.detectChanges();
 
-    expect(currentPlayer).toHaveClass('current-player');
-    expect(currentPlayerScore).toHaveClass('current-player');
+    expect(currentPlayer).toHaveClass('select-result');
+    expect(currentPlayerScore).toHaveClass('select-result');
   });
 
   it('should identify a draw and the number of draws', () => {
