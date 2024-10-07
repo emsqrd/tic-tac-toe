@@ -13,17 +13,16 @@ $font-size: 1rem;
   flex-direction: column;
   padding-top: 0.5rem;
   font-size: $font-size;
-  // font-weight: 700;
+  font-weight: 700;
   line-height: 1.5;
   color: #676767;
 }
 
-.current-player {
+.select-result {
   font-weight: 700;
   color: black;
 }
 
-.winning-player,
-.draw {
+.scoring-result {
   animation: blink 0.3s steps(1) 3;
 }
