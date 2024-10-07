@@ -2,7 +2,7 @@ $font-size: 1rem;
 
 .scoring-label {
   font-size: $font-size;
-  // font-weight: 400;
+  font-weight: 400;
   line-height: 1.5;
   color: #676767;
 }
@@ -19,14 +19,11 @@ $font-size: 1rem;
 }
 
 .current-player {
-  // font-weight: 700;
+  font-weight: 700;
   color: black;
 }
 
-.draw > div {
-  animation: blink 0.3s steps(1) 3;
-}
-
-.winning-player {
+.winning-player,
+.draw {
   animation: blink 0.3s steps(1) 3;
 }

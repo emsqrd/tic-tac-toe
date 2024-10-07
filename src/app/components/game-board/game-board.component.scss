@@ -68,3 +68,7 @@
   justify-content: space-evenly;
   margin-top: 2rem;
 }
+
+.draw > div {
+  animation: blink 0.3s steps(1) 3;
+}
