@@ -1,15 +1,6 @@
 <article class="game-board-container">
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
-    <div class="game-board-grid">
-      @for (square of gameBoard; track $index){
-      <t3-square
-        class="game-board-square"
-        [gamePiece]="square.gamePiece"
-        [isWinner]="square.isWinner"
-        (click)="squareClick($index)"
-      ></t3-square>
-      }
-    </div>
+    <t3-board></t3-board>
   </section>
   <section class="scoring-container">
     <t3-scoring
