@@ -35,6 +35,7 @@ export class BoardComponent {
   }
 
   squareClick(square: number) {
+    this.takeTurn(square, 'X');
     // if (!this.isGameOver) {
     //   this.makeMove(square, this.currentPlayer.piece);
     // } else {
@@ -42,6 +43,9 @@ export class BoardComponent {
     // }
   }
 
+  takeTurn(square: number, gamePiece: string) {
+    this.gameBoard[square].gamePiece = gamePiece;
+  }
   // makeMove(square: number, playerPiece: string) {
   //   if (this.gameBoard[square].gamePiece) {
   //     return;
