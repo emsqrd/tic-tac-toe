@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Player } from '../../models/player';
-import { Square } from '../../models/square';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
@@ -13,7 +12,7 @@ import { BoardComponent } from '../board/board.component';
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
 })
-export class GameBoardComponent {
+export class GameComponent {
   player1: Player = {
     name: 'Player 1',
     piece: 'X',
@@ -30,6 +29,10 @@ export class GameBoardComponent {
     isWinner: false,
   };
 
+  players: Player[] = [this.player1, this.player2];
+  currentPlayerIndex = 0;
+  currentPlayer: Player = this.players[0];
+
   draws = 0;
   outcome = '';
 
@@ -38,14 +41,19 @@ export class GameBoardComponent {
   // So far, this is only used in determining a draw. I'd like to have a better way of figuring that out.
   currentMove = 1;
 
-  winningPlayer: Player | undefined;
-
-  get currentPlayer(): Player {
-    return this.player1.isCurrent ? this.player1 : this.player2;
+  endTurn(player: Player) {
+    console.log(player);
+    this.switchPlayer();
   }
 
-  private setCurrentPlayer() {
-    this.player1.isCurrent = !this.player1.isCurrent;
-    this.player2.isCurrent = !this.player2.isCurrent;
+  tallyOutcome(player: Player) {
+    // if (player)
+  }
+
+  switchPlayer() {
+    this.currentPlayerIndex =
+      (this.currentPlayerIndex + 1) % this.players.length;
+
+    this.currentPlayer = this.players[this.currentPlayerIndex];
   }
 }
