@@ -14,10 +14,12 @@ export class BoardComponent {
   @Input() currentPlayer!: Player;
 
   @Output() endTurn: EventEmitter<any> = new EventEmitter();
+  @Output() endGame: EventEmitter<any> = new EventEmitter();
 
   gameBoard: Square[] = [];
 
   isDraw: boolean = false;
+  gameOver: boolean = false;
   // get winningResult(): boolean {
   //   return this.player1.isWinner || this.player2.isWinner;
   // }
@@ -39,22 +41,31 @@ export class BoardComponent {
     }
   }
 
-  squareClick(square: number) {
-    this.takeTurn(square, this.currentPlayer.piece);
-    // if (!this.isGameOver) {
-    //   this.makeMove(square, this.currentPlayer.piece);
-    // } else {
-    //   this.resetBoard();
-    // }
+  private resetBoard() {
+    this.buildGameBoard();
+    this.gameOver = false;
+    // this.isDraw = false;
   }
 
-  takeTurn(square: number, gamePiece: string) {
+  squareClick(square: number) {
+    if (!this.gameOver) {
+      this.takeTurn(square, this.currentPlayer.piece);
+    } else {
+      this.resetBoard();
+    }
+  }
+
+  private takeTurn(square: number, gamePiece: string) {
     this.processTurn(square, gamePiece);
 
-    this.endTurn.emit(this.currentPlayer);
+    if (this.gameOver) {
+      this.endGame.emit();
+    } else {
+      this.endTurn.emit();
+    }
   }
 
-  processTurn(square: number, gamePiece: string) {
+  private processTurn(square: number, gamePiece: string) {
     this.gameBoard[square].gamePiece = gamePiece;
 
     this.determineOutcome();
@@ -65,6 +76,7 @@ export class BoardComponent {
 
     if (winner) {
       this.setWinner(winner);
+      this.gameOver = true;
     }
     // else if (this.currentMove === this.gameBoard.length) {
     //   // Is there a better way to determine a draw?
@@ -73,11 +85,11 @@ export class BoardComponent {
     // }
   }
 
-  setWinner(winner: string) {
+  private setWinner(winner: string) {
     this.currentPlayer.isWinner = true;
   }
 
-  calculateWinner(gameBoard: Square[]) {
+  private calculateWinner(gameBoard: Square[]) {
     const winConditions = [
       [0, 1, 2],
       [3, 4, 5],
@@ -103,7 +115,7 @@ export class BoardComponent {
     return null;
   }
 
-  setWinningGamePieces([a, b, c]: [number, number, number]) {
+  private setWinningGamePieces([a, b, c]: [number, number, number]) {
     [this.gameBoard[a], this.gameBoard[b], this.gameBoard[c]].forEach(
       (x) => (x.isWinner = true)
     );
@@ -126,14 +138,5 @@ export class BoardComponent {
 
   //     this.currentMove++;
   //   }
-  // }
-
-  // resetBoard() {
-  //   this.buildGameBoard();
-  //   this.currentMove = 1;
-  //   this.isDraw = false;
-  //   this.player1.isWinner = false;
-  //   this.player2.isWinner = false;
-  //   this.setCurrentPlayer();
   // }
 }

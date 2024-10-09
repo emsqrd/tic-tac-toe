@@ -41,13 +41,18 @@ export class GameComponent {
   // So far, this is only used in determining a draw. I'd like to have a better way of figuring that out.
   currentMove = 1;
 
-  endTurn(player: Player) {
-    console.log(player);
+  endTurn() {
     this.switchPlayer();
   }
 
-  tallyOutcome(player: Player) {
-    // if (player)
+  // May want to refactor this a bit more after incorporating game state?
+  endGame() {
+    if (this.currentPlayer === this.player1) {
+      this.player1.wins++;
+    } else {
+      this.player2.wins++;
+    }
+    this.switchPlayer();
   }
 
   switchPlayer() {

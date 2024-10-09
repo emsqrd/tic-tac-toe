@@ -2,7 +2,8 @@
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
     <t3-board
       [currentPlayer]="currentPlayer"
-      (endTurn)="endTurn($event)"
+      (endTurn)="endTurn()"
+      (endGame)="endGame()"
     ></t3-board>
   </section>
   <section class="scoring-container">
