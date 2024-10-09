@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
 import { BoardComponent } from '../board/board.component';
+import { OutcomeEnum } from '../../models/outcome.enum';
 
 @Component({
   selector: 't3-game-board',
@@ -34,24 +35,23 @@ export class GameComponent {
   currentPlayer: Player = this.players[0];
 
   draws = 0;
-  outcome = '';
 
   isDraw = false;
-
-  // So far, this is only used in determining a draw. I'd like to have a better way of figuring that out.
-  currentMove = 1;
 
   endTurn() {
     this.switchPlayer();
   }
 
   // May want to refactor this a bit more after incorporating game state?
-  endGame() {
-    if (this.currentPlayer === this.player1) {
-      this.player1.wins++;
-    } else {
-      this.player2.wins++;
+  endGame(outcome: OutcomeEnum) {
+    if (outcome === OutcomeEnum.Win) {
+      this.currentPlayer === this.player1
+        ? this.player1.wins++
+        : this.player2.wins++;
+    } else if (outcome === OutcomeEnum.Draw) {
+      this.draws++;
     }
+
     this.switchPlayer();
   }
 

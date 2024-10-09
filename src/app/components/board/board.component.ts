@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Square } from '../../models/square';
 import { SquareComponent } from '../square/square.component';
 import { Player } from '../../models/player';
+import { OutcomeEnum } from '../../models/outcome.enum';
 
 @Component({
   selector: 't3-board',
@@ -18,8 +19,11 @@ export class BoardComponent {
 
   gameBoard: Square[] = [];
 
+  outcome: OutcomeEnum = OutcomeEnum.None;
+
   isDraw: boolean = false;
   gameOver: boolean = false;
+  currentMove = 1;
   // get winningResult(): boolean {
   //   return this.player1.isWinner || this.player2.isWinner;
   // }
@@ -43,12 +47,13 @@ export class BoardComponent {
 
   private resetBoard() {
     this.buildGameBoard();
-    this.gameOver = false;
+    this.outcome = OutcomeEnum.None;
+    // this.gameOver = false;
     // this.isDraw = false;
   }
 
   squareClick(square: number) {
-    if (!this.gameOver) {
+    if (this.outcome === OutcomeEnum.None) {
       this.takeTurn(square, this.currentPlayer.piece);
     } else {
       this.resetBoard();
@@ -57,12 +62,7 @@ export class BoardComponent {
 
   private takeTurn(square: number, gamePiece: string) {
     this.processTurn(square, gamePiece);
-
-    if (this.gameOver) {
-      this.endGame.emit();
-    } else {
-      this.endTurn.emit();
-    }
+    this.completeTurn();
   }
 
   private processTurn(square: number, gamePiece: string) {
@@ -71,23 +71,28 @@ export class BoardComponent {
     this.determineOutcome();
   }
 
+  private completeTurn() {
+    if (this.outcome === OutcomeEnum.None) {
+      this.endTurn.emit(this.outcome);
+    } else {
+      this.endGame.emit(this.outcome);
+    }
+  }
+
   private determineOutcome() {
     let winner = this.calculateWinner(this.gameBoard);
 
     if (winner) {
-      this.setWinner(winner);
-      this.gameOver = true;
+      this.outcome = OutcomeEnum.Win;
+    } else if (this.currentMove === this.gameBoard.length) {
+      this.outcome = OutcomeEnum.Draw;
     }
-    // else if (this.currentMove === this.gameBoard.length) {
-    //   // Is there a better way to determine a draw?
-    //   this.isDraw = true;
-    //   this.draws++;
-    // }
   }
 
-  private setWinner(winner: string) {
-    this.currentPlayer.isWinner = true;
-  }
+  // private setWinner() {
+  //   this.currentPlayer.isWinner = true;
+  //   this.outcome = OutcomeEnum.Win;
+  // }
 
   private calculateWinner(gameBoard: Square[]) {
     const winConditions = [

@@ -3,7 +3,7 @@
     <t3-board
       [currentPlayer]="currentPlayer"
       (endTurn)="endTurn()"
-      (endGame)="endGame()"
+      (endGame)="endGame($event)"
     ></t3-board>
   </section>
   <section class="scoring-container">
