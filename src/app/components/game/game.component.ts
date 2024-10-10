@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Player } from '../../models/player';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
@@ -14,6 +14,8 @@ import { OutcomeEnum } from '../../models/outcome.enum';
   styleUrl: './game.component.scss',
 })
 export class GameComponent {
+  @ViewChild(BoardComponent) boardComponent!: BoardComponent;
+
   player1: Player = {
     name: 'Player 1',
     piece: 'X',
@@ -33,7 +35,9 @@ export class GameComponent {
   players: Player[] = [this.player1, this.player2];
   currentPlayerIndex = 0;
   currentPlayer: Player = this.players[0];
+  outcome: OutcomeEnum = OutcomeEnum.None;
 
+  currentMove: number = 1;
   draws = 0;
 
   isDraw = false;
@@ -42,13 +46,26 @@ export class GameComponent {
     this.switchPlayer();
   }
 
+  startGame() {
+    console.log('start game...');
+    this.isDraw = false;
+    // this.currentMove = 1;
+    // this.outcome = OutcomeEnum.None;
+    this.boardComponent.resetBoard();
+    this.boardComponent.buildGameBoard();
+  }
+
   // May want to refactor this a bit more after incorporating game state?
   endGame(outcome: OutcomeEnum) {
+    // Move this to the scoring component
+    console.log('end game...');
+    console.log('outcome', OutcomeEnum[outcome]);
     if (outcome === OutcomeEnum.Win) {
       this.currentPlayer === this.player1
         ? this.player1.wins++
         : this.player2.wins++;
     } else if (outcome === OutcomeEnum.Draw) {
+      this.isDraw = true;
       this.draws++;
     }
 
@@ -60,5 +77,9 @@ export class GameComponent {
       (this.currentPlayerIndex + 1) % this.players.length;
 
     this.currentPlayer = this.players[this.currentPlayerIndex];
+  }
+
+  ngAfterViewInit() {
+    this.startGame();
   }
 }

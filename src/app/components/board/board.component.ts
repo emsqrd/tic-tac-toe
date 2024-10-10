@@ -13,26 +13,18 @@ import { OutcomeEnum } from '../../models/outcome.enum';
 })
 export class BoardComponent {
   @Input() currentPlayer!: Player;
+  @Input() currentMove!: number;
+  @Input() outcome!: OutcomeEnum;
 
   @Output() endTurn: EventEmitter<any> = new EventEmitter();
+  @Output() startGame: EventEmitter<any> = new EventEmitter();
   @Output() endGame: EventEmitter<any> = new EventEmitter();
 
   gameBoard: Square[] = [];
 
-  outcome: OutcomeEnum = OutcomeEnum.None;
+  // outcome: OutcomeEnum = OutcomeEnum.None;
 
-  isDraw: boolean = false;
-  gameOver: boolean = false;
-  currentMove = 1;
-  // get winningResult(): boolean {
-  //   return this.player1.isWinner || this.player2.isWinner;
-  // }
-
-  // get isGameOver(): boolean {
-  //   return this.isDraw || this.winningResult;
-  // }
-
-  private buildGameBoard() {
+  public buildGameBoard() {
     this.gameBoard = [];
 
     for (let i = 0; i < 9; i++) {
@@ -45,18 +37,21 @@ export class BoardComponent {
     }
   }
 
-  private resetBoard() {
-    this.buildGameBoard();
+  public resetBoard() {
     this.outcome = OutcomeEnum.None;
-    // this.gameOver = false;
-    // this.isDraw = false;
+    this.currentMove = 1;
   }
 
   squareClick(square: number) {
+    console.log('square click');
+    // console.log(`currentMove: ${this.currentMove}`);
+    // console.log('outcome', OutcomeEnum[this.outcome]);
+    // console.log('currentplayer', this.currentPlayer);
     if (this.outcome === OutcomeEnum.None) {
       this.takeTurn(square, this.currentPlayer.piece);
     } else {
-      this.resetBoard();
+      // this.resetBoard();
+      this.startGame.emit();
     }
   }
 
@@ -73,6 +68,7 @@ export class BoardComponent {
 
   private completeTurn() {
     if (this.outcome === OutcomeEnum.None) {
+      this.currentMove++;
       this.endTurn.emit(this.outcome);
     } else {
       this.endGame.emit(this.outcome);
