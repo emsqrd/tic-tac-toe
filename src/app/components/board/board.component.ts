@@ -59,7 +59,6 @@ export class BoardComponent {
   public determineOutcome() {
     let winCondition = this.determineWinCondition(this.gameBoard);
     let outcome: OutcomeEnum = OutcomeEnum.None;
-    console.log(`current move: ${this.currentMove}`);
     if (winCondition === OutcomeEnum.Win) {
       outcome = winCondition;
       this.endGame.emit(outcome);

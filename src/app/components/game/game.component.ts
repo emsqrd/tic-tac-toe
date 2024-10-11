@@ -51,7 +51,6 @@ export class GameComponent {
   }
 
   startGame() {
-    console.log('start game...');
     this.isDraw = false;
     this.currentMove = 1;
     this.outcome = OutcomeEnum.None;
