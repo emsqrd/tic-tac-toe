@@ -1,9 +1,9 @@
 <article class="game-board-container" [ngClass]="{ draw: isDraw }">
   <section class="game-board-content">
     <t3-board
-      [currentPlayer]="currentPlayer"
       [currentMove]="currentMove"
-      [outcome]="outcome"
+      (handleBoardClick)="handleBoardClick($event)"
+      (startTurn)="startTurn($event)"
       (endTurn)="endTurn()"
       (startGame)="startGame()"
       (endGame)="endGame($event)"

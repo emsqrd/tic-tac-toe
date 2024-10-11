@@ -12,17 +12,17 @@ import { OutcomeEnum } from '../../models/outcome.enum';
   styleUrl: './board.component.scss',
 })
 export class BoardComponent {
-  @Input() currentPlayer!: Player;
+  // @Input() currentPlayer!: Player;
   @Input() currentMove!: number;
-  @Input() outcome!: OutcomeEnum;
+  // @Input() outcome!: OutcomeEnum;
 
+  @Output() handleBoardClick: EventEmitter<any> = new EventEmitter();
+  @Output() startTurn: EventEmitter<any> = new EventEmitter();
   @Output() endTurn: EventEmitter<any> = new EventEmitter();
   @Output() startGame: EventEmitter<any> = new EventEmitter();
   @Output() endGame: EventEmitter<any> = new EventEmitter();
 
   gameBoard: Square[] = [];
-
-  // outcome: OutcomeEnum = OutcomeEnum.None;
 
   public buildGameBoard() {
     this.gameBoard = [];
@@ -37,60 +37,41 @@ export class BoardComponent {
     }
   }
 
-  public resetBoard() {
-    this.outcome = OutcomeEnum.None;
-    this.currentMove = 1;
+  squareClick(squareIndex: number) {
+    this.handleBoardClick.emit(squareIndex);
+    // this.startTurn.emit(squareIndex);
+    // if (this.outcome === OutcomeEnum.None) {
+    //   this.processTurn(square, this.currentPlayer.piece);
+    // } else {
+    //   this.startGame.emit();
+    // }
   }
 
-  squareClick(square: number) {
-    console.log('square click');
-    // console.log(`currentMove: ${this.currentMove}`);
-    // console.log('outcome', OutcomeEnum[this.outcome]);
-    // console.log('currentplayer', this.currentPlayer);
-    if (this.outcome === OutcomeEnum.None) {
-      this.takeTurn(square, this.currentPlayer.piece);
-    } else {
-      // this.resetBoard();
-      this.startGame.emit();
-    }
-  }
-
-  private takeTurn(square: number, gamePiece: string) {
-    this.processTurn(square, gamePiece);
-    this.completeTurn();
-  }
-
-  private processTurn(square: number, gamePiece: string) {
-    this.gameBoard[square].gamePiece = gamePiece;
-
+  public processTurn(square: number, gamePiece: string) {
+    this.addPieceToBoard(square, gamePiece);
     this.determineOutcome();
   }
 
-  private completeTurn() {
-    if (this.outcome === OutcomeEnum.None) {
-      this.currentMove++;
-      this.endTurn.emit(this.outcome);
-    } else {
-      this.endGame.emit(this.outcome);
-    }
+  public addPieceToBoard(square: number, gamePiece: string) {
+    this.gameBoard[square].gamePiece = gamePiece;
   }
 
-  private determineOutcome() {
-    let winner = this.calculateWinner(this.gameBoard);
-
-    if (winner) {
-      this.outcome = OutcomeEnum.Win;
+  public determineOutcome() {
+    let winCondition = this.determineWinCondition(this.gameBoard);
+    let outcome: OutcomeEnum = OutcomeEnum.None;
+    console.log(`current move: ${this.currentMove}`);
+    if (winCondition === OutcomeEnum.Win) {
+      outcome = winCondition;
+      this.endGame.emit(outcome);
     } else if (this.currentMove === this.gameBoard.length) {
-      this.outcome = OutcomeEnum.Draw;
+      outcome = OutcomeEnum.Draw;
+      this.endGame.emit(outcome);
+    } else {
+      this.endTurn.emit();
     }
   }
 
-  // private setWinner() {
-  //   this.currentPlayer.isWinner = true;
-  //   this.outcome = OutcomeEnum.Win;
-  // }
-
-  private calculateWinner(gameBoard: Square[]) {
+  public determineWinCondition(gameBoard: Square[]): OutcomeEnum {
     const winConditions = [
       [0, 1, 2],
       [3, 4, 5],
@@ -110,10 +91,10 @@ export class BoardComponent {
         gameBoard[a].gamePiece === gameBoard[c].gamePiece
       ) {
         this.setWinningGamePieces([a, b, c]);
-        return gameBoard[a].gamePiece;
+        return OutcomeEnum.Win;
       }
     }
-    return null;
+    return OutcomeEnum.None;
   }
 
   private setWinningGamePieces([a, b, c]: [number, number, number]) {
@@ -125,19 +106,4 @@ export class BoardComponent {
   ngOnInit(): void {
     this.buildGameBoard();
   }
-  // makeMove(square: number, playerPiece: string) {
-  //   if (this.gameBoard[square].gamePiece) {
-  //     return;
-  //   }
-
-  //   this.gameBoard[square].gamePiece = playerPiece;
-
-  //   this.determineResult();
-
-  //   if (!this.isGameOver) {
-  //     this.setCurrentPlayer();
-
-  //     this.currentMove++;
-  //   }
-  // }
 }

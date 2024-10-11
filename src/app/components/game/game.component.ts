@@ -42,24 +42,38 @@ export class GameComponent {
 
   isDraw = false;
 
-  endTurn() {
-    this.switchPlayer();
+  handleBoardClick(squareIndex: number) {
+    if (this.outcome === OutcomeEnum.None) {
+      this.startTurn(squareIndex);
+    } else {
+      this.startGame();
+    }
   }
 
   startGame() {
     console.log('start game...');
     this.isDraw = false;
-    // this.currentMove = 1;
-    // this.outcome = OutcomeEnum.None;
-    this.boardComponent.resetBoard();
+    this.currentMove = 1;
+    this.outcome = OutcomeEnum.None;
     this.boardComponent.buildGameBoard();
+  }
+
+  startTurn(squareIndex: number) {
+    this.processTurn(squareIndex);
+  }
+
+  processTurn(gamePieceIndex: number) {
+    this.boardComponent.processTurn(gamePieceIndex, this.currentPlayer.piece);
+  }
+
+  endTurn() {
+    this.currentMove++;
+    this.switchPlayer();
   }
 
   // May want to refactor this a bit more after incorporating game state?
   endGame(outcome: OutcomeEnum) {
     // Move this to the scoring component
-    console.log('end game...');
-    console.log('outcome', OutcomeEnum[outcome]);
     if (outcome === OutcomeEnum.Win) {
       this.currentPlayer === this.player1
         ? this.player1.wins++
@@ -68,7 +82,7 @@ export class GameComponent {
       this.isDraw = true;
       this.draws++;
     }
-
+    this.outcome = outcome;
     this.switchPlayer();
   }
 
@@ -78,6 +92,31 @@ export class GameComponent {
 
     this.currentPlayer = this.players[this.currentPlayerIndex];
   }
+
+  // private takeTurn(square: number, gamePiece: string) {
+  //   this.completeTurn();
+  // }
+
+  // private completeTurn() {
+  //   if (this.outcome === OutcomeEnum.None) {
+  //     this.currentMove++;
+  //     this.endTurn.emit(this.outcome);
+  //   } else {
+  //     this.endGame.emit(this.outcome);
+  //   }
+  // }
+
+  // private determineOutcome() {
+  //   this.boardComponent.determineOutcome();
+
+  //   // let winner = this.calculateWinner(this.gameBoard);
+
+  //   // if (winner) {
+  //   //   this.outcome = OutcomeEnum.Win;
+  //   // } else if (this.currentMove === this.gameBoard.length) {
+  //   //   this.outcome = OutcomeEnum.Draw;
+  //   // }
+  // }
 
   ngAfterViewInit() {
     this.startGame();
