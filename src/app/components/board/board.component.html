@@ -1,5 +1,5 @@
 <div class="game-board-grid">
-  @for (square of gameBoard; track $index){
+  @for (square of board$ | async; track $index){
   <t3-square
     class="game-board-square"
     [gamePiece]="square.gamePiece"
