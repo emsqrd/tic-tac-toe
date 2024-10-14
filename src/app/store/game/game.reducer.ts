@@ -3,68 +3,41 @@ import { OutcomeEnum } from '../../models/outcome.enum';
 import { Player } from '../../models/player';
 import {
   endGame,
-  makeMove,
+  makeMove as switchPlayer,
   resetGame,
   startGame,
-} from '../actions/game.actions';
+} from './game.actions';
 import { Square } from '../../models/square';
 
 export interface GameState {
-  players: Player[];
   currentPlayerIndex: number;
-  board: Square[];
   outcome: OutcomeEnum;
-  currentMove: number;
-  draws: number;
 }
 
 export const initialState: GameState = {
-  players: [
-    { name: 'Player 1', piece: 'X', wins: 0, isCurrent: true, isWinner: false },
-    {
-      name: 'Player 2',
-      piece: 'O',
-      wins: 0,
-      isCurrent: false,
-      isWinner: false,
-    },
-  ],
   currentPlayerIndex: 0,
-  board: Array(9).fill(null),
   outcome: OutcomeEnum.None,
-  currentMove: 1,
-  draws: 0,
 };
 
 const _gameReducer = createReducer(
   initialState,
   on(startGame, (state) => ({
     ...state,
-    board: Array(9).fill({ gamePiece: '', isWinner: false }),
     outcome: OutcomeEnum.None,
-    currentMove: 1,
     currentPlayerIndex: 0,
   })),
-  on(makeMove, (state, { player, position }) => {
-    const newBoard = [...state.board];
-    const updatedPosition = {
-      ...newBoard[position],
-      gamePiece: player.piece,
-    };
-    newBoard[position] = updatedPosition;
+  on(switchPlayer, (state, { player, position }) => {
     const newCurrentPlayerIndex = (state.currentPlayerIndex + 1) % 2;
     return {
       ...state,
-      board: newBoard,
       currentPlayerIndex: newCurrentPlayerIndex,
-      currentMove: state.currentMove + 1,
     };
   }),
   on(endGame, (state, { outcome }) => ({
     ...state,
     outcome,
   })),
-  on(resetGame, (state) => initialState)
+  on(resetGame, () => initialState)
 );
 
 export function gameReducer(state: GameState | undefined, action: Action) {

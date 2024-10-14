@@ -7,14 +7,16 @@ import { BoardComponent } from '../board/board.component';
 import { OutcomeEnum } from '../../models/outcome.enum';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { GameState } from '../../store/reducers/game.reducer';
+import { GameState } from '../../store/game/game.reducer';
 import {
-  selectBoard,
-  selectCurrentPlayer,
+  // selectBoard,
+  // selectCurrentPlayer,
   selectOutcome,
-  selectPlayers,
-} from '../../store/selectors/game.selectors';
+  // selectPlayers,
+} from '../../store/game/game.selectors';
 import { Square } from '../../models/square';
+import { makeMove, resetGame, startGame } from '../../store/game/game.actions';
+import { updateBoard } from '../../store/board/board.actions';
 
 @Component({
   selector: 't3-game-board',
@@ -24,32 +26,27 @@ import { Square } from '../../models/square';
   styleUrl: './game.component.scss',
 })
 export class GameComponent {
-  // @ViewChild(BoardComponent) boardComponent!: BoardComponent;
+  @ViewChild(BoardComponent) boardComponent!: BoardComponent;
 
-  players$: Observable<Player[]> | undefined;
-  currentPlayer$: Observable<Player> | undefined;
-  outcome$: Observable<OutcomeEnum> | undefined;
+  // players$: Observable<Player[]>;
+  // currentPlayer$: Observable<Player>;
+  outcome$: Observable<OutcomeEnum>;
+  board$!: Observable<Square[]>;
 
   constructor(private store: Store<GameState>) {
-    this.players$ = this.store.select(selectPlayers);
-    this.currentPlayer$ = this.store.select(selectCurrentPlayer);
+    // this.players$ = this.store.select(selectPlayers);
+    // this.currentPlayer$ = this.store.select(selectCurrentPlayer);
     this.outcome$ = this.store.select(selectOutcome);
+    // this.board$ = this.store.select(selectBoard);
   }
 
   startGame() {
     console.log('Starting game');
-    this.store.dispatch({ type: '[Game] Start Game' });
+    this.store.dispatch(startGame());
   }
 
   makeMove(position: number) {
-    this.currentPlayer$?.subscribe((currentPlayer) => {
-      this.store.dispatch({
-        type: '[Game] Make Move',
-        player: currentPlayer,
-        position,
-      });
-    });
-    // this.store.dispatch({ type: '[Game] Make Move', position });
+    console.log('Making move');
   }
 
   endGame(outcome: OutcomeEnum) {
@@ -57,11 +54,21 @@ export class GameComponent {
   }
 
   resetGame() {
-    this.store.dispatch({ type: '[Game] Reset Game' });
+    console.log('Resetting game');
+    this.store.dispatch(resetGame());
+    // this.startGame();
   }
 
   handleBoardClick(squareIndex: number) {
-    this.makeMove(squareIndex);
+    // this.makeMove(squareIndex);
+    // this.store.select(selectOutcome).subscribe((outcome) => {
+    //   console.log('Outcome:', outcome);
+    //   if (outcome === OutcomeEnum.None) {
+    //     this.makeMove(squareIndex);
+    //   } else {
+    //     // this.resetGame();
+    //   }
+    // });
     // if (this.outcome === OutcomeEnum.None) {
     //   this.startTurn(squareIndex);
     // } else {
@@ -70,7 +77,10 @@ export class GameComponent {
   }
 
   ngOnInit() {
-    this.startGame();
+    // this.board$.subscribe((board) => {
+    //   console.log('GameBoard state updated:', board[0]);
+    // });
+    // this.startGame();
   }
   // startGame() {
   //   this.isDraw = false;

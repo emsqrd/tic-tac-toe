@@ -1,11 +1,9 @@
 <article class="game-board-container">
   <section class="game-board-content">
-    <t3-board
-      (handleBoardClick)="handleBoardClick($event)"
-      (startGame)="startGame()"
-      (endGame)="endGame($event)"
-    ></t3-board>
+    <t3-board (handleBoardClick)="handleBoardClick($event)"></t3-board>
   </section>
+  <button class="game-board-start" (click)="startGame()">start</button>
+  <button class="game-board-reset" (click)="resetGame()">reset</button>
   <!-- <section class="scoring-container">
     <t3-scoring
       class="scoring-content"

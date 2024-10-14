@@ -1,6 +1,6 @@
-import { reducer, initialState } from './game.reducer';
+import { reducer, initialState } from './board.reducer';
 
-describe('Game Reducer', () => {
+describe('Board Reducer', () => {
   describe('an unknown action', () => {
     it('should return the previous state', () => {
       const action = {} as any;
