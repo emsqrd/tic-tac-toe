@@ -6,7 +6,7 @@
     1fr min(32rem, calc(100% - var(--viewport-padding) * 2))
     1fr;
   grid-template-areas:
-    ". content ."
+    "winner content ."
     ". scoring .";
   padding: var(--viewport-padding);
 }
@@ -17,6 +17,39 @@
   aspect-ratio: 1 / 1;
   position: relative;
   grid-area: content;
+}
+
+.game-board-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 100%;
+  height: 100%;
+}
+
+.game-board-square {
+  border-right: 4px solid black;
+  border-bottom: 4px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 6rem;
+  transition: background-color 0.1s;
+  cursor: pointer;
+}
+
+.game-board-square:nth-of-type(3n + 3) {
+  border-right: 0;
+}
+
+.game-board-square:nth-of-type(n + 7) {
+  border-bottom: 0;
+}
+
+@media (max-width: 480px) {
+  .game-board-square {
+    font-size: 4rem;
+  }
 }
 
 @media (max-width: 750px) {
@@ -36,6 +69,6 @@
   margin-top: 2rem;
 }
 
-.draw > section {
+.draw > div {
   animation: blink 0.3s steps(1) 3;
 }
