@@ -18,6 +18,7 @@ import { selectBoard } from '../../store/board/board.selectors';
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss',
 })
+//adding just to rename branch
 export class BoardComponent {
   // @Input() currentPlayer!: Player;
   @Input() currentMove!: number;
