@@ -102,8 +102,7 @@ export class GameBoardComponent implements OnInit {
 
     if (winner) {
       this.setWinner(winner);
-    } else if (this.currentMove === this.gameBoard.length) {
-      // Is there a better way to determine a draw?
+    } else if (this.gameBoard.every((square) => square.gamePiece !== '')) {
       this.isDraw = true;
       this.draws++;
     }
