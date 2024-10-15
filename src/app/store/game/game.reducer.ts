@@ -2,6 +2,7 @@ import { createReducer, on, State } from '@ngrx/store';
 import { Player } from '../../models/player';
 import { Square } from '../../models/square';
 import { endGame, makeMove, startGame } from './game.actions';
+import { calculateWinner } from '../../utils/game-utils';
 
 export const gameFeatureKey = 'game';
 
@@ -52,8 +53,30 @@ export const gameReducer = createReducer(
         ? { ...square, gamePiece: state.currentPlayer.piece }
         : square
     );
+
+    const winnerPiece = calculateWinner(newBoard);
+    let winner = null;
+    let player1 = { ...state.player1 };
+    let player2 = { ...state.player2 };
+
+    if (winnerPiece) {
+      if (winnerPiece === player1.piece) {
+        player1 = { ...player1, wins: player1.wins + 1, isWinner: true };
+        winner = player1;
+      } else {
+        player2 = { ...player2, wins: player2.wins + 1, isWinner: true };
+        winner = player2;
+      }
+      newBoard.forEach((square, index) => {
+        if (winnerPiece === square.gamePiece) {
+          newBoard[index] = { ...square, isWinner: true };
+        }
+      });
+    }
+
     const nextPlayer =
       state.currentPlayer.piece === 'X' ? state.player2 : state.player1;
+
     return { ...state, gameBoard: newBoard, currentPlayer: nextPlayer };
   }),
   on(endGame, (state, { winner }) => ({ ...state, winner }))
