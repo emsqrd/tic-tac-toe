@@ -37,6 +37,14 @@ export class ScoringComponent {
     return this.currentPlayer === this.player2 || this.winner;
   }
 
+  get player1Wins() {
+    return this.winner === this.player1;
+  }
+
+  get player2Wins() {
+    return this.winner === this.player2;
+  }
+
   constructor(private store: Store<{ game: GameState }>) {
     this.player1$ = store.select(selectPlayer1);
     this.player2$ = store.select(selectPlayer2);

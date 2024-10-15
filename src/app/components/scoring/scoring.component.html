@@ -4,7 +4,7 @@
     class="scoring-label"
     [ngClass]="{
       'select-result': selectPlayer1,
-      'scoring-result': player1.isWinner
+      'scoring-result': player1Wins
     }"
   >
     Player 1 (X)
@@ -14,7 +14,7 @@
     class="scoring-value"
     [ngClass]="{
       'select-result': selectPlayer1,
-      'scoring-result': player1.isWinner
+      'scoring-result': player1Wins
     }"
   >
     {{ player1.wins }}
@@ -38,7 +38,7 @@
     class="scoring-label"
     [ngClass]="{
       'select-result': selectPlayer2,
-      'scoring-result': player2.isWinner
+      'scoring-result': player2Wins
     }"
   >
     Player 2 (O)
@@ -48,7 +48,7 @@
     class="scoring-value"
     [ngClass]="{
       'select-result': selectPlayer2,
-      'scoring-result': player2.isWinner
+      'scoring-result': player2Wins
     }"
   >
     {{ player2.wins }}

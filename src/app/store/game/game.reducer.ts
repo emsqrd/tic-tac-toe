@@ -20,22 +20,16 @@ export const initialState: GameState = {
     name: 'Player 1',
     piece: 'X',
     wins: 0,
-    isCurrent: true,
-    isWinner: false,
   },
   player2: {
     name: 'Player 2',
     piece: 'O',
     wins: 0,
-    isCurrent: false,
-    isWinner: false,
   },
   currentPlayer: {
     name: 'Player 1',
     piece: 'X',
     wins: 0,
-    isCurrent: true,
-    isWinner: false,
   },
   winner: null,
 };
@@ -62,13 +56,13 @@ export const gameReducer = createReducer(
 
     if (winnerPiece) {
       if (winnerPiece === player1.piece) {
-        player1 = { ...player1, wins: player1.wins + 1, isWinner: true };
+        player1 = { ...player1, wins: player1.wins + 1 };
         winner = player1;
       } else {
-        player2 = { ...player2, wins: player2.wins + 1, isWinner: true };
+        player2 = { ...player2, wins: player2.wins + 1 };
         winner = player2;
       }
-      console.log('state', state);
+
       newBoard.forEach((square, index) => {
         if (winnerPiece === square.gamePiece) {
           newBoard[index] = { ...square, isWinner: true };
