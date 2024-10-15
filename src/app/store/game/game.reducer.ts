@@ -55,6 +55,7 @@ export const gameReducer = createReducer(
     );
 
     const winnerPiece = calculateWinner(newBoard);
+
     let winner = null;
     let player1 = { ...state.player1 };
     let player2 = { ...state.player2 };
@@ -75,6 +76,7 @@ export const gameReducer = createReducer(
       });
     }
 
+    // (state.currentPlayerIndex + 1) % 2
     const nextPlayer = state.currentPlayer.piece === 'X' ? player2 : player1;
 
     return {

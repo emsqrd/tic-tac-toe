@@ -3,8 +3,8 @@
     id="player1"
     class="scoring-label"
     [ngClass]="{
-      'select-result': player1IsCurrent,
-      'scoring-result': player1IsWinner
+      'select-result': selectPlayer1,
+      'scoring-result': player1.isWinner
     }"
   >
     Player 1 (X)
@@ -13,14 +13,14 @@
     id="player1Score"
     class="scoring-value"
     [ngClass]="{
-      'select-result': player1IsCurrent,
-      'scoring-result': player1IsWinner
+      'select-result': selectPlayer1,
+      'scoring-result': player1.isWinner
     }"
   >
-    {{ player1Wins }}
+    {{ player1.wins }}
   </span>
 </div>
-<div class="scoring-player">
+<!-- <div class="scoring-player">
   <div id="draw" class="scoring-label" [ngClass]="{ 'scoring-result': isDraw }">
     Draw
   </div>
@@ -31,14 +31,14 @@
   >
     {{ draws }}
   </span>
-</div>
+</div> -->
 <div class="scoring-player">
   <div
     id="player2"
     class="scoring-label"
     [ngClass]="{
-      'select-result': player2IsCurrent,
-      'scoring-result': player2IsWinner
+      'select-result': selectPlayer2,
+      'scoring-result': player2.isWinner
     }"
   >
     Player 2 (O)
@@ -47,10 +47,10 @@
     id="player2Score"
     class="scoring-value"
     [ngClass]="{
-      'select-result': player2IsCurrent,
-      'scoring-result': player2IsWinner
+      'select-result': selectPlayer2,
+      'scoring-result': player2.isWinner
     }"
   >
-    {{ player2Wins }}
+    {{ player2.wins }}
   </span>
 </div>

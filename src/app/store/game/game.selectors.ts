@@ -17,3 +17,13 @@ export const selectWinner = createSelector(
   selectGameState,
   (state) => state.winner
 );
+
+export const selectPlayer1 = createSelector(
+  selectGameState,
+  (state) => state.player1
+);
+
+export const selectPlayer2 = createSelector(
+  selectGameState,
+  (state) => state.player2
+);
