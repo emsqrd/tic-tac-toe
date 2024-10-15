@@ -7,6 +7,7 @@ import {
   selectPlayer1,
   selectPlayer2,
   selectCurrentPlayer,
+  selectWinner,
 } from '../../store/game/game.selectors';
 import { Observable } from 'rxjs';
 
@@ -21,23 +22,26 @@ export class ScoringComponent {
   player1$: Observable<Player>;
   player2$: Observable<Player>;
   currentPlayer$: Observable<Player>;
+  winner$: Observable<Player | null>;
 
   player1!: Player;
   player2!: Player;
   currentPlayer!: Player;
+  winner!: Player | null;
 
   get selectPlayer1() {
-    return this.currentPlayer === this.player1;
+    return this.currentPlayer === this.player1 || this.winner;
   }
 
   get selectPlayer2() {
-    return this.currentPlayer === this.player2;
+    return this.currentPlayer === this.player2 || this.winner;
   }
 
   constructor(private store: Store<{ game: GameState }>) {
     this.player1$ = store.select(selectPlayer1);
     this.player2$ = store.select(selectPlayer2);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
+    this.winner$ = store.select(selectWinner);
   }
 
   ngOnInit() {
@@ -51,6 +55,10 @@ export class ScoringComponent {
 
     this.currentPlayer$.subscribe((currentPlayer) => {
       this.currentPlayer = currentPlayer;
+    });
+
+    this.winner$.subscribe((winner) => {
+      this.winner = winner;
     });
   }
 }
