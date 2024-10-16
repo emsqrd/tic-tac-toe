@@ -58,7 +58,7 @@ export const gameReducer = createReducer(
         : square
     );
 
-    const winnerPiece = calculateWinner(newBoard);
+    const winningPositions = calculateWinner(newBoard);
 
     let winner = null;
     let player1 = { ...state.player1 };
@@ -66,8 +66,8 @@ export const gameReducer = createReducer(
     let isDraw = false;
     let draws = state.draws;
 
-    if (winnerPiece) {
-      if (winnerPiece === player1.piece) {
+    if (winningPositions) {
+      if (state.currentPlayer.piece === player1.piece) {
         player1 = { ...player1, wins: player1.wins + 1 };
         winner = player1;
       } else {
@@ -75,8 +75,9 @@ export const gameReducer = createReducer(
         winner = player2;
       }
 
+      // Highlight the squares that resulted in the win, not all for the winning player
       newBoard.forEach((square, index) => {
-        if (winnerPiece === square.gamePiece) {
+        if (winningPositions.includes(index)) {
           newBoard[index] = { ...square, isWinner: true };
         }
       });
