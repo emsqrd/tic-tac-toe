@@ -36,7 +36,7 @@ export class ScoringComponent {
   isDraw: boolean = false;
 
   get isResult() {
-    return this.winner || this.isDraw;
+    return this.winner !== null || this.isDraw;
   }
 
   get selectPlayer1() {
