@@ -69,4 +69,23 @@ describe('Game Reducer', () => {
     expect(state.gameBoard[0].gamePiece).toBe('X');
     expect(state.currentPlayer.piece).toBe('O');
   });
+
+  it('should highlight only the squares that resulted in the win', () => {
+    const moves = [0, 1, 2, 3, 4, 5, 6];
+    let state: GameState = initialState;
+
+    moves.forEach((position) => {
+      state = gameReducer(state, makeMove({ position }));
+    });
+
+    expect(state.winner).toEqual(state.player1);
+    expect(state.player1.wins).toBe(1);
+    expect(state.gameBoard[0].isWinner).toBe(false);
+    expect(state.gameBoard[1].isWinner).toBe(false);
+    expect(state.gameBoard[2].isWinner).toBe(true);
+    expect(state.gameBoard[3].isWinner).toBe(false);
+    expect(state.gameBoard[4].isWinner).toBe(true);
+    expect(state.gameBoard[5].isWinner).toBe(false);
+    expect(state.gameBoard[6].isWinner).toBe(true);
+  });
 });

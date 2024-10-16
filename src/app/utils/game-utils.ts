@@ -1,6 +1,7 @@
 import { Square } from '../models/square';
 
-export const calculateWinner = (gameBoard: Square[]): string | null => {
+// Calculate the winner and return the winning positions
+export const calculateWinner = (gameBoard: Square[]): number[] | null => {
   const winConditions = [
     [0, 1, 2],
     [3, 4, 5],
@@ -19,7 +20,7 @@ export const calculateWinner = (gameBoard: Square[]): string | null => {
       gameBoard[a].gamePiece === gameBoard[b].gamePiece &&
       gameBoard[a].gamePiece === gameBoard[c].gamePiece
     ) {
-      return gameBoard[a].gamePiece;
+      return [a, b, c];
     }
   }
   return null;

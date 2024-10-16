@@ -104,7 +104,6 @@ describe('ScoringComponent', () => {
 
   it('should return true for isResult when there is a winner', () => {
     component.winner = initialState.game.player1;
-    console.log(component.isResult);
     expect(component.isResult).toBeTrue();
   });
 
