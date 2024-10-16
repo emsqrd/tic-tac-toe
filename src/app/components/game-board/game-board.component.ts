@@ -4,6 +4,16 @@ import { Square } from '../../models/square';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
+import { Observable } from 'rxjs';
+import { select, Store } from '@ngrx/store';
+import { GameState } from '../../store/game/game.reducer';
+import { makeMove, startGame } from '../../store/game/game.actions';
+import {
+  selectCurrentPlayer,
+  selectGameBoard,
+  selectIsDraw,
+  selectWinner,
+} from '../../store/game/game.selectors';
 
 @Component({
   selector: 't3-game-board',
@@ -13,153 +23,43 @@ import { ScoringComponent } from '../scoring/scoring.component';
   styleUrl: './game-board.component.scss',
 })
 export class GameBoardComponent implements OnInit {
-  gameBoard: Square[] = [];
-
-  player1: Player = {
-    name: 'Player 1',
-    piece: 'X',
-    wins: 0,
-    isCurrent: true,
-    isWinner: false,
-  };
-
-  player2: Player = {
-    name: 'Player 2',
-    piece: 'O',
-    wins: 0,
-    isCurrent: false,
-    isWinner: false,
-  };
-
-  draws = 0;
-
-  // So far, this is only used in determining a draw. I'd like to have a better way of figuring that out.
-  currentMove = 1;
+  gameBoard$: Observable<Square[]>;
+  currentPlayer$: Observable<Player>;
+  winner$: Observable<Player | null>;
+  isDraw$: Observable<boolean>;
 
   isDraw: boolean = false;
-  winningPlayer: Player | undefined;
+  gameOver: boolean = false;
 
+  constructor(private store: Store<{ game: GameState }>) {
+    this.gameBoard$ = store.select(selectGameBoard);
+    this.currentPlayer$ = store.select(selectCurrentPlayer);
+    this.winner$ = store.select(selectWinner);
+    this.isDraw$ = store.select(selectIsDraw);
+  }
+
+  // Start the game when the component is initialized
   ngOnInit(): void {
-    this.buildGameBoard();
+    this.store.dispatch(startGame());
+
+    // Subscribe to the winner changes
+    this.winner$.subscribe((winner) => {
+      this.gameOver = !!winner;
+    });
+
+    this.isDraw$.subscribe((isDraw) => {
+      this.isDraw = this.gameOver = isDraw;
+    });
   }
 
-  private buildGameBoard() {
-    this.gameBoard = [];
-
-    for (let i = 0; i < 9; i++) {
-      let square: Square = {
-        gamePiece: '',
-        isWinner: false,
-      };
-
-      this.gameBoard.push(square);
-    }
-  }
-
-  get currentPlayer(): Player {
-    return this.player1.isCurrent ? this.player1 : this.player2;
-  }
-
-  get winningResult(): boolean {
-    return this.player1.isWinner || this.player2.isWinner;
-  }
-
-  get isGameOver(): boolean {
-    return this.isDraw || this.winningResult;
-  }
-
-  squareClick(square: number) {
-    if (!this.isGameOver) {
-      this.makeMove(square, this.currentPlayer.piece);
+  // Clicking a square triggers a move
+  // If the game is over, clicking a square should start a new game
+  squareClick(position: number) {
+    if (this.gameOver) {
+      this.store.dispatch(startGame());
+      this.gameOver = false;
     } else {
-      this.resetBoard();
+      this.store.dispatch(makeMove({ position }));
     }
-  }
-
-  makeMove(square: number, playerPiece: string) {
-    if (this.gameBoard[square].gamePiece) {
-      return;
-    }
-
-    this.gameBoard[square].gamePiece = playerPiece;
-
-    this.determineResult();
-
-    if (!this.isGameOver) {
-      this.setCurrentPlayer();
-
-      this.currentMove++;
-    }
-  }
-
-  private setCurrentPlayer() {
-    this.player1.isCurrent = !this.player1.isCurrent;
-    this.player2.isCurrent = !this.player2.isCurrent;
-  }
-
-  private determineResult() {
-    let winner = this.calculateWinner(this.gameBoard);
-
-    if (winner) {
-      this.setWinner(winner);
-    } else if (this.currentMove === this.gameBoard.length) {
-      // Is there a better way to determine a draw?
-      this.isDraw = true;
-      this.draws++;
-    }
-  }
-
-  setWinner(winner: string) {
-    switch (winner) {
-      case this.player1.piece:
-        this.player1.isWinner = true;
-        this.player1.wins++;
-        break;
-      case this.player2.piece:
-        this.player2.isWinner = true;
-        this.player2.wins++;
-        break;
-    }
-  }
-
-  resetBoard() {
-    this.buildGameBoard();
-    this.currentMove = 1;
-    this.isDraw = false;
-    this.player1.isWinner = false;
-    this.player2.isWinner = false;
-    this.setCurrentPlayer();
-  }
-
-  calculateWinner(gameBoard: Square[]) {
-    const winConditions = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (let i = 0; i < winConditions.length; i++) {
-      const [a, b, c] = winConditions[i];
-      if (
-        gameBoard[a].gamePiece &&
-        gameBoard[a].gamePiece === gameBoard[b].gamePiece &&
-        gameBoard[a].gamePiece === gameBoard[c].gamePiece
-      ) {
-        this.setWinningGamePieces([a, b, c]);
-        return gameBoard[a].gamePiece;
-      }
-    }
-    return null;
-  }
-
-  setWinningGamePieces([a, b, c]: [number, number, number]) {
-    [this.gameBoard[a], this.gameBoard[b], this.gameBoard[c]].forEach(
-      (x) => (x.isWinner = true)
-    );
   }
 }

@@ -1,7 +1,7 @@
 <article class="game-board-container">
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
     <div class="game-board-grid">
-      @for (square of gameBoard; track $index){
+      @for (square of gameBoard$ | async; track $index){
       <t3-square
         class="game-board-square"
         [gamePiece]="square.gamePiece"
@@ -12,16 +12,6 @@
     </div>
   </section>
   <section class="scoring-container">
-    <t3-scoring
-      class="scoring-content"
-      [player1IsCurrent]="player1.isCurrent"
-      [player1IsWinner]="player1.isWinner"
-      [player1Wins]="player1.wins"
-      [player2IsCurrent]="player2.isCurrent"
-      [player2IsWinner]="player2.isWinner"
-      [player2Wins]="player2.wins"
-      [draws]="draws"
-      [isDraw]="isDraw"
-    ></t3-scoring>
+    <t3-scoring class="scoring-content"></t3-scoring>
   </section>
 </article>
