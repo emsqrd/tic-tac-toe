@@ -47,6 +47,11 @@ export const gameReducer = createReducer(
     isDraw: false,
   })),
   on(makeMove, (state, { position }) => {
+    // If the square is already taken, do nothing
+    if (state.gameBoard[position].gamePiece !== '') {
+      return state;
+    }
+
     const newBoard = state.gameBoard.map((square, index) =>
       index === position
         ? { ...square, gamePiece: state.currentPlayer.piece }
