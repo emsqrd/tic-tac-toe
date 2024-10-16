@@ -56,4 +56,17 @@ describe('Game Reducer', () => {
     const state = gameReducer(initialState, endGame({ winner }));
     expect(state.winner).toEqual(winner);
   });
+
+  it('should not allow a move on an already taken square', () => {
+    const initialMove = makeMove({ position: 0 });
+    let state = gameReducer(initialState, initialMove);
+
+    // Attempt to make a move on the same position
+    const secondMove = makeMove({ position: 0 });
+    state = gameReducer(state, secondMove);
+
+    // The state should remain unchanged after the second move
+    expect(state.gameBoard[0].gamePiece).toBe('X');
+    expect(state.currentPlayer.piece).toBe('O');
+  });
 });
