@@ -11,6 +11,7 @@ import { makeMove, startGame } from '../../store/game/game.actions';
 import {
   selectCurrentPlayer,
   selectGameBoard,
+  selectIsDraw,
   selectWinner,
 } from '../../store/game/game.selectors';
 
@@ -25,6 +26,7 @@ export class GameBoardComponent implements OnInit {
   gameBoard$: Observable<Square[]>;
   currentPlayer$: Observable<Player>;
   winner$: Observable<Player | null>;
+  isDraw$: Observable<boolean>;
 
   isDraw: boolean = false;
   gameOver: boolean = false;
@@ -33,6 +35,7 @@ export class GameBoardComponent implements OnInit {
     this.gameBoard$ = store.select(selectGameBoard);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
     this.winner$ = store.select(selectWinner);
+    this.isDraw$ = store.select(selectIsDraw);
   }
 
   // Start the game when the component is initialized
@@ -42,6 +45,10 @@ export class GameBoardComponent implements OnInit {
     // Subscribe to the winner changes
     this.winner$.subscribe((winner) => {
       this.gameOver = !!winner;
+    });
+
+    this.isDraw$.subscribe((isDraw) => {
+      this.isDraw = this.gameOver = isDraw;
     });
   }
 

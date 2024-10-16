@@ -8,6 +8,8 @@ import {
   selectPlayer2,
   selectCurrentPlayer,
   selectWinner,
+  selectDraws,
+  selectIsDraw,
 } from '../../store/game/game.selectors';
 import { Observable } from 'rxjs';
 
@@ -23,18 +25,30 @@ export class ScoringComponent {
   player2$: Observable<Player>;
   currentPlayer$: Observable<Player>;
   winner$: Observable<Player | null>;
+  draws$: Observable<number>;
+  isDraw$: Observable<boolean>;
 
   player1!: Player;
   player2!: Player;
   currentPlayer!: Player;
   winner!: Player | null;
+  draws!: number;
+  isDraw: boolean = false;
+
+  get isResult() {
+    return this.winner || this.isDraw;
+  }
 
   get selectPlayer1() {
-    return this.currentPlayer === this.player1 || this.winner;
+    return this.currentPlayer === this.player1 || this.isResult;
   }
 
   get selectPlayer2() {
-    return this.currentPlayer === this.player2 || this.winner;
+    return this.currentPlayer === this.player2 || this.isResult;
+  }
+
+  get selectDraw() {
+    return this.isDraw || this.isResult;
   }
 
   get player1Wins() {
@@ -50,6 +64,8 @@ export class ScoringComponent {
     this.player2$ = store.select(selectPlayer2);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
     this.winner$ = store.select(selectWinner);
+    this.draws$ = store.select(selectDraws);
+    this.isDraw$ = store.select(selectIsDraw);
   }
 
   ngOnInit() {
@@ -67,6 +83,14 @@ export class ScoringComponent {
 
     this.winner$.subscribe((winner) => {
       this.winner = winner;
+    });
+
+    this.draws$.subscribe((draws) => {
+      this.draws = draws;
+    });
+
+    this.isDraw$.subscribe((isDraw) => {
+      this.isDraw = isDraw;
     });
   }
 }

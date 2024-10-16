@@ -27,3 +27,13 @@ export const selectPlayer2 = createSelector(
   selectGameState,
   (state) => state.player2
 );
+
+export const selectDraws = createSelector(
+  selectGameState,
+  (state) => state.draws
+);
+
+export const selectIsDraw = createSelector(
+  selectGameState,
+  (state) => state.isDraw
+);

@@ -12,6 +12,8 @@ export interface GameState {
   player2: Player;
   currentPlayer: Player;
   winner: Player | null;
+  isDraw: boolean;
+  draws: number;
 }
 
 export const initialState: GameState = {
@@ -32,6 +34,8 @@ export const initialState: GameState = {
     wins: 0,
   },
   winner: null,
+  isDraw: false,
+  draws: 0,
 };
 
 export const gameReducer = createReducer(
@@ -40,6 +44,7 @@ export const gameReducer = createReducer(
     ...state,
     gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
     winner: null,
+    isDraw: false,
   })),
   on(makeMove, (state, { position }) => {
     const newBoard = state.gameBoard.map((square, index) =>
@@ -53,6 +58,8 @@ export const gameReducer = createReducer(
     let winner = null;
     let player1 = { ...state.player1 };
     let player2 = { ...state.player2 };
+    let isDraw = false;
+    let draws = state.draws;
 
     if (winnerPiece) {
       if (winnerPiece === player1.piece) {
@@ -68,6 +75,9 @@ export const gameReducer = createReducer(
           newBoard[index] = { ...square, isWinner: true };
         }
       });
+    } else if (newBoard.every((square) => square.gamePiece !== '')) {
+      isDraw = true;
+      draws++;
     }
 
     // (state.currentPlayerIndex + 1) % 2
@@ -80,6 +90,8 @@ export const gameReducer = createReducer(
       player1,
       player2,
       winner,
+      isDraw,
+      draws,
     };
   }),
   on(endGame, (state, { winner }) => ({ ...state, winner }))
