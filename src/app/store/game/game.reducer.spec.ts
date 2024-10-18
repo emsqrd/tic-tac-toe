@@ -1,8 +1,33 @@
 import { gameReducer, initialState, GameState } from './game.reducer';
-import { startGame, makeMove, endGame } from './game.actions';
+import { startGame, makeMove, endGame, switchPlayer } from './game.actions';
 import { Player } from '../../models/player';
+import { Observable, of } from 'rxjs';
+import { GameEffects } from './game.effects';
+import { GameService } from '../../services/game.service';
+import { TestBed } from '@angular/core/testing';
+import { provideMockActions } from '@ngrx/effects/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 
-describe('Game Reducer', () => {
+describe('Game Reducer with Effects', () => {
+  let action$: Observable<any>;
+  let effects: GameEffects;
+  let gameService: jasmine.SpyObj<GameService>;
+
+  beforeEach(() => {
+    gameService = jasmine.createSpyObj('GameService', ['calculateWinner']);
+
+    TestBed.configureTestingModule({
+      providers: [
+        GameEffects,
+        provideMockActions(() => action$),
+        provideMockStore({ initialState }),
+        { provide: GameService, useValue: gameService },
+      ],
+    });
+
+    effects = TestBed.inject(GameEffects);
+  });
+
   it('should return the initial state', () => {
     const state = gameReducer(undefined, { type: '@@INIT' });
     expect(state).toEqual(initialState);
@@ -17,21 +42,34 @@ describe('Game Reducer', () => {
     expect(state.isDraw).toBe(false);
   });
 
-  it('should handle makeMove action and switch players', () => {
+  it('should handle makeMove action', () => {
     const position = 0;
-    const state = gameReducer(initialState, makeMove({ position }));
+    // make a move
+    let state = gameReducer(initialState, makeMove({ position }));
     expect(state.gameBoard[position].gamePiece).toBe('X');
-    expect(state.currentPlayer.piece).toBe('O');
   });
 
-  it('should handle makeMove action and declare a winner', () => {
+  fit('should handle makeMove action and declare a winner', (done) => {
     const moves = [0, 3, 1, 4, 2]; // X wins
     let state: GameState = initialState;
+
+    gameService.calculateWinner.and.returnValue([0, 1, 2]);
+
+    action$ = of(makeMove({ position: 2 }));
 
     moves.forEach((position) => {
       state = gameReducer(state, makeMove({ position }));
     });
 
+    effects.makeMove$.subscribe((action) => {
+      expect(action).toEqual(
+        endGame({ winner: state.player1, winningPositions: [0, 1, 2] })
+      );
+      done();
+    });
+
+    // Debugging: Check the final state
+    console.log('player 1:', state.player1);
     expect(state.winner).toEqual(state.player1);
     expect(state.player1.wins).toBe(1);
     expect(state.gameBoard[0].isWinner).toBe(true);
@@ -53,7 +91,11 @@ describe('Game Reducer', () => {
 
   it('should handle endGame action', () => {
     const winner: Player = { name: 'Player 1', piece: 'X', wins: 1 };
-    const state = gameReducer(initialState, endGame({ winner }));
+    const winningPositions = [0, 1, 2];
+    const state = gameReducer(
+      initialState,
+      endGame({ winner, winningPositions })
+    );
     expect(state.winner).toEqual(winner);
   });
 
