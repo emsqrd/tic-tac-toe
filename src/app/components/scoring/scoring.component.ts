@@ -40,11 +40,11 @@ export class ScoringComponent {
   }
 
   get selectPlayer1() {
-    return this.currentPlayer === this.player1 || this.isResult;
+    return this.currentPlayer.name === this.player1.name || this.isResult;
   }
 
   get selectPlayer2() {
-    return this.currentPlayer === this.player2 || this.isResult;
+    return this.currentPlayer.name === this.player2.name || this.isResult;
   }
 
   get selectDraw() {

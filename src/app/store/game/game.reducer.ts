@@ -1,8 +1,7 @@
 import { createReducer, on, State } from '@ngrx/store';
 import { Player } from '../../models/player';
 import { Square } from '../../models/square';
-import { endGame, makeMove, startGame } from './game.actions';
-import { calculateWinner } from '../../utils/game-utils';
+import { endGame, switchPlayer, makeMove, startGame } from './game.actions';
 
 export const gameFeatureKey = 'game';
 
@@ -58,41 +57,40 @@ export const gameReducer = createReducer(
         : square
     );
 
-    const winningPositions = calculateWinner(newBoard);
-
-    let winner = null;
+    return {
+      ...state,
+      gameBoard: newBoard,
+    };
+  }),
+  on(endGame, (state, { winner, winningPositions }) => {
     let player1 = { ...state.player1 };
     let player2 = { ...state.player2 };
     let isDraw = false;
     let draws = state.draws;
+    let newBoard = state.gameBoard;
 
-    if (winningPositions) {
-      if (state.currentPlayer.piece === player1.piece) {
-        player1 = { ...player1, wins: player1.wins + 1 };
-        winner = player1;
-      } else {
-        player2 = { ...player2, wins: player2.wins + 1 };
-        winner = player2;
-      }
-
+    if (winner) {
       // Highlight the squares that resulted in the win, not all for the winning player
-      newBoard.forEach((square, index) => {
-        if (winningPositions.includes(index)) {
-          newBoard[index] = { ...square, isWinner: true };
+      newBoard = state.gameBoard.map((square, index) => {
+        if (winningPositions?.includes(index)) {
+          return { ...square, isWinner: true };
         }
+        return square;
       });
-    } else if (newBoard.every((square) => square.gamePiece !== '')) {
+
+      if (winner.piece === player1.piece) {
+        player1 = { ...player1, wins: (player1.wins += 1) };
+      } else {
+        player2 = { ...player2, wins: (player2.wins += 1) };
+      }
+    } else {
       isDraw = true;
       draws++;
     }
 
-    // (state.currentPlayerIndex + 1) % 2
-    const nextPlayer = state.currentPlayer.piece === 'X' ? player2 : player1;
-
     return {
       ...state,
       gameBoard: newBoard,
-      currentPlayer: nextPlayer,
       player1,
       player2,
       winner,
@@ -100,5 +98,17 @@ export const gameReducer = createReducer(
       draws,
     };
   }),
-  on(endGame, (state, { winner }) => ({ ...state, winner }))
+  on(switchPlayer, (state) => {
+    // Switch players
+    let currentPlayer = { ...state.currentPlayer };
+
+    // (state.currentPlayerIndex + 1) % 2
+    const nextPlayer =
+      currentPlayer.piece === 'X' ? state.player2 : state.player1;
+
+    return {
+      ...state,
+      currentPlayer: nextPlayer,
+    };
+  })
 );
