@@ -45,6 +45,10 @@ describe('GameEffects', () => {
   it('should dispatch endGame with winner when there is a winning move', (done) => {
     const action = makeMove({ position: 0 });
     const winningPositions = [0, 1, 2];
+    const updatedBoard = initialState.game.board.map((cell, index) =>
+      winningPositions.includes(index) ? { gamePiece: 'X' } : cell
+    );
+    store.overrideSelector(selectGameBoard, updatedBoard);
     gameService.calculateWinner.and.returnValue(winningPositions);
 
     actions$ = of(action);
