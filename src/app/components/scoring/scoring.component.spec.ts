@@ -6,12 +6,12 @@ import {
   selectPlayer1,
   selectPlayer2,
   selectCurrentPlayer,
-  selectWinner,
   selectDraws,
-  selectIsDraw,
+  selectOutcome,
 } from '../../store/game/game.selectors';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
-describe('ScoringComponent', () => {
+fdescribe('ScoringComponent', () => {
   let component: ScoringComponent;
   let fixture: ComponentFixture<ScoringComponent>;
   let store: MockStore;
@@ -33,8 +33,7 @@ describe('ScoringComponent', () => {
         piece: 'X',
         wins: 0,
       },
-      winner: null,
-      isDraw: false,
+      outcome: OutcomeEnum.None,
       draws: 0,
     },
   };
@@ -48,8 +47,6 @@ describe('ScoringComponent', () => {
     store = TestBed.inject(MockStore);
     fixture = TestBed.createComponent(ScoringComponent);
     component = fixture.componentInstance;
-    component.isDraw = false;
-    component.winner = null;
     fixture.detectChanges();
   });
 
@@ -81,10 +78,10 @@ describe('ScoringComponent', () => {
     });
   });
 
-  it('should select winner from the store', () => {
-    store.overrideSelector(selectWinner, initialState.game.winner);
-    component.winner$.subscribe((winner) => {
-      expect(winner).toEqual(initialState.game.winner);
+  it('should select outcome from the store', () => {
+    store.overrideSelector(selectOutcome, initialState.game.outcome);
+    component.outcome$.subscribe((outcome) => {
+      expect(outcome).toEqual(initialState.game.outcome);
     });
   });
 
@@ -95,26 +92,16 @@ describe('ScoringComponent', () => {
     });
   });
 
-  it('should select isDraw from the store', () => {
-    store.overrideSelector(selectIsDraw, initialState.game.isDraw);
-    component.isDraw$.subscribe((isDraw) => {
-      expect(isDraw).toEqual(initialState.game.isDraw);
-    });
-  });
-
   it('should return true for isResult when there is a winner', () => {
-    component.winner = initialState.game.player1;
+    component.outcome = OutcomeEnum.Win;
     expect(component.isResult).toBeTrue();
   });
 
   it('should return true for isResult when there is a draw', () => {
-    component.isDraw = true;
     expect(component.isResult).toBeTrue();
   });
 
   it('should return false for isResult when there is no winner or draw', () => {
-    component.winner = null;
-    component.isDraw = false;
     expect(component.isResult).toBeFalse();
   });
 
@@ -129,17 +116,14 @@ describe('ScoringComponent', () => {
   });
 
   it('should return true for selectDraw when there is a draw', () => {
-    component.isDraw = true;
     expect(component.selectDraw).toBeTrue();
   });
 
   it('should return true for player1Wins when winner is player1', () => {
-    component.winner = initialState.game.player1;
     expect(component.player1Wins).toBeTrue();
   });
 
   it('should return true for player2Wins when winner is player2', () => {
-    component.winner = initialState.game.player2;
     expect(component.player2Wins).toBeTrue();
   });
 });

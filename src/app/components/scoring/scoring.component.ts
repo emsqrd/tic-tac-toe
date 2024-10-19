@@ -30,13 +30,13 @@ export class ScoringComponent {
   player1!: Player;
   player2!: Player;
   currentPlayer!: Player;
-  winner!: Player | null;
   draws!: number;
-  isDraw: boolean = false;
   outcome!: OutcomeEnum;
 
   get isResult() {
-    return this.outcome === OutcomeEnum.Win || OutcomeEnum.Draw;
+    return (
+      this.outcome === OutcomeEnum.Win || this.outcome === OutcomeEnum.Draw
+    );
   }
 
   get selectPlayer1() {
@@ -48,15 +48,25 @@ export class ScoringComponent {
   }
 
   get selectDraw() {
-    return this.isDraw || this.isResult;
+    return this.outcome === OutcomeEnum.Draw || this.isResult;
+  }
+
+  get isDraw() {
+    return this.outcome === OutcomeEnum.Draw;
   }
 
   get player1Wins() {
-    return this.winner === this.player1;
+    return (
+      this.currentPlayer.name === this.player1.name &&
+      this.outcome === OutcomeEnum.Win
+    );
   }
 
   get player2Wins() {
-    return this.winner === this.player2;
+    return (
+      this.currentPlayer.name === this.player2.name &&
+      this.outcome === OutcomeEnum.Win
+    );
   }
 
   constructor(private store: Store<{ game: GameState }>) {

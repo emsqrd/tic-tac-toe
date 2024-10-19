@@ -1,4 +1,4 @@
-import { createReducer, on, State } from '@ngrx/store';
+import { createReducer, on } from '@ngrx/store';
 import { Player } from '../../models/player';
 import { Square } from '../../models/square';
 import { endGame, switchPlayer, makeMove, startGame } from './game.actions';

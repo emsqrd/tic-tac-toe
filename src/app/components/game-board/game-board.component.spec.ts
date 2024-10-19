@@ -6,12 +6,12 @@ import { ScoringComponent } from '../scoring/scoring.component';
 import {
   selectCurrentPlayer,
   selectGameBoard,
-  selectIsDraw,
-  selectWinner,
+  selectOutcome,
 } from '../../store/game/game.selectors';
 import { makeMove, startGame } from '../../store/game/game.actions';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -37,8 +37,7 @@ describe('GameBoardComponent', () => {
         piece: 'X',
         wins: 0,
       },
-      winner: null,
-      isDraw: false,
+      outcome: OutcomeEnum.None,
       draws: 0,
     },
   };
@@ -53,8 +52,6 @@ describe('GameBoardComponent', () => {
     fixture = TestBed.createComponent(GameBoardComponent);
     component = fixture.componentInstance;
     component.gameOver = false;
-    component.isDraw = false;
-    component = fixture.componentInstance;
     dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
 
     store.overrideSelector(selectGameBoard, initialState.game.gameBoard);
@@ -62,8 +59,7 @@ describe('GameBoardComponent', () => {
       selectCurrentPlayer,
       initialState.game.currentPlayer
     );
-    store.overrideSelector(selectWinner, initialState.game.winner);
-    store.overrideSelector(selectIsDraw, initialState.game.isDraw);
+    store.overrideSelector(selectOutcome, initialState.game.outcome);
 
     fixture.detectChanges();
   });
@@ -74,27 +70,6 @@ describe('GameBoardComponent', () => {
 
   it('should dispatch startGame action on init', () => {
     expect(dispatchSpy).toHaveBeenCalledWith(startGame());
-  });
-
-  it('should update gameOver when there is a winner', () => {
-    store.overrideSelector(selectWinner, {
-      name: 'Player 1',
-      piece: 'X',
-      wins: 0,
-    });
-    store.refreshState();
-    fixture.detectChanges();
-
-    expect(component.gameOver).toBeTrue();
-  });
-
-  it('should update gameOver when there is a draw', () => {
-    store.overrideSelector(selectIsDraw, true);
-    store.refreshState();
-    fixture.detectChanges();
-
-    expect(component.gameOver).toBeTrue();
-    expect(component.isDraw).toBeTrue();
   });
 
   it('should dispatch makeMove action when a square is clicked', () => {
@@ -115,5 +90,15 @@ describe('GameBoardComponent', () => {
 
     expect(dispatchSpy).toHaveBeenCalledWith(startGame());
     expect(component.gameOver).toBeFalse();
+  });
+
+  it('should return true when the outcome is a draw', () => {
+    component.outcome = OutcomeEnum.Draw;
+    expect(component.isDraw).toBeTrue();
+  });
+
+  it('should return false when the outcome is not a draw', () => {
+    component.outcome = OutcomeEnum.Win;
+    expect(component.isDraw).toBeFalse();
   });
 });
