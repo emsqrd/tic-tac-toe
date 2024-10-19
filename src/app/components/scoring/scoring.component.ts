@@ -7,11 +7,11 @@ import {
   selectPlayer1,
   selectPlayer2,
   selectCurrentPlayer,
-  selectWinner,
   selectDraws,
-  selectIsDraw,
+  selectOutcome,
 } from '../../store/game/game.selectors';
 import { Observable } from 'rxjs';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
 @Component({
   selector: 't3-scoring',
@@ -24,9 +24,8 @@ export class ScoringComponent {
   player1$: Observable<Player>;
   player2$: Observable<Player>;
   currentPlayer$: Observable<Player>;
-  winner$: Observable<Player | null>;
+  outcome$: Observable<OutcomeEnum>;
   draws$: Observable<number>;
-  isDraw$: Observable<boolean>;
 
   player1!: Player;
   player2!: Player;
@@ -34,9 +33,10 @@ export class ScoringComponent {
   winner!: Player | null;
   draws!: number;
   isDraw: boolean = false;
+  outcome!: OutcomeEnum;
 
   get isResult() {
-    return this.winner !== null || this.isDraw;
+    return this.outcome === OutcomeEnum.Win || OutcomeEnum.Draw;
   }
 
   get selectPlayer1() {
@@ -63,9 +63,8 @@ export class ScoringComponent {
     this.player1$ = store.select(selectPlayer1);
     this.player2$ = store.select(selectPlayer2);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
-    this.winner$ = store.select(selectWinner);
+    this.outcome$ = store.select(selectOutcome);
     this.draws$ = store.select(selectDraws);
-    this.isDraw$ = store.select(selectIsDraw);
   }
 
   ngOnInit() {
@@ -81,16 +80,12 @@ export class ScoringComponent {
       this.currentPlayer = currentPlayer;
     });
 
-    this.winner$.subscribe((winner) => {
-      this.winner = winner;
+    this.outcome$.subscribe((outcome) => {
+      this.outcome = outcome;
     });
 
     this.draws$.subscribe((draws) => {
       this.draws = draws;
-    });
-
-    this.isDraw$.subscribe((isDraw) => {
-      this.isDraw = isDraw;
     });
   }
 }

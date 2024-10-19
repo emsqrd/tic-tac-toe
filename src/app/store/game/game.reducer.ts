@@ -2,6 +2,7 @@ import { createReducer, on, State } from '@ngrx/store';
 import { Player } from '../../models/player';
 import { Square } from '../../models/square';
 import { endGame, switchPlayer, makeMove, startGame } from './game.actions';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
 export const gameFeatureKey = 'game';
 
@@ -10,8 +11,7 @@ export interface GameState {
   player1: Player;
   player2: Player;
   currentPlayer: Player;
-  winner: Player | null;
-  isDraw: boolean;
+  outcome: OutcomeEnum;
   draws: number;
 }
 
@@ -32,8 +32,7 @@ export const initialState: GameState = {
     piece: 'X',
     wins: 0,
   },
-  winner: null,
-  isDraw: false,
+  outcome: OutcomeEnum.None,
   draws: 0,
 };
 
@@ -42,8 +41,7 @@ export const gameReducer = createReducer(
   on(startGame, (state) => ({
     ...state,
     gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-    winner: null,
-    isDraw: false,
+    outcome: OutcomeEnum.None,
   })),
   on(makeMove, (state, { position }) => {
     // If the square is already taken, do nothing
@@ -62,14 +60,15 @@ export const gameReducer = createReducer(
       gameBoard: newBoard,
     };
   }),
-  on(endGame, (state, { winner, winningPositions }) => {
+  on(endGame, (state, { outcome, winningPositions }) => {
     let player1 = { ...state.player1 };
     let player2 = { ...state.player2 };
-    let isDraw = false;
+    let currentPlayer = { ...state.currentPlayer };
     let draws = state.draws;
     let newBoard = state.gameBoard;
+    let newOutcome = outcome;
 
-    if (winner) {
+    if (newOutcome === OutcomeEnum.Win) {
       // Highlight the squares that resulted in the win, not all for the winning player
       newBoard = state.gameBoard.map((square, index) => {
         if (winningPositions?.includes(index)) {
@@ -78,13 +77,12 @@ export const gameReducer = createReducer(
         return square;
       });
 
-      if (winner.piece === player1.piece) {
+      if (currentPlayer.piece === player1.piece) {
         player1 = { ...player1, wins: (player1.wins += 1) };
       } else {
         player2 = { ...player2, wins: (player2.wins += 1) };
       }
-    } else {
-      isDraw = true;
+    } else if (newOutcome === OutcomeEnum.Draw) {
       draws++;
     }
 
@@ -93,8 +91,8 @@ export const gameReducer = createReducer(
       gameBoard: newBoard,
       player1,
       player2,
-      winner,
-      isDraw,
+      currentPlayer,
+      outcome: newOutcome,
       draws,
     };
   }),

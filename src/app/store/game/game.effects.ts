@@ -6,6 +6,7 @@ import { GameService } from '../../services/game.service';
 import { makeMove, endGame, switchPlayer } from './game.actions';
 import { GameState } from './game.reducer';
 import { selectGameBoard, selectCurrentPlayer } from './game.selectors';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
 @Injectable()
 export class GameEffects {
@@ -32,9 +33,11 @@ export class GameEffects {
         const winningPositions = this.gameService.calculateWinner(newBoard);
 
         if (winningPositions) {
-          return of(endGame({ winner: currentPlayer, winningPositions }));
+          return of(endGame({ outcome: OutcomeEnum.Win, winningPositions }));
         } else if (newBoard.every((square) => square.gamePiece !== '')) {
-          return of(endGame({ winner: null, winningPositions: null }));
+          return of(
+            endGame({ outcome: OutcomeEnum.Draw, winningPositions: null })
+          );
         } else {
           return of(switchPlayer());
         }
