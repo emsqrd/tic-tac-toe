@@ -8,7 +8,11 @@ import {
   selectGameBoard,
   selectOutcome,
 } from '../../store/game/game.selectors';
-import { makeMove, startGame } from '../../store/game/game.actions';
+import {
+  makeMove,
+  startGame,
+  switchPlayer,
+} from '../../store/game/game.actions';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 import { OutcomeEnum } from '../../enums/outcome.enum';
@@ -51,7 +55,6 @@ describe('GameBoardComponent', () => {
     store = TestBed.inject(MockStore);
     fixture = TestBed.createComponent(GameBoardComponent);
     component = fixture.componentInstance;
-    component.gameOver = false;
     dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
 
     store.overrideSelector(selectGameBoard, initialState.game.gameBoard);
@@ -68,11 +71,9 @@ describe('GameBoardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should dispatch startGame action on init', () => {
-    expect(dispatchSpy).toHaveBeenCalledWith(startGame());
-  });
+  it('should dispatch makeMove action when a square is clicked and there is no outcome', () => {
+    component.outcome = OutcomeEnum.None;
 
-  it('should dispatch makeMove action when a square is clicked', () => {
     const squareDebugElement: DebugElement = fixture.debugElement.query(
       By.css('t3-square')
     );
@@ -81,15 +82,16 @@ describe('GameBoardComponent', () => {
     expect(dispatchSpy).toHaveBeenCalledWith(makeMove({ position: 0 }));
   });
 
-  it('should dispatch startGame action when a square is clicked and game is over', () => {
-    component.gameOver = true;
+  it('should dispatch startGame and swtichPlayer actions when a square is clicked and the outcome is not None', () => {
+    component.outcome = OutcomeEnum.Win;
+
     const squareDebugElement: DebugElement = fixture.debugElement.query(
       By.css('t3-square')
     );
     squareDebugElement.triggerEventHandler('click', null);
 
     expect(dispatchSpy).toHaveBeenCalledWith(startGame());
-    expect(component.gameOver).toBeFalse();
+    expect(dispatchSpy).toHaveBeenCalledWith(switchPlayer());
   });
 
   it('should return true when the outcome is a draw', () => {

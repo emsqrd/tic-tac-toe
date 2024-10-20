@@ -5,9 +5,13 @@ import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
 import { Observable } from 'rxjs';
-import { select, Store } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import { GameState } from '../../store/game/game.reducer';
-import { makeMove, startGame } from '../../store/game/game.actions';
+import {
+  makeMove,
+  startGame,
+  switchPlayer,
+} from '../../store/game/game.actions';
 import {
   selectCurrentPlayer,
   selectGameBoard,
@@ -27,7 +31,6 @@ export class GameBoardComponent implements OnInit {
   currentPlayer$: Observable<Player>;
   outcome$: Observable<OutcomeEnum>;
 
-  gameOver: boolean = false;
   outcome!: OutcomeEnum;
 
   constructor(private store: Store<{ game: GameState }>) {
@@ -42,8 +45,6 @@ export class GameBoardComponent implements OnInit {
 
   // Start the game when the component is initialized
   ngOnInit(): void {
-    this.store.dispatch(startGame());
-
     this.outcome$.subscribe((outcome) => {
       this.outcome = outcome;
     });
@@ -51,9 +52,11 @@ export class GameBoardComponent implements OnInit {
 
   // Clicking a square triggers a move
   // If the game is over, clicking a square should start a new game
+  //  and switch the player
   squareClick(position: number) {
-    if (this.outcome === OutcomeEnum.Win || this.outcome === OutcomeEnum.Draw) {
+    if (this.outcome !== OutcomeEnum.None) {
       this.store.dispatch(startGame());
+      this.store.dispatch(switchPlayer());
     } else {
       this.store.dispatch(makeMove({ position }));
     }

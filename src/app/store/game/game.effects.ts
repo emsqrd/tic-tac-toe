@@ -44,11 +44,4 @@ export class GameEffects {
       })
     )
   );
-
-  endGame$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(endGame),
-      switchMap(() => of(switchPlayer()))
-    )
-  );
 }

@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { ScoringComponent } from './scoring.component';
-import { Player } from '../../models/player';
 import {
   selectPlayer1,
   selectPlayer2,
@@ -11,7 +10,7 @@ import {
 } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 
-fdescribe('ScoringComponent', () => {
+describe('ScoringComponent', () => {
   let component: ScoringComponent;
   let fixture: ComponentFixture<ScoringComponent>;
   let store: MockStore;
@@ -98,10 +97,12 @@ fdescribe('ScoringComponent', () => {
   });
 
   it('should return true for isResult when there is a draw', () => {
+    component.outcome = OutcomeEnum.Draw;
     expect(component.isResult).toBeTrue();
   });
 
   it('should return false for isResult when there is no winner or draw', () => {
+    component.outcome = OutcomeEnum.None;
     expect(component.isResult).toBeFalse();
   });
 
@@ -116,14 +117,19 @@ fdescribe('ScoringComponent', () => {
   });
 
   it('should return true for selectDraw when there is a draw', () => {
+    component.outcome = OutcomeEnum.Draw;
     expect(component.selectDraw).toBeTrue();
   });
 
   it('should return true for player1Wins when winner is player1', () => {
+    component.outcome = OutcomeEnum.Win;
+    component.currentPlayer = initialState.game.player1;
     expect(component.player1Wins).toBeTrue();
   });
 
   it('should return true for player2Wins when winner is player2', () => {
+    component.outcome = OutcomeEnum.Win;
+    component.currentPlayer = initialState.game.player2;
     expect(component.player2Wins).toBeTrue();
   });
 });

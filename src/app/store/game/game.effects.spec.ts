@@ -93,18 +93,4 @@ describe('GameEffects', () => {
       done();
     });
   });
-
-  it('should dispatch switchPlayer when endGame is dispatched', (done) => {
-    const action = endGame({
-      outcome: OutcomeEnum.None,
-      winningPositions: null,
-    });
-
-    actions$ = of(action);
-
-    effects.endGame$.subscribe((result) => {
-      expect(result).toEqual(switchPlayer());
-      done();
-    });
-  });
 });
