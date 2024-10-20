@@ -9,7 +9,7 @@ import {
   selectOutcome,
 } from '../../store/game/game.selectors';
 import {
-  makeMove,
+  attemptMove,
   startGame,
   switchPlayer,
 } from '../../store/game/game.actions';
@@ -71,7 +71,7 @@ describe('GameBoardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should dispatch makeMove action when a square is clicked and there is no outcome', () => {
+  it('should dispatch attemptMove action when a square is clicked and there is no outcome', () => {
     component.outcome = OutcomeEnum.None;
 
     const squareDebugElement: DebugElement = fixture.debugElement.query(
@@ -79,7 +79,7 @@ describe('GameBoardComponent', () => {
     );
     squareDebugElement.triggerEventHandler('click', null);
 
-    expect(dispatchSpy).toHaveBeenCalledWith(makeMove({ position: 0 }));
+    expect(dispatchSpy).toHaveBeenCalledWith(attemptMove({ position: 0 }));
   });
 
   it('should dispatch startGame and swtichPlayer actions when a square is clicked and the outcome is not None', () => {

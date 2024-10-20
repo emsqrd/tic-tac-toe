@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { GameState } from '../../store/game/game.reducer';
 import {
+  attemptMove,
   makeMove,
   startGame,
   switchPlayer,
@@ -58,7 +59,7 @@ export class GameBoardComponent implements OnInit {
       this.store.dispatch(startGame());
       this.store.dispatch(switchPlayer());
     } else {
-      this.store.dispatch(makeMove({ position }));
+      this.store.dispatch(attemptMove({ position }));
     }
   }
 }

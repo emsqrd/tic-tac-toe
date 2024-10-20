@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { withLatestFrom, switchMap, of } from 'rxjs';
 import { GameService } from '../../services/game.service';
-import { makeMove, endGame, switchPlayer } from './game.actions';
+import { makeMove, endGame, switchPlayer, attemptMove } from './game.actions';
 import { GameState } from './game.reducer';
 import { selectGameBoard, selectCurrentPlayer } from './game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
@@ -41,6 +41,21 @@ export class GameEffects {
         } else {
           return of(switchPlayer());
         }
+      })
+    )
+  );
+
+  attemptMove$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(attemptMove),
+      withLatestFrom(this.store.select(selectGameBoard)),
+      switchMap(([action, gameBoard]) => {
+        // If the square is already taken, do nothing
+        if (gameBoard[action.position].gamePiece !== '') {
+          return of({ type: 'NO_OP' }); // return a no-op action
+        }
+
+        return of(makeMove({ position: action.position }));
       })
     )
   );
