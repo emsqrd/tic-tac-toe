@@ -8,12 +8,13 @@ export const selectPlayers = createSelector(
   (state) => state.players
 );
 
-export const selectCurrentPlayer = createSelector(
-  selectPlayerState,
-  (state) => state.currentPlayer
-);
-
 export const selectCurrentPlayerIndex = createSelector(
   selectPlayerState,
   (state) => state.currentPlayerIndex
+);
+
+export const selectCurrentPlayer = createSelector(
+  selectPlayers,
+  selectCurrentPlayerIndex,
+  (players, currentPlayerIndex) => players[currentPlayerIndex]
 );

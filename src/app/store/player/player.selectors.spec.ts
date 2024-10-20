@@ -32,13 +32,17 @@ describe('Player Selectors', () => {
     expect(result).toEqual(initialState.players);
   });
 
-  it('should select the current player', () => {
-    const result = selectCurrentPlayer.projector(initialState);
-    expect(result).toEqual(initialState.currentPlayer);
-  });
-
   it('should select the current player index', () => {
     const result = selectCurrentPlayerIndex.projector(initialState);
     expect(result).toEqual(initialState.currentPlayerIndex);
+  });
+
+  it('should select the current player', () => {
+    const curentPlayerIndex = 0;
+    const result = selectCurrentPlayer.projector(
+      initialState.players,
+      curentPlayerIndex
+    );
+    expect(result).toEqual(initialState.currentPlayer);
   });
 });

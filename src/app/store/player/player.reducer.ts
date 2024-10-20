@@ -1,12 +1,11 @@
 import { createReducer, on } from '@ngrx/store';
 import { Player } from '../../models/player';
-import { switchPlayer } from './player.actions';
+import { switchPlayer, updatePlayerWins } from './player.actions';
 
 export const playerFeatureKey = 'player';
 
 export interface PlayerState {
   players: Player[];
-  currentPlayer: Player;
   currentPlayerIndex: number;
 }
 
@@ -23,11 +22,6 @@ export const initialState: PlayerState = {
       wins: 0,
     },
   ],
-  currentPlayer: {
-    name: 'Player 1',
-    piece: 'X',
-    wins: 0,
-  },
   currentPlayerIndex: 0,
 };
 
@@ -39,6 +33,18 @@ export const playerReducer = createReducer(
       ...state,
       currentPlayer: state.players[nextPlayerIndex],
       currentPlayerIndex: nextPlayerIndex,
+    };
+  }),
+  on(updatePlayerWins, (state) => {
+    const updatedPlayers = state.players.map((player, index) =>
+      index === state.currentPlayerIndex
+        ? { ...player, wins: player.wins + 1 }
+        : player
+    );
+
+    return {
+      ...state,
+      players: updatedPlayers,
     };
   })
 );

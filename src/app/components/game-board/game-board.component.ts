@@ -1,24 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { Player } from '../../models/player';
-import { Square } from '../../models/square';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { GameState } from '../../store/game/game.reducer';
+import { attemptMove, startGame } from '../../store/game/game.actions';
 import {
-  attemptMove,
-  makeMove,
-  startGame,
-  switchPlayer,
-} from '../../store/game/game.actions';
-import {
-  selectCurrentPlayer,
   selectGameBoard,
   selectOutcome,
 } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
+import { switchPlayer } from '../../store/player/player.actions';
+import { Player } from '../../models/player';
+import { selectCurrentPlayer } from '../../store/player/player.selectors';
+import { Square } from '../../models/square';
 
 @Component({
   selector: 't3-game-board',
@@ -29,15 +25,16 @@ import { OutcomeEnum } from '../../enums/outcome.enum';
 })
 export class GameBoardComponent implements OnInit {
   gameBoard$: Observable<Square[]>;
-  currentPlayer$: Observable<Player>;
   outcome$: Observable<OutcomeEnum>;
+  currentPlayer$: Observable<Player>;
 
   outcome!: OutcomeEnum;
+  currentPlayer!: Player;
 
   constructor(private store: Store<{ game: GameState }>) {
     this.gameBoard$ = store.select(selectGameBoard);
-    this.currentPlayer$ = store.select(selectCurrentPlayer);
     this.outcome$ = store.select(selectOutcome);
+    this.currentPlayer$ = store.select(selectCurrentPlayer);
   }
 
   get isDraw() {
@@ -49,6 +46,10 @@ export class GameBoardComponent implements OnInit {
     this.outcome$.subscribe((outcome) => {
       this.outcome = outcome;
     });
+
+    this.currentPlayer$.subscribe((player) => {
+      this.currentPlayer = player;
+    });
   }
 
   // Clicking a square triggers a move
@@ -59,7 +60,9 @@ export class GameBoardComponent implements OnInit {
       this.store.dispatch(startGame());
       this.store.dispatch(switchPlayer());
     } else {
-      this.store.dispatch(attemptMove({ position }));
+      this.store.dispatch(
+        attemptMove({ position, currentPlayer: this.currentPlayer })
+      );
     }
   }
 }

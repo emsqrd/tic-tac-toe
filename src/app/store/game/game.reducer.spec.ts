@@ -3,6 +3,8 @@ import { startGame, makeMove, endGame, switchPlayer } from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 
 describe('Game Reducer', () => {
+  const currentPlayerMock = { name: 'Player 1', piece: 'X', wins: 0 };
+
   it('should return the initial state', () => {
     const state = gameReducer(undefined, { type: '@@INIT' });
     expect(state).toEqual(initialState);
@@ -18,7 +20,10 @@ describe('Game Reducer', () => {
 
   it('should handle makeMove action', () => {
     const position = 0;
-    const state = gameReducer(initialState, makeMove({ position }));
+    const state = gameReducer(
+      initialState,
+      makeMove({ position, currentPlayer: currentPlayerMock })
+    );
     expect(state.gameBoard[position].gamePiece).toEqual(
       initialState.currentPlayer.piece
     );
@@ -26,10 +31,13 @@ describe('Game Reducer', () => {
 
   it('should not allow a move on an already taken square', () => {
     const position = 0;
-    const stateWithMove = gameReducer(initialState, makeMove({ position }));
+    const stateWithMove = gameReducer(
+      initialState,
+      makeMove({ position, currentPlayer: currentPlayerMock })
+    );
     const stateWithInvalidMove = gameReducer(
       stateWithMove,
-      makeMove({ position })
+      makeMove({ position, currentPlayer: currentPlayerMock })
     );
     expect(stateWithInvalidMove).toEqual(stateWithMove);
   });

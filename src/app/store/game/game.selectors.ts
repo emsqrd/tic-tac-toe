@@ -8,21 +8,6 @@ export const selectGameBoard = createSelector(
   (state) => state.gameBoard
 );
 
-export const selectCurrentPlayer = createSelector(
-  selectGameState,
-  (state) => state.currentPlayer
-);
-
-export const selectPlayer1 = createSelector(
-  selectGameState,
-  (state) => state.player1
-);
-
-export const selectPlayer2 = createSelector(
-  selectGameState,
-  (state) => state.player2
-);
-
 export const selectDraws = createSelector(
   selectGameState,
   (state) => state.draws
