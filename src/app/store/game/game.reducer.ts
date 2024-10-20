@@ -77,6 +77,7 @@ export const gameReducer = createReducer(
         return square;
       });
 
+      // ? Add this to an effect?
       if (currentPlayer.piece === player1.piece) {
         player1 = { ...player1, wins: (player1.wins += 1) };
       } else {
