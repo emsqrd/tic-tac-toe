@@ -5,15 +5,20 @@ import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
 import { Observable } from 'rxjs';
-import { select, Store } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import { GameState } from '../../store/game/game.reducer';
-import { makeMove, startGame } from '../../store/game/game.actions';
+import {
+  attemptMove,
+  makeMove,
+  startGame,
+  switchPlayer,
+} from '../../store/game/game.actions';
 import {
   selectCurrentPlayer,
   selectGameBoard,
-  selectIsDraw,
-  selectWinner,
+  selectOutcome,
 } from '../../store/game/game.selectors';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
 @Component({
   selector: 't3-game-board',
@@ -25,41 +30,36 @@ import {
 export class GameBoardComponent implements OnInit {
   gameBoard$: Observable<Square[]>;
   currentPlayer$: Observable<Player>;
-  winner$: Observable<Player | null>;
-  isDraw$: Observable<boolean>;
+  outcome$: Observable<OutcomeEnum>;
 
-  isDraw: boolean = false;
-  gameOver: boolean = false;
+  outcome!: OutcomeEnum;
 
   constructor(private store: Store<{ game: GameState }>) {
     this.gameBoard$ = store.select(selectGameBoard);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
-    this.winner$ = store.select(selectWinner);
-    this.isDraw$ = store.select(selectIsDraw);
+    this.outcome$ = store.select(selectOutcome);
+  }
+
+  get isDraw() {
+    return this.outcome === OutcomeEnum.Draw;
   }
 
   // Start the game when the component is initialized
   ngOnInit(): void {
-    this.store.dispatch(startGame());
-
-    // Subscribe to the winner changes
-    this.winner$.subscribe((winner) => {
-      this.gameOver = !!winner;
-    });
-
-    this.isDraw$.subscribe((isDraw) => {
-      this.isDraw = this.gameOver = isDraw;
+    this.outcome$.subscribe((outcome) => {
+      this.outcome = outcome;
     });
   }
 
   // Clicking a square triggers a move
   // If the game is over, clicking a square should start a new game
+  //  and switch the player
   squareClick(position: number) {
-    if (this.gameOver) {
+    if (this.outcome !== OutcomeEnum.None) {
       this.store.dispatch(startGame());
-      this.gameOver = false;
+      this.store.dispatch(switchPlayer());
     } else {
-      this.store.dispatch(makeMove({ position }));
+      this.store.dispatch(attemptMove({ position }));
     }
   }
 }

@@ -13,11 +13,6 @@ export const selectCurrentPlayer = createSelector(
   (state) => state.currentPlayer
 );
 
-export const selectWinner = createSelector(
-  selectGameState,
-  (state) => state.winner
-);
-
 export const selectPlayer1 = createSelector(
   selectGameState,
   (state) => state.player1
@@ -33,7 +28,7 @@ export const selectDraws = createSelector(
   (state) => state.draws
 );
 
-export const selectIsDraw = createSelector(
+export const selectOutcome = createSelector(
   selectGameState,
-  (state) => state.isDraw
+  (state) => state.outcome
 );

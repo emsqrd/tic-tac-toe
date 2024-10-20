@@ -3,9 +3,10 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { withLatestFrom, switchMap, of } from 'rxjs';
 import { GameService } from '../../services/game.service';
-import { makeMove, endGame, switchPlayer } from './game.actions';
+import { makeMove, endGame, switchPlayer, attemptMove } from './game.actions';
 import { GameState } from './game.reducer';
 import { selectGameBoard, selectCurrentPlayer } from './game.selectors';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
 @Injectable()
 export class GameEffects {
@@ -32,9 +33,11 @@ export class GameEffects {
         const winningPositions = this.gameService.calculateWinner(newBoard);
 
         if (winningPositions) {
-          return of(endGame({ winner: currentPlayer, winningPositions }));
+          return of(endGame({ outcome: OutcomeEnum.Win, winningPositions }));
         } else if (newBoard.every((square) => square.gamePiece !== '')) {
-          return of(endGame({ winner: null, winningPositions: null }));
+          return of(
+            endGame({ outcome: OutcomeEnum.Draw, winningPositions: null })
+          );
         } else {
           return of(switchPlayer());
         }
@@ -42,10 +45,18 @@ export class GameEffects {
     )
   );
 
-  endGame$ = createEffect(() =>
+  attemptMove$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(endGame),
-      switchMap(() => of(switchPlayer()))
+      ofType(attemptMove),
+      withLatestFrom(this.store.select(selectGameBoard)),
+      switchMap(([action, gameBoard]) => {
+        // If the square is already taken, do nothing
+        if (gameBoard[action.position].gamePiece !== '') {
+          return of({ type: 'NO_OP' }); // return a no-op action
+        }
+
+        return of(makeMove({ position: action.position }));
+      })
     )
   );
 }

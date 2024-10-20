@@ -1,13 +1,13 @@
 import {
   selectGameBoard,
   selectCurrentPlayer,
-  selectWinner,
   selectPlayer1,
   selectPlayer2,
   selectDraws,
-  selectIsDraw,
+  selectOutcome,
 } from './game.selectors';
 import { GameState } from './game.reducer';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
 describe('Game Selectors', () => {
   const initialState: GameState = {
@@ -27,8 +27,7 @@ describe('Game Selectors', () => {
       piece: 'X',
       wins: 0,
     },
-    winner: null,
-    isDraw: false,
+    outcome: OutcomeEnum.None,
     draws: 0,
   };
 
@@ -40,11 +39,6 @@ describe('Game Selectors', () => {
   it('should select the current player', () => {
     const result = selectCurrentPlayer.projector(initialState);
     expect(result).toEqual(initialState.currentPlayer);
-  });
-
-  it('should select the winner', () => {
-    const result = selectWinner.projector(initialState);
-    expect(result).toEqual(initialState.winner);
   });
 
   it('should select player 1', () => {
@@ -62,8 +56,8 @@ describe('Game Selectors', () => {
     expect(result).toEqual(initialState.draws);
   });
 
-  it('should select if the game is a draw', () => {
-    const result = selectIsDraw.projector(initialState);
-    expect(result).toEqual(initialState.isDraw);
+  it('should select the outcome', () => {
+    const result = selectOutcome.projector(initialState);
+    expect(result).toEqual(initialState.outcome);
   });
 });

@@ -1,7 +1,6 @@
-import { gameReducer, initialState, GameState } from './game.reducer';
+import { gameReducer, initialState } from './game.reducer';
 import { startGame, makeMove, endGame, switchPlayer } from './game.actions';
-import { Player } from '../../models/player';
-import { Square } from '../../models/square';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
 describe('Game Reducer', () => {
   it('should return the initial state', () => {
@@ -10,23 +9,22 @@ describe('Game Reducer', () => {
   });
 
   it('should handle startGame action', () => {
-    const action = startGame();
-    const state = gameReducer(initialState, action);
+    const state = gameReducer(initialState, startGame());
     expect(state.gameBoard).toEqual(
       Array(9).fill({ gamePiece: '', isWinner: false })
     );
-    expect(state.winner).toBeNull();
-    expect(state.isDraw).toBe(false);
+    expect(state.outcome).toEqual(OutcomeEnum.None);
   });
 
   it('should handle makeMove action', () => {
     const position = 0;
-    const action = makeMove({ position });
-    const state = gameReducer(initialState, action);
-    expect(state.gameBoard[position].gamePiece).toBe('X');
+    const state = gameReducer(initialState, makeMove({ position }));
+    expect(state.gameBoard[position].gamePiece).toEqual(
+      initialState.currentPlayer.piece
+    );
   });
 
-  it('should not allow a move on an already occupied square', () => {
+  it('should not allow a move on an already taken square', () => {
     const position = 0;
     const stateWithMove = gameReducer(initialState, makeMove({ position }));
     const stateWithInvalidMove = gameReducer(
@@ -36,28 +34,30 @@ describe('Game Reducer', () => {
     expect(stateWithInvalidMove).toEqual(stateWithMove);
   });
 
-  it('should handle endGame action with a winner', () => {
-    const winner: Player = initialState.player1;
+  it('should handle endGame action with a win', () => {
     const winningPositions = [0, 1, 2];
-    const action = endGame({ winner, winningPositions });
-    const state = gameReducer(initialState, action);
-    expect(state.winner).toEqual(winner);
-    expect(state.player1.wins).toBe(1);
+    const state = gameReducer(
+      initialState,
+      endGame({ outcome: OutcomeEnum.Win, winningPositions })
+    );
+    expect(state.outcome).toEqual(OutcomeEnum.Win);
     expect(state.gameBoard[0].isWinner).toBe(true);
     expect(state.gameBoard[1].isWinner).toBe(true);
     expect(state.gameBoard[2].isWinner).toBe(true);
+    expect(state.player1.wins).toBe(1);
   });
 
   it('should handle endGame action with a draw', () => {
-    const action = endGame({ winner: null, winningPositions: [] });
-    const state = gameReducer(initialState, action);
-    expect(state.isDraw).toBe(true);
+    const state = gameReducer(
+      initialState,
+      endGame({ outcome: OutcomeEnum.Draw, winningPositions: [] })
+    );
+    expect(state.outcome).toEqual(OutcomeEnum.Draw);
     expect(state.draws).toBe(1);
   });
 
   it('should handle switchPlayer action', () => {
-    const action = switchPlayer();
-    const state = gameReducer(initialState, action);
+    const state = gameReducer(initialState, switchPlayer());
     expect(state.currentPlayer).toEqual(initialState.player2);
   });
 });

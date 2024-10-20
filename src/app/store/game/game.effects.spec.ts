@@ -4,9 +4,10 @@ import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { Observable, of } from 'rxjs';
 import { GameEffects } from './game.effects';
 import { GameService } from '../../services/game.service';
-import { makeMove, endGame, switchPlayer } from './game.actions';
+import { makeMove, endGame, switchPlayer, attemptMove } from './game.actions';
 import { GameState } from './game.reducer';
-import { selectGameBoard, selectCurrentPlayer } from './game.selectors';
+import { selectGameBoard } from './game.selectors';
+import { OutcomeEnum } from '../../enums/outcome.enum';
 
 describe('GameEffects', () => {
   let actions$: Observable<any>;
@@ -18,6 +19,7 @@ describe('GameEffects', () => {
     game: {
       board: Array(9).fill({ gamePiece: '' }),
       currentPlayer: { piece: 'X', name: 'Player 1', wins: 0 },
+      outcome: OutcomeEnum.None,
     },
   };
 
@@ -48,6 +50,7 @@ describe('GameEffects', () => {
     const updatedBoard = initialState.game.board.map((cell, index) =>
       winningPositions.includes(index) ? { gamePiece: 'X' } : cell
     );
+
     store.overrideSelector(selectGameBoard, updatedBoard);
     gameService.calculateWinner.and.returnValue(winningPositions);
 
@@ -55,7 +58,7 @@ describe('GameEffects', () => {
 
     effects.makeMove$.subscribe((result) => {
       expect(result).toEqual(
-        endGame({ winner: initialState.game.currentPlayer, winningPositions })
+        endGame({ outcome: OutcomeEnum.Win, winningPositions })
       );
       done();
     });
@@ -70,7 +73,9 @@ describe('GameEffects', () => {
     actions$ = of(action);
 
     effects.makeMove$.subscribe((result) => {
-      expect(result).toEqual(endGame({ winner: null, winningPositions: null }));
+      expect(result).toEqual(
+        endGame({ outcome: OutcomeEnum.Draw, winningPositions: null })
+      );
       done();
     });
   });
@@ -89,13 +94,28 @@ describe('GameEffects', () => {
     });
   });
 
-  it('should dispatch switchPlayer when endGame is dispatched', (done) => {
-    const action = endGame({ winner: null, winningPositions: null });
+  it('should return NO_OP action when attempting a move and the square is already taken', (done) => {
+    const action = attemptMove({ position: 0 });
+    const takenPosition = [{ gamePiece: 'X', isWinner: false }];
+    store.overrideSelector(selectGameBoard, takenPosition);
 
     actions$ = of(action);
 
-    effects.endGame$.subscribe((result) => {
-      expect(result).toEqual(switchPlayer());
+    effects.attemptMove$.subscribe((result) => {
+      expect(result).toEqual({ type: 'NO_OP' });
+      done();
+    });
+  });
+
+  it('should dispatch makeMove when attempting a move and the square is not already taken', (done) => {
+    const action = attemptMove({ position: 0 });
+    const emptyBoard = Array(9).fill({ gamePiece: '', isWinner: false });
+    store.overrideSelector(selectGameBoard, emptyBoard);
+
+    actions$ = of(action);
+
+    effects.attemptMove$.subscribe((result) => {
+      expect(result).toEqual(makeMove({ position: action.position }));
       done();
     });
   });
