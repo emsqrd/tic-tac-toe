@@ -4,7 +4,6 @@ import { GameBoardComponent } from './game-board.component';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
 import {
-  selectCurrentPlayer,
   selectGameBoard,
   selectOutcome,
 } from '../../store/game/game.selectors';
@@ -12,7 +11,10 @@ import { attemptMove, startGame } from '../../store/game/game.actions';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { selectCurrentPlayerIndex } from '../../store/player/player.selectors';
+import {
+  selectCurrentPlayer,
+  selectCurrentPlayerIndex,
+} from '../../store/player/player.selectors';
 import { switchPlayer } from '../../store/player/player.actions';
 
 describe('GameBoardComponent', () => {
@@ -82,13 +84,16 @@ describe('GameBoardComponent', () => {
 
   it('should dispatch attemptMove action when a square is clicked and there is no outcome', () => {
     component.outcome = OutcomeEnum.None;
+    const currentPlayerMock = { name: 'Player 1', piece: 'X', wins: 0 };
 
     const squareDebugElement: DebugElement = fixture.debugElement.query(
       By.css('t3-square')
     );
     squareDebugElement.triggerEventHandler('click', null);
 
-    expect(dispatchSpy).toHaveBeenCalledWith(attemptMove({ position: 0 }));
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      attemptMove({ position: 0, currentPlayer: currentPlayerMock })
+    );
   });
 
   it('should dispatch startGame and swtichPlayer actions when a square is clicked and the outcome is not None', () => {

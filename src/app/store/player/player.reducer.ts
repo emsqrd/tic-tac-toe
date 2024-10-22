@@ -31,7 +31,6 @@ export const playerReducer = createReducer(
     const nextPlayerIndex = (state.currentPlayerIndex + 1) % 2;
     return {
       ...state,
-      currentPlayer: state.players[nextPlayerIndex],
       currentPlayerIndex: nextPlayerIndex,
     };
   }),

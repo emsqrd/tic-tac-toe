@@ -1,13 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { ScoringComponent } from './scoring.component';
-import {
-  selectPlayer1,
-  selectPlayer2,
-  selectCurrentPlayer,
-  selectDraws,
-  selectOutcome,
-} from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 
 describe('ScoringComponent', () => {
@@ -17,29 +10,21 @@ describe('ScoringComponent', () => {
   const initialState = {
     game: {
       gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-      player1: {
-        name: 'Player 1',
-        piece: 'X',
-        wins: 0,
-      },
-      player2: {
-        name: 'Player 2',
-        piece: 'O',
-        wins: 0,
-      },
-      currentPlayer: {
-        name: 'Player 1',
-        piece: 'X',
-        wins: 0,
-      },
       outcome: OutcomeEnum.None,
       draws: 0,
+    },
+    player: {
+      players: [
+        { name: 'Player 1', piece: 'X', wins: 0 },
+        { name: 'Player 2', piece: 'O', wins: 0 },
+      ],
+      currentPlayerIndex: 0,
     },
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ScoringComponent],
+      declarations: [ScoringComponent],
       providers: [provideMockStore({ initialState })],
     }).compileComponents();
 
@@ -53,83 +38,80 @@ describe('ScoringComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should select player1 from the store', () => {
-    store.overrideSelector(selectPlayer1, initialState.game.player1);
-    component.player1$.subscribe((player1) => {
-      expect(player1).toEqual(initialState.game.player1);
+  it('should select players from the store', (done) => {
+    component.players$.subscribe((players) => {
+      expect(players.length).toBe(2);
+      expect(players[0].name).toBe('Player 1');
+      expect(players[1].name).toBe('Player 2');
+      done();
     });
   });
 
-  it('should select player2 from the store', () => {
-    store.overrideSelector(selectPlayer2, initialState.game.player2);
-    component.player2$.subscribe((player2) => {
-      expect(player2).toEqual(initialState.game.player2);
-    });
-  });
-
-  it('should select currentPlayer from the store', () => {
-    store.overrideSelector(
-      selectCurrentPlayer,
-      initialState.game.currentPlayer
-    );
+  it('should select current player from the store', (done) => {
     component.currentPlayer$.subscribe((currentPlayer) => {
-      expect(currentPlayer).toEqual(initialState.game.currentPlayer);
+      expect(currentPlayer.name).toBe('Player 1');
+      done();
     });
   });
 
-  it('should select outcome from the store', () => {
-    store.overrideSelector(selectOutcome, initialState.game.outcome);
+  it('should select outcome from the store', (done) => {
     component.outcome$.subscribe((outcome) => {
-      expect(outcome).toEqual(initialState.game.outcome);
+      expect(outcome).toBe(OutcomeEnum.None);
+      done();
     });
   });
 
-  it('should select draws from the store', () => {
-    store.overrideSelector(selectDraws, initialState.game.draws);
+  it('should select draws from the store', (done) => {
     component.draws$.subscribe((draws) => {
-      expect(draws).toEqual(initialState.game.draws);
+      expect(draws).toBe(0);
+      done();
     });
   });
 
-  it('should return true for isResult when there is a winner', () => {
+  it('should return true for isResult when outcome is Win', () => {
     component.outcome = OutcomeEnum.Win;
     expect(component.isResult).toBeTrue();
   });
 
-  it('should return true for isResult when there is a draw', () => {
+  it('should return true for isResult when outcome is Draw', () => {
     component.outcome = OutcomeEnum.Draw;
     expect(component.isResult).toBeTrue();
   });
 
-  it('should return false for isResult when there is no winner or draw', () => {
+  it('should return false for isResult when outcome is None', () => {
     component.outcome = OutcomeEnum.None;
     expect(component.isResult).toBeFalse();
   });
 
-  it('should return true for selectPlayer1 when currentPlayer is player1', () => {
-    component.currentPlayer = initialState.game.player1;
+  it('should return true for selectPlayer1 when current player is player1', () => {
+    component.currentPlayer = { name: 'Player 1', piece: 'X', wins: 0 };
     expect(component.selectPlayer1).toBeTrue();
   });
 
-  it('should return true for selectPlayer2 when currentPlayer is player2', () => {
-    component.currentPlayer = initialState.game.player2;
+  it('should return true for selectPlayer2 when current player is player2', () => {
+    component.currentPlayer = { name: 'Player 2', piece: 'O', wins: 0 };
     expect(component.selectPlayer2).toBeTrue();
   });
 
-  it('should return true for selectDraw when there is a draw', () => {
+  it('should return true for selectDraw when outcome is Draw', () => {
     component.outcome = OutcomeEnum.Draw;
     expect(component.selectDraw).toBeTrue();
   });
 
-  it('should return true for player1Wins when winner is player1', () => {
+  it('should return true for isDraw when outcome is Draw', () => {
+    component.outcome = OutcomeEnum.Draw;
+    expect(component.isDraw).toBeTrue();
+  });
+
+  it('should return true for player1Wins when current player is player1 and outcome is Win', () => {
+    component.currentPlayer = { name: 'Player 1', piece: 'X', wins: 0 };
     component.outcome = OutcomeEnum.Win;
-    component.currentPlayer = initialState.game.player1;
     expect(component.player1Wins).toBeTrue();
   });
 
-  it('should return true for player2Wins when winner is player2', () => {
+  it('should return true for player2Wins when current player is player2 and outcome is Win', () => {
+    component.currentPlayer = { name: 'Player 2', piece: 'O', wins: 0 };
     component.outcome = OutcomeEnum.Win;
-    component.currentPlayer = initialState.game.player2;
     expect(component.player2Wins).toBeTrue();
   });
 });

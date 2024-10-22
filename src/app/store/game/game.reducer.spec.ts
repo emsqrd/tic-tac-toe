@@ -24,8 +24,9 @@ describe('Game Reducer', () => {
       initialState,
       makeMove({ position, currentPlayer: currentPlayerMock })
     );
+
     expect(state.gameBoard[position].gamePiece).toEqual(
-      initialState.currentPlayer.piece
+      currentPlayerMock.piece
     );
   });
 
@@ -52,7 +53,6 @@ describe('Game Reducer', () => {
     expect(state.gameBoard[0].isWinner).toBe(true);
     expect(state.gameBoard[1].isWinner).toBe(true);
     expect(state.gameBoard[2].isWinner).toBe(true);
-    expect(state.player1.wins).toBe(1);
   });
 
   it('should handle endGame action with a draw', () => {
@@ -62,10 +62,5 @@ describe('Game Reducer', () => {
     );
     expect(state.outcome).toEqual(OutcomeEnum.Draw);
     expect(state.draws).toBe(1);
-  });
-
-  it('should handle switchPlayer action', () => {
-    const state = gameReducer(initialState, switchPlayer());
-    expect(state.currentPlayer).toEqual(initialState.player2);
   });
 });

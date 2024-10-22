@@ -10,7 +10,6 @@ describe('Player Reducer', () => {
   it('should handle switchPlayer action', () => {
     const state = playerReducer(initialState, switchPlayer());
     expect(state.currentPlayerIndex).toBe(1);
-    expect(state.currentPlayer).toEqual(state.players[1]);
   });
 
   it('should handle switchPlayer action when currentPlayerIndex is 0', () => {
@@ -19,6 +18,5 @@ describe('Player Reducer', () => {
       switchPlayer()
     );
     expect(state.currentPlayerIndex).toBe(1);
-    expect(state.currentPlayer).toEqual(state.players[1]);
   });
 });

@@ -19,11 +19,6 @@ describe('Player Selectors', () => {
         wins: 0,
       },
     ],
-    currentPlayer: {
-      name: 'Player 1',
-      piece: 'X',
-      wins: 0,
-    },
     currentPlayerIndex: 0,
   };
 
@@ -43,6 +38,6 @@ describe('Player Selectors', () => {
       initialState.players,
       curentPlayerIndex
     );
-    expect(result).toEqual(initialState.currentPlayer);
+    expect(result).toEqual(initialState.players[curentPlayerIndex]);
   });
 });

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { withLatestFrom, switchMap, of } from 'rxjs';
+import { withLatestFrom, switchMap, of, tap } from 'rxjs';
 import { GameService } from '../../services/game.service';
 import { makeMove, endGame, attemptMove } from './game.actions';
 import { GameState } from './game.reducer';
@@ -42,12 +42,15 @@ export class GameEffects {
   makeMove$ = createEffect(() =>
     this.actions$.pipe(
       ofType(makeMove),
+      tap((action) => console.log('Effect received action:', action)), // Add logging here
       withLatestFrom(
         this.store.select(selectGameBoard),
         this.store.select(selectCurrentPlayer)
       ),
       switchMap(([action, gameBoard]) => {
+        console.log('Inside makeMove$ switchMap'); // Add logging here
         const winningPositions = this.gameService.calculateWinner(gameBoard);
+        console.log('Winner calculated:', winningPositions); // Add logging here
 
         if (winningPositions) {
           return of(endGame({ outcome: OutcomeEnum.Win, winningPositions }));
