@@ -24,7 +24,6 @@ describe('ScoringComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ScoringComponent],
       providers: [provideMockStore({ initialState })],
     }).compileComponents();
 

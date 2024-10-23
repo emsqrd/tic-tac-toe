@@ -42,15 +42,12 @@ export class GameEffects {
   makeMove$ = createEffect(() =>
     this.actions$.pipe(
       ofType(makeMove),
-      tap((action) => console.log('Effect received action:', action)), // Add logging here
       withLatestFrom(
         this.store.select(selectGameBoard),
         this.store.select(selectCurrentPlayer)
       ),
       switchMap(([action, gameBoard]) => {
-        console.log('Inside makeMove$ switchMap'); // Add logging here
         const winningPositions = this.gameService.calculateWinner(gameBoard);
-        console.log('Winner calculated:', winningPositions); // Add logging here
 
         if (winningPositions) {
           return of(endGame({ outcome: OutcomeEnum.Win, winningPositions }));

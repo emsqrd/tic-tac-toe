@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { provideMockStore } from '@ngrx/store/testing';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Observable, of } from 'rxjs';
 import { GameEffects } from './game.effects';
 import { GameService } from '../../services/game.service';
@@ -32,10 +32,11 @@ const initialPlayerStateMock: PlayerState = {
   currentPlayerIndex: 0,
 };
 
-fdescribe('GameEffects', () => {
+describe('GameEffects', () => {
   let actions$: Observable<any>;
   let effects: GameEffects;
   let gameService: jasmine.SpyObj<GameService>;
+  let mockStore: MockStore;
 
   beforeEach(() => {
     gameService = jasmine.createSpyObj('GameService', ['calculateWinner']);
@@ -55,6 +56,7 @@ fdescribe('GameEffects', () => {
     });
 
     effects = TestBed.inject(GameEffects);
+    mockStore = TestBed.inject(MockStore);
   });
 
   it('should dispatch makeMove action on attemptMove if the square is not taken', (done) => {
@@ -65,7 +67,6 @@ fdescribe('GameEffects', () => {
     actions$ = of(action);
 
     effects.attemptMove$.subscribe((result) => {
-      console.log('Effect emitted:', result); // Add logging here
       expect(result).toEqual(
         makeMove({
           position: 0,
@@ -92,19 +93,24 @@ fdescribe('GameEffects', () => {
     });
   });
 
-  fit('should dispatch endGame action with Draw outcome if the board is full and no winner', (done) => {
+  it('should dispatch endGame action with Draw outcome if the board is full and no winner', (done) => {
     // simulate a full board without a winn
+    const fullBoardMock = {
+      ...initialGameStateMock,
+      gameBoard: Array(9).fill({ gamePiece: 'X', isWinner: false }),
+    };
+
+    // set the mock state with the full board
+    mockStore.setState({ game: fullBoardMock, player: initialPlayerStateMock });
 
     const action = makeMove({
       position: 0,
       currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
     });
-    console.log('Dispatching action:', action); // Add logging here
     actions$ = of(action);
     gameService.calculateWinner.and.returnValue(null);
 
     effects.makeMove$.subscribe((result) => {
-      console.log('Effect emitted:', result); // Add logging here
       expect(result).toEqual(
         endGame({ outcome: OutcomeEnum.Draw, winningPositions: null })
       );
