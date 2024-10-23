@@ -78,6 +78,32 @@ describe('GameEffects', () => {
     });
   });
 
+  // ! This test keeps failing intermittently possibly because of setState
+  it('should dispatch no-op action on attemptMove if the square is taken', (done) => {
+    const action = attemptMove({
+      position: 0,
+      currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
+    });
+
+    actions$ = of(action);
+
+    mockStore.setState({
+      game: {
+        ...initialGameStateMock,
+        gameBoard: [
+          { gamePiece: 'X', isWinner: false },
+          ...Array(8).fill({ gamePiece: '', isWinner: false }),
+        ],
+      },
+      player: initialPlayerStateMock,
+    });
+
+    effects.attemptMove$.subscribe((result) => {
+      expect(result).toEqual({ type: 'NO_OP' });
+      done();
+    });
+  });
+
   it('should dispatch endGame action with Win outcome if there is a winner', (done) => {
     const action = makeMove({
       position: 0,
@@ -94,6 +120,8 @@ describe('GameEffects', () => {
     });
   });
 
+  // ! This test keeps failing intermittently possibly because of setState
+  // ! CoPilot had me use fakeAsync, tick and flush but it still fails intermittently
   it('should dispatch endGame action with Draw outcome if the board is full and no winner', fakeAsync(() => {
     const testScheduler = new TestScheduler((actual, expected) => {
       expect(actual).toEqual(expected);
@@ -121,6 +149,7 @@ describe('GameEffects', () => {
 
       gameService.calculateWinner.and.returnValue(null);
 
+      flush();
       // Use tick to ensure the state is set before the action is processed
       tick();
 

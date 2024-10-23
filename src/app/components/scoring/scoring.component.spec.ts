@@ -87,8 +87,18 @@ describe('ScoringComponent', () => {
     expect(component.selectPlayer1).toBeTrue();
   });
 
+  it('should return true for selectPlayer1 when isResult is true', () => {
+    component.outcome = OutcomeEnum.Win;
+    expect(component.selectPlayer1).toBeTrue();
+  });
+
   it('should return true for selectPlayer2 when current player is player2', () => {
     component.currentPlayer = { name: 'Player 2', piece: 'O', wins: 0 };
+    expect(component.selectPlayer2).toBeTrue();
+  });
+
+  it('should return true for selectPlayer2 when isResult is true', () => {
+    component.outcome = OutcomeEnum.Win;
     expect(component.selectPlayer2).toBeTrue();
   });
 
