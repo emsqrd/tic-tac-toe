@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Observable, of } from 'rxjs';
@@ -94,7 +94,7 @@ describe('GameEffects', () => {
     });
   });
 
-  it('should dispatch endGame action with Draw outcome if the board is full and no winner', (done) => {
+  it('should dispatch endGame action with Draw outcome if the board is full and no winner', fakeAsync(() => {
     const testScheduler = new TestScheduler((actual, expected) => {
       expect(actual).toEqual(expected);
     });
@@ -121,13 +121,14 @@ describe('GameEffects', () => {
 
       gameService.calculateWinner.and.returnValue(null);
 
+      // Use tick to ensure the state is set before the action is processed
+      tick();
+
       expectObservable(effects.makeMove$).toBe('-b', {
         b: endGame({ outcome: OutcomeEnum.Draw, winningPositions: null }),
       });
-
-      done();
     });
-  });
+  }));
 
   it('should dispatch switchPlayer action if there is no winner and the board is not full', (done) => {
     const action = makeMove({
