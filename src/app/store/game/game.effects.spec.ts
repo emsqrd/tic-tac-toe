@@ -9,6 +9,7 @@ import { OutcomeEnum } from '../../enums/outcome.enum';
 import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { GameState } from './game.reducer';
 import { PlayerState } from '../player/player.reducer';
+import { TestScheduler } from 'rxjs/testing';
 
 const initialGameStateMock: GameState = {
   gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
@@ -94,26 +95,36 @@ describe('GameEffects', () => {
   });
 
   it('should dispatch endGame action with Draw outcome if the board is full and no winner', (done) => {
-    // simulate a full board without a winn
-    const fullBoardMock = {
-      ...initialGameStateMock,
-      gameBoard: Array(9).fill({ gamePiece: 'X', isWinner: false }),
-    };
-
-    // set the mock state with the full board
-    mockStore.setState({ game: fullBoardMock, player: initialPlayerStateMock });
-
-    const action = makeMove({
-      position: 0,
-      currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
+    const testScheduler = new TestScheduler((actual, expected) => {
+      expect(actual).toEqual(expected);
     });
-    actions$ = of(action);
-    gameService.calculateWinner.and.returnValue(null);
 
-    effects.makeMove$.subscribe((result) => {
-      expect(result).toEqual(
-        endGame({ outcome: OutcomeEnum.Draw, winningPositions: null })
-      );
+    testScheduler.run(({ hot, cold, expectObservable }) => {
+      // simulate a full board without a winner
+      const fullBoardMock = {
+        ...initialGameStateMock,
+        gameBoard: Array(9).fill({ gamePiece: 'X', isWinner: false }),
+      };
+
+      // set the mock state with the full board
+      mockStore.setState({
+        game: fullBoardMock,
+        player: initialPlayerStateMock,
+      });
+
+      const action = makeMove({
+        position: 0,
+        currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
+      });
+
+      actions$ = hot('-a', { a: action });
+
+      gameService.calculateWinner.and.returnValue(null);
+
+      expectObservable(effects.makeMove$).toBe('-b', {
+        b: endGame({ outcome: OutcomeEnum.Draw, winningPositions: null }),
+      });
+
       done();
     });
   });
