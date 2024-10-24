@@ -1,4 +1,13 @@
 <article class="game-board-container">
+  <section>
+    <div>
+      <input
+        type="button"
+        value="{{ gameModeValue }}"
+        (click)="gameModeClick()"
+      />
+    </div>
+  </section>
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
     <div class="game-board-grid">
       @for (square of gameBoard$ | async; track $index){

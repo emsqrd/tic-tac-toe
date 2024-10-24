@@ -1,6 +1,7 @@
 import { createAction, props } from '@ngrx/store';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { Player } from '../../models/player';
+import { GameModeEnum } from '../../enums/game-mode.enum';
 
 export const startGame = createAction('[Game] Start Game');
 export const attemptMove = createAction(
@@ -16,3 +17,4 @@ export const endGame = createAction(
   '[Game] End Game',
   props<{ outcome: OutcomeEnum; winningPositions: number[] | null }>()
 );
+export const switchGameMode = createAction('[Game] Switch Game Mode');

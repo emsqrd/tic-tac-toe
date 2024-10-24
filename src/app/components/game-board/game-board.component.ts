@@ -5,9 +5,14 @@ import { ScoringComponent } from '../scoring/scoring.component';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { GameState } from '../../store/game/game.reducer';
-import { attemptMove, startGame } from '../../store/game/game.actions';
+import {
+  attemptMove,
+  switchGameMode,
+  startGame,
+} from '../../store/game/game.actions';
 import {
   selectGameBoard,
+  selectGameMode,
   selectOutcome,
 } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
@@ -15,6 +20,7 @@ import { switchPlayer } from '../../store/player/player.actions';
 import { Player } from '../../models/player';
 import { selectCurrentPlayer } from '../../store/player/player.selectors';
 import { Square } from '../../models/square';
+import { GameModeEnum } from '../../enums/game-mode.enum';
 
 @Component({
   selector: 't3-game-board',
@@ -27,14 +33,19 @@ export class GameBoardComponent implements OnInit {
   gameBoard$: Observable<Square[]>;
   outcome$: Observable<OutcomeEnum>;
   currentPlayer$: Observable<Player>;
+  gameMode$: Observable<GameModeEnum>;
 
   outcome!: OutcomeEnum;
   currentPlayer!: Player;
+  gameMode!: GameModeEnum;
+
+  gameModeValue!: string;
 
   constructor(private store: Store<{ game: GameState }>) {
     this.gameBoard$ = store.select(selectGameBoard);
     this.outcome$ = store.select(selectOutcome);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
+    this.gameMode$ = store.select(selectGameMode);
   }
 
   get isDraw() {
@@ -50,6 +61,11 @@ export class GameBoardComponent implements OnInit {
     this.currentPlayer$.subscribe((player) => {
       this.currentPlayer = player;
     });
+
+    this.gameMode$.subscribe((gameMode) => {
+      this.gameMode = gameMode;
+      this.gameModeValue = gameMode.valueOf();
+    });
   }
 
   // Clicking a square triggers a move
@@ -64,5 +80,9 @@ export class GameBoardComponent implements OnInit {
         attemptMove({ position, currentPlayer: this.currentPlayer })
       );
     }
+  }
+
+  gameModeClick() {
+    this.store.dispatch(switchGameMode({ mode: this.gameMode }));
   }
 }

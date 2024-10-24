@@ -1,7 +1,8 @@
 import { createReducer, on } from '@ngrx/store';
 import { Square } from '../../models/square';
-import { endGame, makeMove, startGame } from './game.actions';
+import { endGame, makeMove, switchGameMode, startGame } from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
+import { GameModeEnum } from '../../enums/game-mode.enum';
 
 export const gameFeatureKey = 'game';
 
@@ -9,12 +10,14 @@ export interface GameState {
   gameBoard: Square[];
   outcome: OutcomeEnum;
   draws: number;
+  gameMode: GameModeEnum;
 }
 
 export const initialState: GameState = {
   gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
   outcome: OutcomeEnum.None,
   draws: 0,
+  gameMode: GameModeEnum.TwoPlayer,
 };
 
 export const gameReducer = createReducer(
@@ -57,6 +60,17 @@ export const gameReducer = createReducer(
       gameBoard: newBoard,
       draws,
       outcome,
+    };
+  }),
+  on(switchGameMode, (state) => {
+    const newGameMode =
+      state.gameMode === GameModeEnum.TwoPlayer
+        ? GameModeEnum.SinglePlayer
+        : GameModeEnum.TwoPlayer;
+
+    return {
+      ...state,
+      gameMode: newGameMode,
     };
   })
 );
