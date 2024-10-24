@@ -20,6 +20,7 @@ import {
 import { switchPlayer } from '../../store/player/player.actions';
 import { GameState } from '../../store/game/game.reducer';
 import { PlayerState } from '../../store/player/player.reducer';
+import { GameModeEnum } from '../../enums/game-mode.enum';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -31,6 +32,7 @@ describe('GameBoardComponent', () => {
     gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
     outcome: OutcomeEnum.None,
     draws: 0,
+    gameMode: GameModeEnum.TwoPlayer,
   };
 
   const initialPlayerState: PlayerState = {

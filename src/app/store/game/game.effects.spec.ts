@@ -10,11 +10,13 @@ import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { GameState } from './game.reducer';
 import { PlayerState } from '../player/player.reducer';
 import { TestScheduler } from 'rxjs/testing';
+import { GameModeEnum } from '../../enums/game-mode.enum';
 
 const initialGameStateMock: GameState = {
   gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
   outcome: OutcomeEnum.None,
   draws: 0,
+  gameMode: GameModeEnum.TwoPlayer,
 };
 
 const initialPlayerStateMock: PlayerState = {
