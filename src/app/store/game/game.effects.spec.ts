@@ -124,6 +124,7 @@ describe('GameEffects', () => {
     });
   });
 
+  // Keeping this as marble syntax as an example in case I want to use this later on
   it('should dispatch endGame action with Draw outcome if the board is full and no winner', fakeAsync(() => {
     const testScheduler = new TestScheduler((actual, expected) => {
       expect(actual).toEqual(expected);

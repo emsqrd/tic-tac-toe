@@ -91,7 +91,7 @@ describe('GameBoardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('should dispatch attemptMove action when a square is clicked and there is no outcome', () => {
+  it('should dispatch attemptMove action when a square is clicked and there is no outcome', () => {
     component.outcome = OutcomeEnum.None;
     const currentPlayerMock = { name: 'Player 1', piece: 'X', wins: 0 };
 
@@ -105,7 +105,7 @@ describe('GameBoardComponent', () => {
     );
   });
 
-  xit('should dispatch startGame and swtichPlayer actions when a square is clicked and the outcome is not None', () => {
+  it('should dispatch startGame and swtichPlayer actions when a square is clicked and the outcome is not None', () => {
     component.outcome = OutcomeEnum.Win;
 
     const squareDebugElement: DebugElement = fixture.debugElement.query(
@@ -117,12 +117,12 @@ describe('GameBoardComponent', () => {
     expect(dispatchSpy).toHaveBeenCalledWith(switchPlayer());
   });
 
-  xit('should return true when the outcome is a draw', () => {
+  it('should return true when the outcome is a draw', () => {
     component.outcome = OutcomeEnum.Draw;
     expect(component.isDraw).toBeTrue();
   });
 
-  xit('should return false when the outcome is not a draw', () => {
+  it('should return false when the outcome is not a draw', () => {
     component.outcome = OutcomeEnum.Win;
     expect(component.isDraw).toBeFalse();
   });
