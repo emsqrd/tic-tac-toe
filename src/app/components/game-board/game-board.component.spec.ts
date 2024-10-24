@@ -4,18 +4,22 @@ import { GameBoardComponent } from './game-board.component';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
 import {
-  selectCurrentPlayer,
+  selectDraws,
   selectGameBoard,
   selectOutcome,
 } from '../../store/game/game.selectors';
-import {
-  attemptMove,
-  startGame,
-  switchPlayer,
-} from '../../store/game/game.actions';
+import { attemptMove, startGame } from '../../store/game/game.actions';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 import { OutcomeEnum } from '../../enums/outcome.enum';
+import {
+  selectCurrentPlayer,
+  selectCurrentPlayerIndex,
+  selectPlayers,
+} from '../../store/player/player.selectors';
+import { switchPlayer } from '../../store/player/player.actions';
+import { GameState } from '../../store/game/game.reducer';
+import { PlayerState } from '../../store/player/player.reducer';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -23,33 +27,35 @@ describe('GameBoardComponent', () => {
   let store: MockStore;
   let dispatchSpy: jasmine.Spy;
 
-  const initialState = {
-    game: {
-      gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-      player1: {
+  const initialGameState: GameState = {
+    gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
+    outcome: OutcomeEnum.None,
+    draws: 0,
+  };
+
+  const initialPlayerState: PlayerState = {
+    players: [
+      {
         name: 'Player 1',
         piece: 'X',
         wins: 0,
       },
-      player2: {
+      {
         name: 'Player 2',
         piece: 'O',
         wins: 0,
       },
-      currentPlayer: {
-        name: 'Player 1',
-        piece: 'X',
-        wins: 0,
-      },
-      outcome: OutcomeEnum.None,
-      draws: 0,
-    },
+    ],
+    currentPlayerIndex: 0,
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [GameBoardComponent, SquareComponent, ScoringComponent],
-      providers: [provideMockStore({ initialState })],
+      providers: [
+        provideMockStore({ initialState: initialGameState }),
+        provideMockStore({ initialState: initialPlayerState }),
+      ],
     }).compileComponents();
 
     store = TestBed.inject(MockStore);
@@ -57,14 +63,28 @@ describe('GameBoardComponent', () => {
     component = fixture.componentInstance;
     dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
 
-    store.overrideSelector(selectGameBoard, initialState.game.gameBoard);
+    store.overrideSelector(selectGameBoard, initialGameState.gameBoard);
+    store.overrideSelector(selectOutcome, initialGameState.outcome);
     store.overrideSelector(
       selectCurrentPlayer,
-      initialState.game.currentPlayer
+      initialPlayerState.players[initialPlayerState.currentPlayerIndex]
     );
-    store.overrideSelector(selectOutcome, initialState.game.outcome);
 
+    // selectors used by scoring component
+    store.overrideSelector(selectPlayers, initialPlayerState.players);
+    store.overrideSelector(selectDraws, initialGameState.draws);
+
+    // Reset the state before each test
+    store.setState({
+      game: initialGameState,
+      player: initialPlayerState,
+    });
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    // Clean up any resources or subscriptions
+    store.resetSelectors();
   });
 
   it('should create', () => {
@@ -73,13 +93,16 @@ describe('GameBoardComponent', () => {
 
   it('should dispatch attemptMove action when a square is clicked and there is no outcome', () => {
     component.outcome = OutcomeEnum.None;
+    const currentPlayerMock = { name: 'Player 1', piece: 'X', wins: 0 };
 
     const squareDebugElement: DebugElement = fixture.debugElement.query(
       By.css('t3-square')
     );
     squareDebugElement.triggerEventHandler('click', null);
 
-    expect(dispatchSpy).toHaveBeenCalledWith(attemptMove({ position: 0 }));
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      attemptMove({ position: 0, currentPlayer: currentPlayerMock })
+    );
   });
 
   it('should dispatch startGame and swtichPlayer actions when a square is clicked and the outcome is not None', () => {

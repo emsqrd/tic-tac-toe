@@ -3,15 +3,13 @@ import { Component, Input } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Player } from '../../models/player';
 import { GameState } from '../../store/game/game.reducer';
-import {
-  selectPlayer1,
-  selectPlayer2,
-  selectCurrentPlayer,
-  selectDraws,
-  selectOutcome,
-} from '../../store/game/game.selectors';
+import { selectDraws, selectOutcome } from '../../store/game/game.selectors';
 import { Observable } from 'rxjs';
 import { OutcomeEnum } from '../../enums/outcome.enum';
+import {
+  selectCurrentPlayer,
+  selectPlayers,
+} from '../../store/player/player.selectors';
 
 @Component({
   selector: 't3-scoring',
@@ -21,8 +19,7 @@ import { OutcomeEnum } from '../../enums/outcome.enum';
   styleUrl: './scoring.component.scss',
 })
 export class ScoringComponent {
-  player1$: Observable<Player>;
-  player2$: Observable<Player>;
+  players$: Observable<Player[]>;
   currentPlayer$: Observable<Player>;
   outcome$: Observable<OutcomeEnum>;
   draws$: Observable<number>;
@@ -70,20 +67,16 @@ export class ScoringComponent {
   }
 
   constructor(private store: Store<{ game: GameState }>) {
-    this.player1$ = store.select(selectPlayer1);
-    this.player2$ = store.select(selectPlayer2);
+    this.players$ = store.select(selectPlayers);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
     this.outcome$ = store.select(selectOutcome);
     this.draws$ = store.select(selectDraws);
   }
 
   ngOnInit() {
-    this.player1$.subscribe((player1) => {
-      this.player1 = player1;
-    });
-
-    this.player2$.subscribe((player2) => {
-      this.player2 = player2;
+    this.players$.subscribe((players) => {
+      this.player1 = players[0];
+      this.player2 = players[1];
     });
 
     this.currentPlayer$.subscribe((currentPlayer) => {
