@@ -42,10 +42,7 @@ export class GameEffects {
   makeMove$ = createEffect(() =>
     this.actions$.pipe(
       ofType(makeMove),
-      withLatestFrom(
-        this.store.select(selectGameBoard),
-        this.store.select(selectCurrentPlayer)
-      ),
+      withLatestFrom(this.store.select(selectGameBoard)),
       switchMap(([action, gameBoard]) => {
         const winningPositions = this.gameService.calculateWinner(gameBoard);
 
