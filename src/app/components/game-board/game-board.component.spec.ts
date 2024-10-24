@@ -8,13 +8,16 @@ import {
   selectGameBoard,
   selectOutcome,
 } from '../../store/game/game.selectors';
-import { attemptMove, startGame } from '../../store/game/game.actions';
+import {
+  attemptMove,
+  startGame,
+  switchGameMode,
+} from '../../store/game/game.actions';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import {
   selectCurrentPlayer,
-  selectCurrentPlayerIndex,
   selectPlayers,
 } from '../../store/player/player.selectors';
 import { switchPlayer } from '../../store/player/player.actions';
@@ -127,5 +130,14 @@ describe('GameBoardComponent', () => {
   it('should return false when the outcome is not a draw', () => {
     component.outcome = OutcomeEnum.Win;
     expect(component.isDraw).toBeFalse();
+  });
+
+  it('should dispatch switchGameMode action when game mode button is clicked', () => {
+    const gameModeButtonDebugElement: DebugElement = fixture.debugElement.query(
+      By.css('#btnGameMode')
+    );
+    gameModeButtonDebugElement.triggerEventHandler('click', null);
+
+    expect(dispatchSpy).toHaveBeenCalledWith(switchGameMode());
   });
 });

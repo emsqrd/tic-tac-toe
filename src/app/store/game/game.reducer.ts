@@ -63,7 +63,7 @@ export const gameReducer = createReducer(
     };
   }),
   on(switchGameMode, (state) => {
-    const newGameMode =
+    let newGameMode =
       state.gameMode === GameModeEnum.TwoPlayer
         ? GameModeEnum.SinglePlayer
         : GameModeEnum.TwoPlayer;
