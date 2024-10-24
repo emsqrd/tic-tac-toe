@@ -83,6 +83,6 @@ export class GameBoardComponent implements OnInit {
   }
 
   gameModeClick() {
-    this.store.dispatch(switchGameMode({ mode: this.gameMode }));
+    this.store.dispatch(switchGameMode());
   }
 }
