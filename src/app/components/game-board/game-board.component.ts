@@ -16,7 +16,7 @@ import {
   selectOutcome,
 } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { switchPlayer } from '../../store/player/player.actions';
+import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
 import { Player } from '../../models/player';
 import { selectCurrentPlayer } from '../../store/player/player.selectors';
 import { Square } from '../../models/square';
@@ -73,7 +73,7 @@ export class GameBoardComponent implements OnInit {
   //  and switch the player
   squareClick(position: number) {
     if (this.outcome !== OutcomeEnum.None) {
-      this.store.dispatch(startGame());
+      this.store.dispatch(startGame({ gameMode: this.gameMode }));
       this.store.dispatch(switchPlayer());
     } else {
       this.store.dispatch(
@@ -84,5 +84,7 @@ export class GameBoardComponent implements OnInit {
 
   gameModeClick() {
     this.store.dispatch(switchGameMode());
+    this.store.dispatch(resetPlayers());
+    this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
 }

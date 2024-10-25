@@ -118,7 +118,9 @@ describe('GameBoardComponent', () => {
     );
     squareDebugElement.triggerEventHandler('click', null);
 
-    expect(dispatchSpy).toHaveBeenCalledWith(startGame());
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      startGame({ gameMode: initialGameState.gameMode })
+    );
     expect(dispatchSpy).toHaveBeenCalledWith(switchPlayer());
   });
 
@@ -139,5 +141,8 @@ describe('GameBoardComponent', () => {
     gameModeButtonDebugElement.triggerEventHandler('click', null);
 
     expect(dispatchSpy).toHaveBeenCalledWith(switchGameMode());
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      startGame({ gameMode: component.gameMode })
+    );
   });
 });

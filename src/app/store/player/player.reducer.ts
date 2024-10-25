@@ -1,6 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { Player } from '../../models/player';
-import { switchPlayer, updatePlayerWins } from './player.actions';
+import { resetPlayers, switchPlayer, updatePlayerWins } from './player.actions';
 
 export const playerFeatureKey = 'player';
 
@@ -27,6 +27,16 @@ export const initialState: PlayerState = {
 
 export const playerReducer = createReducer(
   initialState,
+  on(resetPlayers, (state) => {
+    return {
+      ...state,
+      players: state.players.map((player) => ({
+        ...player,
+        wins: 0,
+      })),
+      currentPlayerIndex: 0,
+    };
+  }),
   on(switchPlayer, (state) => {
     const nextPlayerIndex = (state.currentPlayerIndex + 1) % 2;
     return {
