@@ -2,12 +2,13 @@
   <section class="game-mode-container">
     <div>
       <!--? Idea for toggle: https://codepen.io/Enki/pen/oBqBqG?editors=1100 -->
-      <a id="btnGameMode" type="button" (click)="gameModeClick()">{{
-        gameModeValue
-      }}</a>
+      <a id="btnGameMode" type="button" (click)="gameModeClick()"
+        >{{ gameModeButtonText }}
+      </a>
     </div>
   </section>
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
+    @if (gameModeValue === '2p') {
     <div class="game-board-grid">
       @for (square of gameBoard$ | async; track $index){
       <t3-square
@@ -18,6 +19,11 @@
       ></t3-square>
       }
     </div>
+    } @else {
+    <div class="coming-soon">
+      <h1>coming soon</h1>
+    </div>
+    }
   </section>
   <section class="scoring-container">
     <t3-scoring class="scoring-content"></t3-scoring>

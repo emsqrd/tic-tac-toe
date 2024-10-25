@@ -53,6 +53,12 @@ export class GameBoardComponent implements OnInit {
     return this.outcome === OutcomeEnum.Draw;
   }
 
+  get gameModeButtonText() {
+    return this.gameModeValue === GameModeEnum.TwoPlayer
+      ? 'Two Player'
+      : 'Single Player';
+  }
+
   // Start the game when the component is initialized
   ngOnInit(): void {
     this.outcome$.subscribe((outcome) => {
