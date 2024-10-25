@@ -2,9 +2,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 * {
+  // base styling
   margin: 0;
   padding: 0;
   font-family: "Inter";
+
+  /* Disable the highlight effect on tap */
+  -webkit-tap-highlight-color: transparent; /* For Safari and iOS */
+  -webkit-touch-callout: none; /* Prevents callout on long press */
+  -webkit-user-select: none; /* Prevents text selection on tap */
+  user-select: none; /* General selection disabling */
 }
 
 @keyframes blink {
