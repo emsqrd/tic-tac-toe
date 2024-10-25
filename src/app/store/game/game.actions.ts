@@ -24,3 +24,6 @@ export const endGame = createAction(
 );
 
 export const switchGameMode = createAction('[Game] Switch Game Mode');
+
+// * Adding this temporarily until deciding on how to handle rounds
+export const resetDraws = createAction('[Game] Reset Draws');

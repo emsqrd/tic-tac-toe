@@ -1,5 +1,11 @@
 import { gameReducer, GameState } from './game.reducer';
-import { startGame, makeMove, endGame, switchGameMode } from './game.actions';
+import {
+  startGame,
+  makeMove,
+  endGame,
+  switchGameMode,
+  resetDraws,
+} from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { Player } from '../../models/player';
@@ -83,5 +89,21 @@ describe('Game Reducer', () => {
   it('should handle switchGameMode action and switch game modes', () => {
     const state = gameReducer(initialGameStateMock, switchGameMode());
     expect(state.gameMode).toEqual(GameModeEnum.SinglePlayer);
+  });
+
+  it('should handle switchGameMode action and switch game modes back', () => {
+    const state = gameReducer(
+      { ...initialGameStateMock, gameMode: GameModeEnum.SinglePlayer },
+      switchGameMode()
+    );
+    expect(state.gameMode).toEqual(GameModeEnum.TwoPlayer);
+  });
+
+  it('should handle resetDraws action', () => {
+    const state = gameReducer(
+      { ...initialGameStateMock, draws: 5 },
+      resetDraws()
+    );
+    expect(state.draws).toEqual(0);
   });
 });

@@ -1,6 +1,12 @@
 import { createReducer, on } from '@ngrx/store';
 import { Square } from '../../models/square';
-import { endGame, makeMove, switchGameMode, startGame } from './game.actions';
+import {
+  endGame,
+  makeMove,
+  switchGameMode,
+  startGame,
+  resetDraws,
+} from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 
@@ -76,6 +82,12 @@ export const gameReducer = createReducer(
     return {
       ...state,
       gameMode: newGameMode,
+    };
+  }),
+  on(resetDraws, (state) => {
+    return {
+      ...state,
+      draws: 0,
     };
   })
 );

@@ -9,6 +9,7 @@ import {
   attemptMove,
   switchGameMode,
   startGame,
+  resetDraws,
 } from '../../store/game/game.actions';
 import {
   selectGameBoard,
@@ -85,6 +86,7 @@ export class GameBoardComponent implements OnInit {
   gameModeClick() {
     this.store.dispatch(switchGameMode());
     this.store.dispatch(resetPlayers());
+    this.store.dispatch(resetDraws());
     this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
 }

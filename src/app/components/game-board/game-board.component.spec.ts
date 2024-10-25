@@ -10,6 +10,7 @@ import {
 } from '../../store/game/game.selectors';
 import {
   attemptMove,
+  resetDraws,
   startGame,
   switchGameMode,
 } from '../../store/game/game.actions';
@@ -20,7 +21,7 @@ import {
   selectCurrentPlayer,
   selectPlayers,
 } from '../../store/player/player.selectors';
-import { switchPlayer } from '../../store/player/player.actions';
+import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
 import { GameState } from '../../store/game/game.reducer';
 import { PlayerState } from '../../store/player/player.reducer';
 import { GameModeEnum } from '../../enums/game-mode.enum';
@@ -134,13 +135,15 @@ describe('GameBoardComponent', () => {
     expect(component.isDraw).toBeFalse();
   });
 
-  it('should dispatch switchGameMode action when game mode button is clicked', () => {
+  it('should switch the game mode, reset players, reset draws and start a new game when game mode button is clicked', () => {
     const gameModeButtonDebugElement: DebugElement = fixture.debugElement.query(
       By.css('#btnGameMode')
     );
     gameModeButtonDebugElement.triggerEventHandler('click', null);
 
     expect(dispatchSpy).toHaveBeenCalledWith(switchGameMode());
+    expect(dispatchSpy).toHaveBeenCalledWith(resetPlayers());
+    expect(dispatchSpy).toHaveBeenCalledWith(resetDraws());
     expect(dispatchSpy).toHaveBeenCalledWith(
       startGame({ gameMode: component.gameMode })
     );
