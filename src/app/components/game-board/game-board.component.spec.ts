@@ -8,18 +8,23 @@ import {
   selectGameBoard,
   selectOutcome,
 } from '../../store/game/game.selectors';
-import { attemptMove, startGame } from '../../store/game/game.actions';
+import {
+  attemptMove,
+  resetDraws,
+  startGame,
+  switchGameMode,
+} from '../../store/game/game.actions';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import {
   selectCurrentPlayer,
-  selectCurrentPlayerIndex,
   selectPlayers,
 } from '../../store/player/player.selectors';
-import { switchPlayer } from '../../store/player/player.actions';
+import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
 import { GameState } from '../../store/game/game.reducer';
 import { PlayerState } from '../../store/player/player.reducer';
+import { GameModeEnum } from '../../enums/game-mode.enum';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -31,6 +36,7 @@ describe('GameBoardComponent', () => {
     gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
     outcome: OutcomeEnum.None,
     draws: 0,
+    gameMode: GameModeEnum.TwoPlayer,
   };
 
   const initialPlayerState: PlayerState = {
@@ -113,7 +119,9 @@ describe('GameBoardComponent', () => {
     );
     squareDebugElement.triggerEventHandler('click', null);
 
-    expect(dispatchSpy).toHaveBeenCalledWith(startGame());
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      startGame({ gameMode: initialGameState.gameMode })
+    );
     expect(dispatchSpy).toHaveBeenCalledWith(switchPlayer());
   });
 
@@ -125,5 +133,19 @@ describe('GameBoardComponent', () => {
   it('should return false when the outcome is not a draw', () => {
     component.outcome = OutcomeEnum.Win;
     expect(component.isDraw).toBeFalse();
+  });
+
+  it('should switch the game mode, reset players, reset draws and start a new game when game mode button is clicked', () => {
+    const gameModeButtonDebugElement: DebugElement = fixture.debugElement.query(
+      By.css('#btnGameMode')
+    );
+    gameModeButtonDebugElement.triggerEventHandler('click', null);
+
+    expect(dispatchSpy).toHaveBeenCalledWith(switchGameMode());
+    expect(dispatchSpy).toHaveBeenCalledWith(resetPlayers());
+    expect(dispatchSpy).toHaveBeenCalledWith(resetDraws());
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      startGame({ gameMode: component.gameMode })
+    );
   });
 });

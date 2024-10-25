@@ -5,16 +5,23 @@ import { ScoringComponent } from '../scoring/scoring.component';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { GameState } from '../../store/game/game.reducer';
-import { attemptMove, startGame } from '../../store/game/game.actions';
+import {
+  attemptMove,
+  switchGameMode,
+  startGame,
+  resetDraws,
+} from '../../store/game/game.actions';
 import {
   selectGameBoard,
+  selectGameMode,
   selectOutcome,
 } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { switchPlayer } from '../../store/player/player.actions';
+import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
 import { Player } from '../../models/player';
 import { selectCurrentPlayer } from '../../store/player/player.selectors';
 import { Square } from '../../models/square';
+import { GameModeEnum } from '../../enums/game-mode.enum';
 
 @Component({
   selector: 't3-game-board',
@@ -27,18 +34,29 @@ export class GameBoardComponent implements OnInit {
   gameBoard$: Observable<Square[]>;
   outcome$: Observable<OutcomeEnum>;
   currentPlayer$: Observable<Player>;
+  gameMode$: Observable<GameModeEnum>;
 
   outcome!: OutcomeEnum;
   currentPlayer!: Player;
+  gameMode!: GameModeEnum;
+
+  gameModeValue!: string;
 
   constructor(private store: Store<{ game: GameState }>) {
     this.gameBoard$ = store.select(selectGameBoard);
     this.outcome$ = store.select(selectOutcome);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
+    this.gameMode$ = store.select(selectGameMode);
   }
 
   get isDraw() {
     return this.outcome === OutcomeEnum.Draw;
+  }
+
+  get gameModeButtonText() {
+    return this.gameModeValue === GameModeEnum.TwoPlayer
+      ? 'Two Player'
+      : 'Single Player';
   }
 
   // Start the game when the component is initialized
@@ -50,6 +68,11 @@ export class GameBoardComponent implements OnInit {
     this.currentPlayer$.subscribe((player) => {
       this.currentPlayer = player;
     });
+
+    this.gameMode$.subscribe((gameMode) => {
+      this.gameMode = gameMode;
+      this.gameModeValue = gameMode.valueOf();
+    });
   }
 
   // Clicking a square triggers a move
@@ -57,12 +80,19 @@ export class GameBoardComponent implements OnInit {
   //  and switch the player
   squareClick(position: number) {
     if (this.outcome !== OutcomeEnum.None) {
-      this.store.dispatch(startGame());
+      this.store.dispatch(startGame({ gameMode: this.gameMode }));
       this.store.dispatch(switchPlayer());
     } else {
       this.store.dispatch(
         attemptMove({ position, currentPlayer: this.currentPlayer })
       );
     }
+  }
+
+  gameModeClick() {
+    this.store.dispatch(switchGameMode());
+    this.store.dispatch(resetPlayers());
+    this.store.dispatch(resetDraws());
+    this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
 }

@@ -26,8 +26,14 @@ Tic-Tac-Toe is a two-player game where players take turns marking spaces in a 3Ã
 To get started with the Tic-Tac-Toe game, clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/tic-tac-toe.git
+git clone https://github.com/emsqrd/tic-tac-toe.git
 cd tic-tac-toe
+```
+
+To install project dependencies, run:
+
+```bash
+npm install
 ```
 
 ## Usage
@@ -35,13 +41,11 @@ cd tic-tac-toe
 Run the game using the following command:
 
 ```bash
-python main.py
+npm start
 ```
+
+Then open your browser and navigate to http://localhost:4200 to play the game.
 
 ## Contributing
 
 Contributions are welcome! Please fork the repository and create a pull request with your changes.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

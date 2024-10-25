@@ -17,3 +17,8 @@ export const selectOutcome = createSelector(
   selectGameState,
   (state) => state.outcome
 );
+
+export const selectGameMode = createSelector(
+  selectGameState,
+  (state) => state.gameMode
+);

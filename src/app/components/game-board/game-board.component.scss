@@ -6,9 +6,53 @@
     1fr min(32rem, calc(100% - var(--viewport-padding) * 2))
     1fr;
   grid-template-areas:
-    "winner content ."
+    ". game-mode ."
+    ". content ."
     ". scoring .";
   padding: var(--viewport-padding);
+}
+
+.game-mode-container {
+  grid-area: game-mode;
+}
+
+#btnGameMode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 1.5rem;
+  border: 2px solid black;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.1s;
+  margin-bottom: 2rem;
+  background-color: lightblue;
+}
+
+@keyframes fadeIn {
+  from {
+    top: 20%;
+    opacity: 0;
+  }
+  to {
+    top: 100;
+    opacity: 1;
+  }
+}
+.coming-soon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  animation: fadeIn 1000ms ease;
+
+  h1 {
+    font-size: 50px;
+    margin-bottom: 0;
+    line-height: 1;
+    font-weight: 500;
+  }
 }
 
 .game-board-content {
