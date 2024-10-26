@@ -59,6 +59,11 @@ export class GameBoardComponent implements OnInit {
       : 'Single Player';
   }
 
+  get showComingSoon() {
+    console.log(this.gameMode === GameModeEnum.SinglePlayer);
+    return this.gameMode === GameModeEnum.SinglePlayer;
+  }
+
   // Start the game when the component is initialized
   ngOnInit(): void {
     this.outcome$.subscribe((outcome) => {

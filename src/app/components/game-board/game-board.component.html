@@ -8,8 +8,10 @@
     </div>
   </section>
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
-    @if (gameModeValue === '2p') {
-    <div class="game-board-grid">
+    <div
+      class="game-board-grid"
+      [ngClass]="{ 'coming-soon-disabled': showComingSoon }"
+    >
       @for (square of gameBoard$ | async; track $index){
       <t3-square
         class="game-board-square"
@@ -19,13 +21,15 @@
       ></t3-square>
       }
     </div>
-    } @else {
+    @if (showComingSoon) {
     <div class="coming-soon">
       <h1>coming soon</h1>
     </div>
     }
   </section>
+  @if (!showComingSoon) {
   <section class="scoring-container">
     <t3-scoring class="scoring-content"></t3-scoring>
   </section>
+  }
 </article>
