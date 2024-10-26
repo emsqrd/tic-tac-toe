@@ -60,7 +60,6 @@ export class GameBoardComponent implements OnInit {
   }
 
   get showComingSoon() {
-    console.log(this.gameMode === GameModeEnum.SinglePlayer);
     return this.gameMode === GameModeEnum.SinglePlayer;
   }
 
