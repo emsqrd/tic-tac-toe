@@ -39,11 +39,29 @@ export const gameReducer = createReducer(
     };
   }),
   on(makeMove, (state, { position, currentPlayer }) => {
-    const newBoard = state.gameBoard.map((square, index) =>
-      index === position
-        ? { ...square, gamePiece: currentPlayer.piece }
-        : square
-    );
+    let newBoard = state.gameBoard;
+
+    if (
+      state.gameMode === GameModeEnum.TwoPlayer ||
+      currentPlayer.name === 'Player 1'
+    ) {
+      newBoard = state.gameBoard.map((square, index) =>
+        index === position
+          ? { ...square, gamePiece: currentPlayer.piece }
+          : square
+      );
+    } else {
+      let availableSquares = state.gameBoard.filter(
+        (square) => square.gamePiece === ''
+      );
+      let randomIndex = Math.floor(Math.random() * availableSquares.length);
+
+      newBoard = state.gameBoard.map((square, index) =>
+        index === randomIndex
+          ? { ...square, gamePiece: currentPlayer.piece }
+          : square
+      );
+    }
 
     return {
       ...state,

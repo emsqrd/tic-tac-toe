@@ -41,6 +41,7 @@ export class GameBoardComponent implements OnInit {
   gameMode!: GameModeEnum;
 
   gameModeValue!: string;
+  enableSinglePlayer = true;
 
   constructor(private store: Store<{ game: GameState }>) {
     this.gameBoard$ = store.select(selectGameBoard);
@@ -60,7 +61,9 @@ export class GameBoardComponent implements OnInit {
   }
 
   get showComingSoon() {
-    return this.gameMode === GameModeEnum.SinglePlayer;
+    return (
+      this.gameMode === GameModeEnum.SinglePlayer && !this.enableSinglePlayer
+    );
   }
 
   // Start the game when the component is initialized
