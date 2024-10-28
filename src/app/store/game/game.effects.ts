@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { withLatestFrom, switchMap, of, tap } from 'rxjs';
 import { GameService } from '../../services/game.service';
-import { makeMove, endGame, attemptMove } from './game.actions';
+import { makeMove, endGame, attemptMove, simulateMove } from './game.actions';
 import { GameState } from './game.reducer';
 import { selectGameBoard } from './game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
@@ -43,7 +43,7 @@ export class GameEffects {
     this.actions$.pipe(
       ofType(makeMove),
       withLatestFrom(this.store.select(selectGameBoard)),
-      switchMap(([action, gameBoard]) => {
+      switchMap(([_, gameBoard]) => {
         const winningPositions = this.gameService.calculateWinner(gameBoard);
 
         if (winningPositions) {

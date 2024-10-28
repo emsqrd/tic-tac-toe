@@ -6,6 +6,7 @@ import {
   switchGameMode,
   startGame,
   resetDraws,
+  simulateMove,
 } from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { GameModeEnum } from '../../enums/game-mode.enum';
@@ -38,6 +39,7 @@ export const gameReducer = createReducer(
       gameMode: newGameMode,
     };
   }),
+  // todo: make position allow for undefined and pass that in when simulating a move
   on(makeMove, (state, { position, currentPlayer }) => {
     let newBoard = state.gameBoard;
 
@@ -67,6 +69,31 @@ export const gameReducer = createReducer(
           : square
       );
     }
+
+    return {
+      ...state,
+      gameBoard: newBoard,
+    };
+  }),
+  // ! Probably don't need any of this and just do it in makeMove
+  on(simulateMove, (state, { currentPlayer }) => {
+    let newBoard = state.gameBoard;
+
+    const emptySquares: number[] = [];
+    state.gameBoard.forEach((square, index) => {
+      if (square.gamePiece === '') {
+        emptySquares.push(index);
+      }
+    });
+
+    const randomIndex = Math.floor(Math.random() * emptySquares.length);
+    const randomEmptySquareIndex = emptySquares[randomIndex];
+
+    newBoard = state.gameBoard.map((square, index) =>
+      index === randomEmptySquareIndex
+        ? { ...square, gamePiece: currentPlayer.piece }
+        : square
+    );
 
     return {
       ...state,

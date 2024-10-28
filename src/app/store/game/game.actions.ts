@@ -18,6 +18,11 @@ export const makeMove = createAction(
   props<{ position: number; currentPlayer: Player }>()
 );
 
+export const simulateMove = createAction(
+  '[Game] Simulate Move',
+  props<{ currentPlayer: Player }>()
+);
+
 export const endGame = createAction(
   '[Game] End Game',
   props<{ outcome: OutcomeEnum; winningPositions: number[] | null }>()
