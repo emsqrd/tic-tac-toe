@@ -21,7 +21,7 @@ export class PlayerEffects {
       withLatestFrom(this.store.select(selectCurrentPlayer)),
       switchMap(([_, currentPlayer]) => {
         if (currentPlayer.name === 'Player 2') {
-          return of(makeMove({ position: 0, currentPlayer: currentPlayer }));
+          return of(makeMove({ currentPlayer: currentPlayer }));
         } else {
           return of({ type: 'NO_OP' });
         }

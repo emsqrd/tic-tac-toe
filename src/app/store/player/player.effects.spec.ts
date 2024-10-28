@@ -4,7 +4,7 @@ import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { Observable, of } from 'rxjs';
 import { PlayerEffects } from './player.effects';
 import { switchPlayer } from './player.actions';
-import { simulateMove } from '../game/game.actions';
+import { makeMove, simulateMove } from '../game/game.actions';
 import { selectCurrentPlayer } from './player.selectors';
 import { GameState } from '../game/game.reducer';
 import { PlayerState } from './player.reducer';
@@ -57,11 +57,10 @@ describe('PlayerEffects', () => {
     store.resetSelectors();
   });
 
-  // ! Ignoring for now until I decide on if I need simulateMove at all
-  xit('should dispatch simulateMove when currentPlayer is Player 2', (done) => {
+  it('should dispatch simulateMove when currentPlayer is Player 2', (done) => {
     const action = switchPlayer();
     const currentPlayer = initialState.player.players[1];
-    const outcome = simulateMove({ currentPlayer });
+    const outcome = makeMove({ currentPlayer });
 
     actions$ = of(action);
     store.overrideSelector(selectCurrentPlayer, currentPlayer);

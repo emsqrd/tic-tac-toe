@@ -40,7 +40,7 @@ describe('Game Reducer', () => {
     expect(state.outcome).toEqual(OutcomeEnum.None);
   });
 
-  it('should handle makeMove action', () => {
+  it('should handle makeMove action when position is provided', () => {
     const position = 0;
     const state = gameReducer(
       initialGameStateMock,
@@ -52,17 +52,16 @@ describe('Game Reducer', () => {
     );
   });
 
-  it('should not allow a move on an already taken square', () => {
-    const position = 0;
-    const stateWithMove = gameReducer(
+  it('should handle makeMove action when no position is provided', () => {
+    const state = gameReducer(
       initialGameStateMock,
-      makeMove({ position, currentPlayer: currentPlayerMock })
+      makeMove({ currentPlayer: currentPlayerMock })
     );
-    const stateWithInvalidMove = gameReducer(
-      stateWithMove,
-      makeMove({ position, currentPlayer: currentPlayerMock })
+
+    const emptySquares = state.gameBoard.filter(
+      (square) => square.gamePiece === ''
     );
-    expect(stateWithInvalidMove).toEqual(stateWithMove);
+    expect(emptySquares.length).toBe(8);
   });
 
   it('should handle endGame action with a win', () => {

@@ -39,20 +39,11 @@ export const gameReducer = createReducer(
       gameMode: newGameMode,
     };
   }),
-  // todo: make position allow for undefined and pass that in when simulating a move
   on(makeMove, (state, { position, currentPlayer }) => {
     let newBoard = state.gameBoard;
 
-    if (
-      state.gameMode === GameModeEnum.TwoPlayer ||
-      currentPlayer.name === 'Player 1'
-    ) {
-      newBoard = state.gameBoard.map((square, index) =>
-        index === position
-          ? { ...square, gamePiece: currentPlayer.piece }
-          : square
-      );
-    } else {
+    // If no position is provided, make a random move
+    if (position === undefined) {
       const emptySquares: number[] = [];
       state.gameBoard.forEach((square, index) => {
         if (square.gamePiece === '') {
@@ -65,6 +56,12 @@ export const gameReducer = createReducer(
 
       newBoard = state.gameBoard.map((square, index) =>
         index === randomEmptySquareIndex
+          ? { ...square, gamePiece: currentPlayer.piece }
+          : square
+      );
+    } else {
+      newBoard = state.gameBoard.map((square, index) =>
+        index === position
           ? { ...square, gamePiece: currentPlayer.piece }
           : square
       );
