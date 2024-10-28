@@ -51,13 +51,18 @@ export const gameReducer = createReducer(
           : square
       );
     } else {
-      let availableSquares = state.gameBoard.filter(
-        (square) => square.gamePiece === ''
-      );
-      let randomIndex = Math.floor(Math.random() * availableSquares.length);
+      const emptySquares: number[] = [];
+      state.gameBoard.forEach((square, index) => {
+        if (square.gamePiece === '') {
+          emptySquares.push(index);
+        }
+      });
+
+      const randomIndex = Math.floor(Math.random() * emptySquares.length);
+      const randomEmptySquareIndex = emptySquares[randomIndex];
 
       newBoard = state.gameBoard.map((square, index) =>
-        index === randomIndex
+        index === randomEmptySquareIndex
           ? { ...square, gamePiece: currentPlayer.piece }
           : square
       );
