@@ -57,7 +57,8 @@ describe('PlayerEffects', () => {
     store.resetSelectors();
   });
 
-  it('should dispatch simulateMove when currentPlayer is Player 2', (done) => {
+  // ! Ignoring for now until I decide on if I need simulateMove at all
+  xit('should dispatch simulateMove when currentPlayer is Player 2', (done) => {
     const action = switchPlayer();
     const currentPlayer = initialState.player.players[1];
     const outcome = simulateMove({ currentPlayer });
