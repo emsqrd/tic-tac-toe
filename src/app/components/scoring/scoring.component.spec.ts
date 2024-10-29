@@ -2,35 +2,52 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { ScoringComponent } from './scoring.component';
 import { OutcomeEnum } from '../../enums/outcome.enum';
+import { Player } from '../../models/player';
+import { GameState } from '../../store/game/game.reducer';
+import { PlayerState } from '../../store/player/player.reducer';
+import { getInitialPlayerStateMock } from '../../store/mocks/player-mocks';
+import { getInitialGameStateMock } from '../../store/mocks/game-mocks';
+import { selectCurrentPlayer } from '../../store/player/player.selectors';
+import { selectOutcome } from '../../store/game/game.selectors';
 
 describe('ScoringComponent', () => {
   let component: ScoringComponent;
   let fixture: ComponentFixture<ScoringComponent>;
-  let store: MockStore;
-  const initialState = {
-    game: {
-      gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-      outcome: OutcomeEnum.None,
-      draws: 0,
-    },
-    player: {
-      players: [
-        { name: 'Player 1', piece: 'X', wins: 0 },
-        { name: 'Player 2', piece: 'O', wins: 0 },
-      ],
-      currentPlayerIndex: 0,
-    },
-  };
+  let storeMock: MockStore;
+  let initialGameStateMock: GameState;
+  let initialPlayerStateMock: PlayerState;
+  let currentPlayerMock: Player;
 
   beforeEach(async () => {
+    initialGameStateMock = getInitialGameStateMock();
+    initialPlayerStateMock = getInitialPlayerStateMock();
+
     await TestBed.configureTestingModule({
-      providers: [provideMockStore({ initialState })],
+      providers: [
+        provideMockStore({
+          initialState: {
+            game: initialGameStateMock,
+            player: initialPlayerStateMock,
+          },
+        }),
+      ],
     }).compileComponents();
 
-    store = TestBed.inject(MockStore);
+    storeMock = TestBed.inject(MockStore);
     fixture = TestBed.createComponent(ScoringComponent);
+
+    initialGameStateMock = getInitialGameStateMock();
+    initialPlayerStateMock = getInitialPlayerStateMock();
+
+    currentPlayerMock =
+      initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
+
     component = fixture.componentInstance;
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    storeMock.resetSelectors();
   });
 
   it('should create', () => {
@@ -67,6 +84,7 @@ describe('ScoringComponent', () => {
     });
   });
 
+  // todo: figure out how to override the selectors instead of accessing component property directly
   it('should return true for isResult when outcome is Win', () => {
     component.outcome = OutcomeEnum.Win;
     expect(component.isResult).toBeTrue();
@@ -83,17 +101,22 @@ describe('ScoringComponent', () => {
   });
 
   it('should return true for selectPlayer1 when current player is player1', () => {
-    component.currentPlayer = { name: 'Player 1', piece: 'X', wins: 0 };
+    storeMock.overrideSelector(selectCurrentPlayer, currentPlayerMock);
     expect(component.selectPlayer1).toBeTrue();
   });
 
   it('should return true for selectPlayer1 when isResult is true', () => {
-    component.outcome = OutcomeEnum.Win;
+    storeMock.overrideSelector(selectOutcome, OutcomeEnum.Win);
     expect(component.selectPlayer1).toBeTrue();
   });
 
   it('should return true for selectPlayer2 when current player is player2', () => {
-    component.currentPlayer = { name: 'Player 2', piece: 'O', wins: 0 };
+    component.currentPlayer = {
+      name: 'Player 2',
+      piece: 'O',
+      wins: 0,
+      isCpu: false,
+    };
     expect(component.selectPlayer2).toBeTrue();
   });
 
@@ -113,13 +136,18 @@ describe('ScoringComponent', () => {
   });
 
   it('should return true for player1Wins when current player is player1 and outcome is Win', () => {
-    component.currentPlayer = { name: 'Player 1', piece: 'X', wins: 0 };
+    component.currentPlayer = currentPlayerMock;
     component.outcome = OutcomeEnum.Win;
     expect(component.player1Wins).toBeTrue();
   });
 
   it('should return true for player2Wins when current player is player2 and outcome is Win', () => {
-    component.currentPlayer = { name: 'Player 2', piece: 'O', wins: 0 };
+    component.currentPlayer = {
+      name: 'Player 2',
+      piece: 'O',
+      wins: 0,
+      isCpu: false,
+    };
     component.outcome = OutcomeEnum.Win;
     expect(component.player2Wins).toBeTrue();
   });

@@ -43,7 +43,7 @@ export class GameEffects {
     this.actions$.pipe(
       ofType(makeMove),
       withLatestFrom(this.store.select(selectGameBoard)),
-      switchMap(([action, gameBoard]) => {
+      switchMap(([_, gameBoard]) => {
         const winningPositions = this.gameService.calculateWinner(gameBoard);
 
         if (winningPositions) {

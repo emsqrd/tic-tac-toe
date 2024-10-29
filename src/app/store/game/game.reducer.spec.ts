@@ -9,20 +9,22 @@ import {
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { Player } from '../../models/player';
+import { getInitialGameStateMock } from '../mocks/game-mocks';
+import { getInitialPlayerStateMock } from '../mocks/player-mocks';
+import { PlayerState } from '../player/player.reducer';
 
 describe('Game Reducer', () => {
-  const currentPlayerMock: Player = {
-    name: 'Player 1',
-    piece: 'X',
-    wins: 0,
-  };
+  let initialGameStateMock: GameState;
+  let initialPlayerStateMock: PlayerState;
+  let currentPlayerMock: Player;
 
-  const initialGameStateMock: GameState = {
-    gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-    outcome: OutcomeEnum.None,
-    draws: 0,
-    gameMode: GameModeEnum.TwoPlayer,
-  };
+  beforeEach(() => {
+    initialGameStateMock = getInitialGameStateMock();
+    initialPlayerStateMock = getInitialPlayerStateMock();
+
+    currentPlayerMock =
+      initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
+  });
 
   it('should return the initial state', () => {
     const state = gameReducer(undefined, { type: '@@INIT' });
@@ -40,7 +42,7 @@ describe('Game Reducer', () => {
     expect(state.outcome).toEqual(OutcomeEnum.None);
   });
 
-  it('should handle makeMove action', () => {
+  it('should handle makeMove action when position is provided', () => {
     const position = 0;
     const state = gameReducer(
       initialGameStateMock,
@@ -52,17 +54,16 @@ describe('Game Reducer', () => {
     );
   });
 
-  it('should not allow a move on an already taken square', () => {
-    const position = 0;
-    const stateWithMove = gameReducer(
+  it('should handle makeMove action when no position is provided', () => {
+    const state = gameReducer(
       initialGameStateMock,
-      makeMove({ position, currentPlayer: currentPlayerMock })
+      makeMove({ currentPlayer: currentPlayerMock })
     );
-    const stateWithInvalidMove = gameReducer(
-      stateWithMove,
-      makeMove({ position, currentPlayer: currentPlayerMock })
+
+    const emptySquares = state.gameBoard.filter(
+      (square) => square.gamePiece === ''
     );
-    expect(stateWithInvalidMove).toEqual(stateWithMove);
+    expect(emptySquares.length).toBe(8);
   });
 
   it('should handle endGame action with a win', () => {

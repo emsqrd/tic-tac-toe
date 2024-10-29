@@ -15,7 +15,7 @@ export const attemptMove = createAction(
 
 export const makeMove = createAction(
   '[Game] Make Move',
-  props<{ position: number; currentPlayer: Player }>()
+  props<{ position?: number; currentPlayer: Player }>()
 );
 
 export const endGame = createAction(

@@ -7,12 +7,13 @@ import { gameReducer } from './app/store/game/game.reducer';
 import { provideEffects } from '@ngrx/effects';
 import { GameEffects } from './app/store/game/game.effects';
 import { playerReducer } from './app/store/player/player.reducer';
+import { PlayerEffects } from './app/store/player/player.effects';
 
 bootstrapApplication(AppComponent, {
   providers: [
     ...appConfig.providers,
     provideStore({ game: gameReducer, player: playerReducer }),
     provideStoreDevtools({ maxAge: 25 }),
-    provideEffects([GameEffects]),
+    provideEffects([GameEffects, PlayerEffects]),
   ],
 }).catch((err) => console.error(err));
