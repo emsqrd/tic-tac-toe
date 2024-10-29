@@ -24,43 +24,30 @@ import {
 import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
 import { GameState } from '../../store/game/game.reducer';
 import { PlayerState } from '../../store/player/player.reducer';
-import { GameModeEnum } from '../../enums/game-mode.enum';
+import { getInitialPlayerStateMock } from '../../store/mocks/player-mocks';
+import { getInitialGameStateMock } from '../../store/mocks/game-mocks';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
   let fixture: ComponentFixture<GameBoardComponent>;
   let store: MockStore;
   let dispatchSpy: jasmine.Spy;
-
-  const initialGameState: GameState = {
-    gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-    outcome: OutcomeEnum.None,
-    draws: 0,
-    gameMode: GameModeEnum.TwoPlayer,
-  };
-
-  const initialPlayerState: PlayerState = {
-    players: [
-      {
-        name: 'Player 1',
-        piece: 'X',
-        wins: 0,
-      },
-      {
-        name: 'Player 2',
-        piece: 'O',
-        wins: 0,
-      },
-    ],
-    currentPlayerIndex: 0,
-  };
+  let initialGameStateMock: GameState;
+  let initialPlayerStateMock: PlayerState;
 
   beforeEach(async () => {
+    initialGameStateMock = getInitialGameStateMock();
+    initialPlayerStateMock = getInitialPlayerStateMock();
+
     await TestBed.configureTestingModule({
       imports: [GameBoardComponent, SquareComponent, ScoringComponent],
       providers: [
-        provideMockStore({ initialState: initialGameState }),
-        provideMockStore({ initialState: initialPlayerState }),
+        provideMockStore({
+          initialState: {
+            game: initialGameStateMock,
+            player: initialPlayerStateMock,
+          },
+        }),
       ],
     }).compileComponents();
 
@@ -69,21 +56,24 @@ describe('GameBoardComponent', () => {
     component = fixture.componentInstance;
     dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
 
-    store.overrideSelector(selectGameBoard, initialGameState.gameBoard);
-    store.overrideSelector(selectOutcome, initialGameState.outcome);
+    initialGameStateMock = getInitialGameStateMock();
+    initialPlayerStateMock = getInitialPlayerStateMock();
+
+    store.overrideSelector(selectGameBoard, initialGameStateMock.gameBoard);
+    store.overrideSelector(selectOutcome, initialGameStateMock.outcome);
     store.overrideSelector(
       selectCurrentPlayer,
-      initialPlayerState.players[initialPlayerState.currentPlayerIndex]
+      initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex]
     );
 
     // selectors used by scoring component
-    store.overrideSelector(selectPlayers, initialPlayerState.players);
-    store.overrideSelector(selectDraws, initialGameState.draws);
+    store.overrideSelector(selectPlayers, initialPlayerStateMock.players);
+    store.overrideSelector(selectDraws, initialGameStateMock.draws);
 
     // Reset the state before each test
     store.setState({
-      game: initialGameState,
-      player: initialPlayerState,
+      game: initialGameStateMock,
+      player: initialPlayerStateMock,
     });
     fixture.detectChanges();
   });
@@ -99,7 +89,8 @@ describe('GameBoardComponent', () => {
 
   it('should dispatch attemptMove action when a square is clicked and there is no outcome', () => {
     component.outcome = OutcomeEnum.None;
-    const currentPlayerMock = { name: 'Player 1', piece: 'X', wins: 0 };
+    const currentPlayerMock =
+      initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
 
     const squareDebugElement: DebugElement = fixture.debugElement.query(
       By.css('t3-square')
@@ -120,7 +111,7 @@ describe('GameBoardComponent', () => {
     squareDebugElement.triggerEventHandler('click', null);
 
     expect(dispatchSpy).toHaveBeenCalledWith(
-      startGame({ gameMode: initialGameState.gameMode })
+      startGame({ gameMode: initialGameStateMock.gameMode })
     );
     expect(dispatchSpy).toHaveBeenCalledWith(switchPlayer());
   });

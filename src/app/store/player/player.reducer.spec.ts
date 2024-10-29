@@ -1,23 +1,14 @@
 import { resetPlayers, switchPlayer } from './player.actions';
 import { playerReducer, PlayerState } from './player.reducer';
 import { updatePlayerWins } from './player.actions';
+import { getInitialPlayerStateMock } from '../mocks/player-mocks';
 
 describe('Player Reducer', () => {
-  const initialPlayerStateMock: PlayerState = {
-    players: [
-      {
-        name: 'Player 1',
-        piece: 'X',
-        wins: 0,
-      },
-      {
-        name: 'Player 2',
-        piece: 'O',
-        wins: 0,
-      },
-    ],
-    currentPlayerIndex: 0,
-  };
+  let initialPlayerStateMock: PlayerState;
+
+  beforeEach(() => {
+    initialPlayerStateMock = getInitialPlayerStateMock();
+  });
 
   it('should return the initial state', () => {
     const state = playerReducer(undefined, { type: '@@INIT' });

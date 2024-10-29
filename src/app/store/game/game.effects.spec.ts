@@ -10,38 +10,22 @@ import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { GameState } from './game.reducer';
 import { PlayerState } from '../player/player.reducer';
 import { TestScheduler } from 'rxjs/testing';
-import { GameModeEnum } from '../../enums/game-mode.enum';
-
-const initialGameStateMock: GameState = {
-  gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-  outcome: OutcomeEnum.None,
-  draws: 0,
-  gameMode: GameModeEnum.TwoPlayer,
-};
-
-const initialPlayerStateMock: PlayerState = {
-  players: [
-    {
-      name: 'Player 1',
-      piece: 'X',
-      wins: 0,
-    },
-    {
-      name: 'Player 2',
-      piece: 'O',
-      wins: 0,
-    },
-  ],
-  currentPlayerIndex: 0,
-};
+import { Player } from '../../models/player';
+import { getInitialGameStateMock } from '../mocks/game-mocks';
+import { getInitialPlayerStateMock } from '../mocks/player-mocks';
 
 describe('GameEffects', () => {
   let actions$: Observable<any>;
   let effects: GameEffects;
   let gameService: jasmine.SpyObj<GameService>;
   let mockStore: MockStore;
+  let initialGameStateMock: GameState;
+  let initialPlayerStateMock: PlayerState;
+  let currentPlayerMock: Player;
 
   beforeEach(() => {
+    initialGameStateMock = getInitialGameStateMock();
+    initialPlayerStateMock = getInitialPlayerStateMock();
     gameService = jasmine.createSpyObj('GameService', ['calculateWinner']);
 
     TestBed.configureTestingModule({
@@ -61,6 +45,9 @@ describe('GameEffects', () => {
     effects = TestBed.inject(GameEffects);
     mockStore = TestBed.inject(MockStore);
 
+    currentPlayerMock =
+      initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
+
     // Reset the state before each test
     mockStore.setState({
       game: initialGameStateMock,
@@ -71,7 +58,7 @@ describe('GameEffects', () => {
   it('should dispatch makeMove action on attemptMove if the square is not taken', (done) => {
     const action = attemptMove({
       position: 0,
-      currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
+      currentPlayer: currentPlayerMock,
     });
     actions$ = of(action);
 
@@ -79,7 +66,7 @@ describe('GameEffects', () => {
       expect(result).toEqual(
         makeMove({
           position: 0,
-          currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
+          currentPlayer: currentPlayerMock,
         })
       );
       done();
@@ -89,7 +76,7 @@ describe('GameEffects', () => {
   it('should dispatch no-op action on attemptMove if the square is taken', () => {
     const action = attemptMove({
       position: 0,
-      currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
+      currentPlayer: currentPlayerMock,
     });
 
     actions$ = of(action);
@@ -113,7 +100,7 @@ describe('GameEffects', () => {
   it('should dispatch endGame action with Win outcome if there is a winner', (done) => {
     const action = makeMove({
       position: 0,
-      currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
+      currentPlayer: currentPlayerMock,
     });
     actions$ = of(action);
     gameService.calculateWinner.and.returnValue([0, 1, 2]);
@@ -147,7 +134,7 @@ describe('GameEffects', () => {
     testScheduler.run(({ hot, cold, expectObservable }) => {
       const action = makeMove({
         position: 9,
-        currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
+        currentPlayer: currentPlayerMock,
       });
 
       actions$ = hot('-a', { a: action });
@@ -165,7 +152,7 @@ describe('GameEffects', () => {
   it('should dispatch switchPlayer action if there is no winner and the board is not full', (done) => {
     const action = makeMove({
       position: 0,
-      currentPlayer: { name: 'Player 1', piece: 'X', wins: 0 },
+      currentPlayer: currentPlayerMock,
     });
     actions$ = of(action);
     gameService.calculateWinner.and.returnValue(null);

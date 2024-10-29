@@ -15,11 +15,13 @@ export const initialState: PlayerState = {
       name: 'Player 1',
       piece: 'X',
       wins: 0,
+      isCpu: false,
     },
     {
       name: 'Player 2',
       piece: 'O',
       wins: 0,
+      isCpu: false,
     },
   ],
   currentPlayerIndex: 0,

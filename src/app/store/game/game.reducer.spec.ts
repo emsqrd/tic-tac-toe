@@ -9,20 +9,22 @@ import {
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { Player } from '../../models/player';
+import { getInitialGameStateMock } from '../mocks/game-mocks';
+import { getInitialPlayerStateMock } from '../mocks/player-mocks';
+import { PlayerState } from '../player/player.reducer';
 
 describe('Game Reducer', () => {
-  const currentPlayerMock: Player = {
-    name: 'Player 1',
-    piece: 'X',
-    wins: 0,
-  };
+  let initialGameStateMock: GameState;
+  let initialPlayerStateMock: PlayerState;
+  let currentPlayerMock: Player;
 
-  const initialGameStateMock: GameState = {
-    gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-    outcome: OutcomeEnum.None,
-    draws: 0,
-    gameMode: GameModeEnum.TwoPlayer,
-  };
+  beforeEach(() => {
+    initialGameStateMock = getInitialGameStateMock();
+    initialPlayerStateMock = getInitialPlayerStateMock();
+
+    currentPlayerMock =
+      initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
+  });
 
   it('should return the initial state', () => {
     const state = gameReducer(undefined, { type: '@@INIT' });
