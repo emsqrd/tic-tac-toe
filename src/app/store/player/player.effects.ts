@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of, switchMap, withLatestFrom } from 'rxjs';
+import { delay, of, pipe, switchMap, withLatestFrom } from 'rxjs';
 import { selectCurrentPlayer } from './player.selectors';
 import { makeMove } from '../game/game.actions';
 import { Store } from '@ngrx/store';
@@ -26,7 +26,9 @@ export class PlayerEffects {
       ),
       switchMap(([_, currentPlayer, gameMode]) => {
         if (gameMode === GameModeEnum.SinglePlayer && currentPlayer.isCpu) {
-          return of(makeMove({ currentPlayer: currentPlayer }));
+          return of(makeMove({ currentPlayer: currentPlayer })).pipe(
+            delay(500)
+          );
         } else {
           return of({ type: 'NO_OP' });
         }
