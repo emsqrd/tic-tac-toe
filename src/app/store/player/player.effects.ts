@@ -25,10 +25,7 @@ export class PlayerEffects {
         this.store.select(selectGameMode)
       ),
       switchMap(([_, currentPlayer, gameMode]) => {
-        if (
-          gameMode === GameModeEnum.SinglePlayer &&
-          currentPlayer.name === 'Player 2'
-        ) {
+        if (gameMode === GameModeEnum.SinglePlayer && currentPlayer.isCpu) {
           return of(makeMove({ currentPlayer: currentPlayer }));
         } else {
           return of({ type: 'NO_OP' });

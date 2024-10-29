@@ -3,13 +3,18 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { withLatestFrom, switchMap, of, tap } from 'rxjs';
 import { GameService } from '../../services/game.service';
-import { makeMove, endGame, attemptMove } from './game.actions';
+import { makeMove, endGame, attemptMove, startGame } from './game.actions';
 import { GameState } from './game.reducer';
-import { selectGameBoard } from './game.selectors';
+import { selectGameBoard, selectGameMode } from './game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { switchPlayer, updatePlayerWins } from '../player/player.actions';
+import {
+  setCpuPlayer,
+  switchPlayer,
+  updatePlayerWins,
+} from '../player/player.actions';
 import { PlayerState } from '../player/player.reducer';
-import { selectCurrentPlayer } from '../player/player.selectors';
+import { selectCurrentPlayer, selectPlayers } from '../player/player.selectors';
+import { GameModeEnum } from '../../enums/game-mode.enum';
 
 @Injectable()
 export class GameEffects {
@@ -18,6 +23,23 @@ export class GameEffects {
     private gameService: GameService,
     private store: Store<{ game: GameState; player: PlayerState }>
   ) {}
+
+  startGame$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(startGame),
+      withLatestFrom(
+        this.store.select(selectGameMode),
+        this.store.select(selectPlayers)
+      ),
+      switchMap(([_, gameMode, players]) => {
+        if (gameMode === GameModeEnum.SinglePlayer) {
+          return of(setCpuPlayer({ gamePiece: players[1].piece }));
+        } else {
+          return of({ type: 'NO_OP' });
+        }
+      })
+    )
+  );
 
   attemptMove$ = createEffect(() =>
     this.actions$.pipe(

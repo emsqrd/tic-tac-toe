@@ -1,6 +1,11 @@
 import { createReducer, on } from '@ngrx/store';
 import { Player } from '../../models/player';
-import { resetPlayers, switchPlayer, updatePlayerWins } from './player.actions';
+import {
+  resetPlayers,
+  setCpuPlayer,
+  switchPlayer,
+  updatePlayerWins,
+} from './player.actions';
 
 export const playerFeatureKey = 'player';
 
@@ -51,6 +56,16 @@ export const playerReducer = createReducer(
       index === state.currentPlayerIndex
         ? { ...player, wins: player.wins + 1 }
         : player
+    );
+
+    return {
+      ...state,
+      players: updatedPlayers,
+    };
+  }),
+  on(setCpuPlayer, (state, { gamePiece }) => {
+    const updatedPlayers = state.players.map((player) =>
+      player.piece === gamePiece ? { ...player, isCpu: true } : player
     );
 
     return {

@@ -28,16 +28,12 @@ export const initialState: GameState = {
 
 export const gameReducer = createReducer(
   initialState,
-  on(startGame, (state, { gameMode }) => {
-    const newGameMode = gameMode;
-
-    return {
-      ...state,
-      gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-      outcome: OutcomeEnum.None,
-      gameMode: newGameMode,
-    };
-  }),
+  on(startGame, (state, { gameMode }) => ({
+    ...state,
+    gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
+    outcome: OutcomeEnum.None,
+    gameMode: gameMode,
+  })),
   on(makeMove, (state, { position, currentPlayer }) => {
     let newBoard = state.gameBoard;
 
