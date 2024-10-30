@@ -1,4 +1,4 @@
-import { resetPlayers, switchPlayer } from './player.actions';
+import { resetPlayers, setCpuPlayer, switchPlayer } from './player.actions';
 import { playerReducer, PlayerState } from './player.reducer';
 import { updatePlayerWins } from './player.actions';
 import { getInitialPlayerStateMock } from '../mocks/player-mocks';
@@ -55,5 +55,15 @@ describe('Player Reducer', () => {
       updatePlayerWins()
     );
     expect(state.players[0].wins).toBe(0);
+  });
+
+  it('should handle setCpuPlayer action', () => {
+    const cpuPlayer = initialPlayerStateMock.players[1];
+
+    const state = playerReducer(
+      initialPlayerStateMock,
+      setCpuPlayer({ gamePiece: cpuPlayer.piece })
+    );
+    expect(state.players[1].isCpu).toBe(true);
   });
 });
