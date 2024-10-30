@@ -4,15 +4,21 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Observable, of } from 'rxjs';
 import { GameEffects } from './game.effects';
 import { GameService } from '../../services/game.service';
-import { attemptMove, makeMove, endGame } from './game.actions';
+import { attemptMove, makeMove, endGame, startGame } from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { switchPlayer, updatePlayerWins } from '../player/player.actions';
+import {
+  setCpuPlayer,
+  switchPlayer,
+  updatePlayerWins,
+} from '../player/player.actions';
 import { GameState } from './game.reducer';
 import { PlayerState } from '../player/player.reducer';
 import { TestScheduler } from 'rxjs/testing';
 import { Player } from '../../models/player';
 import { getInitialGameStateMock } from '../mocks/game-mocks';
 import { getInitialPlayerStateMock } from '../mocks/player-mocks';
+import { GameModeEnum } from '../../enums/game-mode.enum';
+import { selectGameMode } from './game.selectors';
 
 describe('GameEffects', () => {
   let actions$: Observable<any>;
@@ -53,6 +59,10 @@ describe('GameEffects', () => {
       game: initialGameStateMock,
       player: initialPlayerStateMock,
     });
+  });
+
+  afterEach(() => {
+    mockStore.resetSelectors();
   });
 
   it('should dispatch makeMove action on attemptMove if the square is not taken', (done) => {
@@ -185,6 +195,32 @@ describe('GameEffects', () => {
 
     effects.endGame$.subscribe((result) => {
       expect(result).toEqual({ type: 'NO_OP' });
+      done();
+    });
+  });
+
+  it('should dispatch no-op action if starting a new game not in single player game mode', (done) => {
+    const action = startGame({ gameMode: GameModeEnum.TwoPlayer });
+
+    actions$ = of(action);
+
+    effects.startGame$.subscribe((result) => {
+      expect(result).toEqual({ type: 'NO_OP' });
+      done();
+    });
+  });
+
+  it('should dispatch setCpuPlayer action if starting a new game in single player game mode', (done) => {
+    const singlePlayerMode = GameModeEnum.SinglePlayer;
+
+    const action = startGame({ gameMode: singlePlayerMode });
+
+    mockStore.overrideSelector(selectGameMode, singlePlayerMode);
+
+    actions$ = of(action);
+
+    effects.startGame$.subscribe((result) => {
+      expect(result).toEqual(setCpuPlayer({ gamePiece: 'O' }));
       done();
     });
   });
