@@ -5,7 +5,6 @@ import { withLatestFrom, switchMap, of, tap, concatMap } from 'rxjs';
 import { GameService } from '../../services/game.service';
 import {
   makeMove,
-  endGame,
   attemptMove,
   startGame,
   startRound,

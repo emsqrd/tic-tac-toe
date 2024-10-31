@@ -1,7 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { Square } from '../../models/square';
 import {
-  endGame,
   makeMove,
   switchGameMode,
   startGame,
@@ -97,7 +96,6 @@ export const gameReducer = createReducer(
       outcome,
     };
   }),
-  // todo: add endGame action
   on(switchGameMode, (state) => {
     let newGameMode =
       state.gameMode === GameModeEnum.TwoPlayer
