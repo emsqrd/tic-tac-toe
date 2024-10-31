@@ -1,11 +1,12 @@
 import { createReducer, on } from '@ngrx/store';
 import { Square } from '../../models/square';
 import {
-  endGame,
   makeMove,
   switchGameMode,
   startGame,
   resetDraws,
+  startRound,
+  endRound,
 } from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { GameModeEnum } from '../../enums/game-mode.enum';
@@ -30,10 +31,15 @@ export const gameReducer = createReducer(
   initialState,
   on(startGame, (state, { gameMode }) => ({
     ...state,
-    gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
-    outcome: OutcomeEnum.None,
     gameMode: gameMode,
   })),
+  on(startRound, (state) => {
+    return {
+      ...state,
+      gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
+      outcome: OutcomeEnum.None,
+    };
+  }),
   on(makeMove, (state, { position, currentPlayer }) => {
     let newBoard = state.gameBoard;
 
@@ -67,7 +73,7 @@ export const gameReducer = createReducer(
       gameBoard: newBoard,
     };
   }),
-  on(endGame, (state, { outcome, winningPositions }) => {
+  on(endRound, (state, { outcome, winningPositions }) => {
     let draws = state.draws;
     let newBoard = state.gameBoard;
 

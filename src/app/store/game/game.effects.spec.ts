@@ -1,10 +1,16 @@
 import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import { Observable, of } from 'rxjs';
+import { Observable, of, toArray } from 'rxjs';
 import { GameEffects } from './game.effects';
 import { GameService } from '../../services/game.service';
-import { attemptMove, makeMove, endGame, startGame } from './game.actions';
+import {
+  attemptMove,
+  makeMove,
+  endRound,
+  startGame,
+  startRound,
+} from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import {
   setCpuPlayer,
@@ -107,7 +113,7 @@ describe('GameEffects', () => {
     });
   });
 
-  it('should dispatch endGame action with Win outcome if there is a winner', (done) => {
+  it('should dispatch endRound action with Win outcome if there is a winner', (done) => {
     const action = makeMove({
       position: 0,
       currentPlayer: currentPlayerMock,
@@ -117,14 +123,14 @@ describe('GameEffects', () => {
 
     effects.makeMove$.subscribe((result) => {
       expect(result).toEqual(
-        endGame({ outcome: OutcomeEnum.Win, winningPositions: [0, 1, 2] })
+        endRound({ outcome: OutcomeEnum.Win, winningPositions: [0, 1, 2] })
       );
       done();
     });
   });
 
   // Keeping this as marble syntax as an example in case I want to use this later on
-  it('should dispatch endGame action with Draw outcome if the board is full and no winner', fakeAsync(() => {
+  it('should dispatch endRound action with Draw outcome if the board is full and no winner', fakeAsync(() => {
     const testScheduler = new TestScheduler((actual, expected) => {
       expect(actual).toEqual(expected);
     });
@@ -152,7 +158,7 @@ describe('GameEffects', () => {
       gameService.calculateWinner.and.returnValue(null);
 
       expectObservable(effects.makeMove$).toBe('-b', {
-        b: endGame({ outcome: OutcomeEnum.Draw, winningPositions: null }),
+        b: endRound({ outcome: OutcomeEnum.Draw, winningPositions: null }),
       });
     });
 
@@ -174,38 +180,38 @@ describe('GameEffects', () => {
   });
 
   it('should dispatch updatePlayerWins action if the game ended with a Win outcome', (done) => {
-    const action = endGame({
+    const action = endRound({
       outcome: OutcomeEnum.Win,
       winningPositions: [0, 1, 2],
     });
     actions$ = of(action);
 
-    effects.endGame$.subscribe((result) => {
+    effects.endRound$.subscribe((result) => {
       expect(result).toEqual(updatePlayerWins());
       done();
     });
   });
 
   it('should dispatch no-op action if the game ended with a Draw outcome', (done) => {
-    const action = endGame({
+    const action = endRound({
       outcome: OutcomeEnum.Draw,
       winningPositions: null,
     });
     actions$ = of(action);
 
-    effects.endGame$.subscribe((result) => {
+    effects.endRound$.subscribe((result) => {
       expect(result).toEqual({ type: 'NO_OP' });
       done();
     });
   });
 
-  it('should dispatch no-op action if starting a new game not in single player game mode', (done) => {
+  it('should dispatch only startRound action if starting a new game not in single player game mode', (done) => {
     const action = startGame({ gameMode: GameModeEnum.TwoPlayer });
 
     actions$ = of(action);
 
     effects.startGame$.subscribe((result) => {
-      expect(result).toEqual({ type: 'NO_OP' });
+      expect(result).toEqual(startRound());
       done();
     });
   });
@@ -219,8 +225,9 @@ describe('GameEffects', () => {
 
     actions$ = of(action);
 
-    effects.startGame$.subscribe((result) => {
-      expect(result).toEqual(setCpuPlayer({ gamePiece: 'O' }));
+    // Expect the effect to dispatch multiple actions
+    effects.startGame$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual([setCpuPlayer({ gamePiece: 'O' }), startRound()]);
       done();
     });
   });

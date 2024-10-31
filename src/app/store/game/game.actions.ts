@@ -8,6 +8,13 @@ export const startGame = createAction(
   props<{ gameMode: GameModeEnum }>()
 );
 
+export const startRound = createAction('[Game] Start Round');
+
+export const endRound = createAction(
+  '[Game] End Round',
+  props<{ outcome: OutcomeEnum; winningPositions: number[] | null }>()
+);
+
 export const attemptMove = createAction(
   '[Game] Attempt Move',
   props<{ position: number; currentPlayer: Player }>()
@@ -18,10 +25,7 @@ export const makeMove = createAction(
   props<{ position?: number; currentPlayer: Player }>()
 );
 
-export const endGame = createAction(
-  '[Game] End Game',
-  props<{ outcome: OutcomeEnum; winningPositions: number[] | null }>()
-);
+export const endGame = createAction('[Game] End Game');
 
 export const switchGameMode = createAction('[Game] Switch Game Mode');
 
