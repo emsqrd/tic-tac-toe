@@ -1,10 +1,16 @@
 import { fakeAsync, flush, TestBed, tick } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import { Observable, of } from 'rxjs';
+import { Observable, of, toArray } from 'rxjs';
 import { GameEffects } from './game.effects';
 import { GameService } from '../../services/game.service';
-import { attemptMove, makeMove, endGame, startGame } from './game.actions';
+import {
+  attemptMove,
+  makeMove,
+  endGame,
+  startGame,
+  startRound,
+} from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import {
   setCpuPlayer,
@@ -199,13 +205,13 @@ describe('GameEffects', () => {
     });
   });
 
-  it('should dispatch no-op action if starting a new game not in single player game mode', (done) => {
+  it('should dispatch only startRound action if starting a new game not in single player game mode', (done) => {
     const action = startGame({ gameMode: GameModeEnum.TwoPlayer });
 
     actions$ = of(action);
 
     effects.startGame$.subscribe((result) => {
-      expect(result).toEqual({ type: 'NO_OP' });
+      expect(result).toEqual(startRound());
       done();
     });
   });
@@ -219,8 +225,9 @@ describe('GameEffects', () => {
 
     actions$ = of(action);
 
-    effects.startGame$.subscribe((result) => {
-      expect(result).toEqual(setCpuPlayer({ gamePiece: 'O' }));
+    // Expect the effect to dispatch multiple actions
+    effects.startGame$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual([setCpuPlayer({ gamePiece: 'O' }), startRound()]);
       done();
     });
   });
