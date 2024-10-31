@@ -9,6 +9,7 @@ import {
   attemptMove,
   startGame,
   startRound,
+  endRound,
 } from './game.actions';
 import { GameState } from './game.reducer';
 import { selectGameBoard, selectGameMode } from './game.selectors';
@@ -80,10 +81,10 @@ export class GameEffects {
         const winningPositions = this.gameService.calculateWinner(gameBoard);
 
         if (winningPositions) {
-          return of(endGame({ outcome: OutcomeEnum.Win, winningPositions }));
+          return of(endRound({ outcome: OutcomeEnum.Win, winningPositions }));
         } else if (gameBoard.every((square) => square.gamePiece !== '')) {
           return of(
-            endGame({ outcome: OutcomeEnum.Draw, winningPositions: null })
+            endRound({ outcome: OutcomeEnum.Draw, winningPositions: null })
           );
         } else {
           return of(switchPlayer());
@@ -92,9 +93,9 @@ export class GameEffects {
     )
   );
 
-  endGame$ = createEffect(() =>
+  endRound$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(endGame),
+      ofType(endRound),
       withLatestFrom(this.store.select(selectCurrentPlayer)),
       switchMap(([action]) =>
         of(

@@ -7,6 +7,7 @@ import {
   startGame,
   resetDraws,
   startRound,
+  endRound,
 } from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { GameModeEnum } from '../../enums/game-mode.enum';
@@ -73,7 +74,7 @@ export const gameReducer = createReducer(
       gameBoard: newBoard,
     };
   }),
-  on(endGame, (state, { outcome, winningPositions }) => {
+  on(endRound, (state, { outcome, winningPositions }) => {
     let draws = state.draws;
     let newBoard = state.gameBoard;
 
@@ -96,6 +97,7 @@ export const gameReducer = createReducer(
       outcome,
     };
   }),
+  // todo: add endGame action
   on(switchGameMode, (state) => {
     let newGameMode =
       state.gameMode === GameModeEnum.TwoPlayer

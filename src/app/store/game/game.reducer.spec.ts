@@ -2,7 +2,7 @@ import { gameReducer, GameState } from './game.reducer';
 import {
   startGame,
   makeMove,
-  endGame,
+  endRound,
   switchGameMode,
   resetDraws,
   startRound,
@@ -74,11 +74,11 @@ describe('Game Reducer', () => {
     expect(emptySquares.length).toBe(8);
   });
 
-  it('should handle endGame action with a win', () => {
+  it('should handle endRound action with a win', () => {
     const winningPositions = [0, 1, 2];
     const state = gameReducer(
       initialGameStateMock,
-      endGame({ outcome: OutcomeEnum.Win, winningPositions })
+      endRound({ outcome: OutcomeEnum.Win, winningPositions })
     );
     expect(state.outcome).toEqual(OutcomeEnum.Win);
     expect(state.gameBoard[0].isWinner).toBe(true);
@@ -86,10 +86,10 @@ describe('Game Reducer', () => {
     expect(state.gameBoard[2].isWinner).toBe(true);
   });
 
-  it('should handle endGame action with a draw', () => {
+  it('should handle endRound action with a draw', () => {
     const state = gameReducer(
       initialGameStateMock,
-      endGame({ outcome: OutcomeEnum.Draw, winningPositions: [] })
+      endRound({ outcome: OutcomeEnum.Draw, winningPositions: [] })
     );
     expect(state.outcome).toEqual(OutcomeEnum.Draw);
     expect(state.draws).toBe(1);
