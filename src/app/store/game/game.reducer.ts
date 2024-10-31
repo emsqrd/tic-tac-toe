@@ -34,7 +34,6 @@ export const gameReducer = createReducer(
     gameMode: gameMode,
   })),
   on(startRound, (state) => {
-    console.log('startRound reducer');
     return {
       ...state,
       gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),

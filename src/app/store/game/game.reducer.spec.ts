@@ -5,6 +5,7 @@ import {
   endGame,
   switchGameMode,
   resetDraws,
+  startRound,
 } from './game.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { GameModeEnum } from '../../enums/game-mode.enum';
@@ -36,6 +37,13 @@ describe('Game Reducer', () => {
       initialGameStateMock,
       startGame({ gameMode: initialGameStateMock.gameMode })
     );
+
+    expect(state.gameMode).toEqual(initialGameStateMock.gameMode);
+  });
+
+  it('should handle startRound action', () => {
+    const state = gameReducer(initialGameStateMock, startRound());
+
     expect(state.gameBoard).toEqual(
       Array(9).fill({ gamePiece: '', isWinner: false })
     );
