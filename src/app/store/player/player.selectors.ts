@@ -18,3 +18,5 @@ export const selectCurrentPlayer = createSelector(
   selectCurrentPlayerIndex,
   (players, currentPlayerIndex) => players[currentPlayerIndex]
 );
+
+// todo: add selectors for player 1 and player 2

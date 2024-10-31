@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { withLatestFrom, switchMap, of, tap } from 'rxjs';
+import { withLatestFrom, switchMap, of, tap, concatMap } from 'rxjs';
 import { GameService } from '../../services/game.service';
-import { makeMove, endGame, attemptMove, startGame } from './game.actions';
+import {
+  makeMove,
+  endGame,
+  attemptMove,
+  startGame,
+  startRound,
+} from './game.actions';
 import { GameState } from './game.reducer';
 import { selectGameBoard, selectGameMode } from './game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
@@ -31,12 +37,17 @@ export class GameEffects {
         this.store.select(selectGameMode),
         this.store.select(selectPlayers)
       ),
-      switchMap(([_, gameMode, players]) => {
+      concatMap(([_, gameMode, players]) => {
+        // Create an array to hold actions so they can be chained together
+        let actions = [];
+
         if (gameMode === GameModeEnum.SinglePlayer) {
-          return of(setCpuPlayer({ gamePiece: players[1].piece }));
-        } else {
-          return of({ type: 'NO_OP' });
+          actions.push(setCpuPlayer({ gamePiece: players[1].piece }));
         }
+
+        actions.push(startRound());
+
+        return of(...actions);
       })
     )
   );

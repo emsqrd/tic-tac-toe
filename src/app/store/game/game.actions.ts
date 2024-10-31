@@ -8,6 +8,10 @@ export const startGame = createAction(
   props<{ gameMode: GameModeEnum }>()
 );
 
+export const startRound = createAction('[Game] Start Round');
+
+export const endRound = createAction('[Game] End Round');
+
 export const attemptMove = createAction(
   '[Game] Attempt Move',
   props<{ position: number; currentPlayer: Player }>()
