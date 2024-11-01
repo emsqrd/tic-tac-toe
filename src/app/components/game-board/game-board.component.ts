@@ -4,24 +4,23 @@ import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { GameState } from '../../store/game/game.reducer';
 import {
-  attemptMove,
   switchGameMode,
   startGame,
   resetDraws,
 } from '../../store/game/game.actions';
-import {
-  selectGameBoard,
-  selectGameMode,
-  selectOutcome,
-} from '../../store/game/game.selectors';
+import { selectGameMode } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
 import { Player } from '../../models/player';
 import { selectCurrentPlayer } from '../../store/player/player.selectors';
 import { Square } from '../../models/square';
 import { GameModeEnum } from '../../enums/game-mode.enum';
+import {
+  selectGameBoard,
+  selectOutcome,
+} from '../../store/round/round.selectors';
+import { RoundActions } from '../../store/round/round.actions';
 
 @Component({
   selector: 't3-game-board',
@@ -43,7 +42,7 @@ export class GameBoardComponent implements OnInit {
   gameModeValue!: string;
   enableSinglePlayer = true;
 
-  constructor(private store: Store<{ game: GameState }>) {
+  constructor(private store: Store) {
     this.gameBoard$ = store.select(selectGameBoard);
     this.outcome$ = store.select(selectOutcome);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
@@ -91,7 +90,10 @@ export class GameBoardComponent implements OnInit {
       this.store.dispatch(switchPlayer());
     } else {
       this.store.dispatch(
-        attemptMove({ position, currentPlayer: this.currentPlayer })
+        RoundActions.attemptMove({
+          position,
+          currentPlayer: this.currentPlayer,
+        })
       );
     }
   }

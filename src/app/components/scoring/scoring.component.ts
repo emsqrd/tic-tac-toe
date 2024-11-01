@@ -1,15 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Player } from '../../models/player';
 import { GameState } from '../../store/game/game.reducer';
-import { selectDraws, selectOutcome } from '../../store/game/game.selectors';
+import { selectDraws } from '../../store/game/game.selectors';
 import { Observable } from 'rxjs';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import {
   selectCurrentPlayer,
   selectPlayers,
 } from '../../store/player/player.selectors';
+import { selectOutcome } from '../../store/round/round.selectors';
+import { PlayerState } from '../../store/player/player.reducer';
 
 @Component({
   selector: 't3-scoring',
@@ -66,7 +68,7 @@ export class ScoringComponent {
     );
   }
 
-  constructor(private store: Store<{ game: GameState }>) {
+  constructor(private store: Store) {
     this.players$ = store.select(selectPlayers);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
     this.outcome$ = store.select(selectOutcome);

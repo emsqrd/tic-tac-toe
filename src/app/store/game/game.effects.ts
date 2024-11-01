@@ -1,32 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { withLatestFrom, switchMap, of, tap, concatMap } from 'rxjs';
+import { withLatestFrom, of, concatMap } from 'rxjs';
 import { GameService } from '../../services/game.service';
-import {
-  makeMove,
-  attemptMove,
-  startGame,
-  startRound,
-  endRound,
-} from './game.actions';
+import { startGame } from './game.actions';
 import { GameState } from './game.reducer';
-import { selectGameBoard, selectGameMode } from './game.selectors';
-import { OutcomeEnum } from '../../enums/outcome.enum';
-import {
-  setCpuPlayer,
-  switchPlayer,
-  updatePlayerWins,
-} from '../player/player.actions';
+import { selectGameMode } from './game.selectors';
+import { setCpuPlayer } from '../player/player.actions';
 import { PlayerState } from '../player/player.reducer';
-import { selectCurrentPlayer, selectPlayers } from '../player/player.selectors';
+import { selectPlayers } from '../player/player.selectors';
 import { GameModeEnum } from '../../enums/game-mode.enum';
+import { RoundActions } from '../round/round.actions';
 
 @Injectable()
 export class GameEffects {
   constructor(
     private actions$: Actions,
-    private gameService: GameService,
+    // ? Does store need to be injected like this with the types?
     private store: Store<{ game: GameState; player: PlayerState }>
   ) {}
 
@@ -45,64 +35,10 @@ export class GameEffects {
           actions.push(setCpuPlayer({ gamePiece: players[1].piece }));
         }
 
-        actions.push(startRound());
+        actions.push(RoundActions.startRound());
 
         return of(...actions);
       })
-    )
-  );
-
-  attemptMove$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(attemptMove),
-      withLatestFrom(this.store.select(selectGameBoard)),
-      switchMap(([action, gameBoard]) => {
-        // If the square is already taken, do nothing
-        if (gameBoard[action.position].gamePiece !== '') {
-          return of({ type: 'NO_OP' }); // return a no-op action
-        }
-
-        return of(
-          makeMove({
-            position: action.position,
-            currentPlayer: action.currentPlayer,
-          })
-        );
-      })
-    )
-  );
-
-  makeMove$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(makeMove),
-      withLatestFrom(this.store.select(selectGameBoard)),
-      switchMap(([_, gameBoard]) => {
-        const winningPositions = this.gameService.calculateWinner(gameBoard);
-
-        if (winningPositions) {
-          return of(endRound({ outcome: OutcomeEnum.Win, winningPositions }));
-        } else if (gameBoard.every((square) => square.gamePiece !== '')) {
-          return of(
-            endRound({ outcome: OutcomeEnum.Draw, winningPositions: null })
-          );
-        } else {
-          return of(switchPlayer());
-        }
-      })
-    )
-  );
-
-  endRound$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(endRound),
-      withLatestFrom(this.store.select(selectCurrentPlayer)),
-      switchMap(([action]) =>
-        of(
-          action.outcome === OutcomeEnum.Win
-            ? updatePlayerWins()
-            : { type: 'NO_OP' }
-        )
-      )
     )
   );
 }
