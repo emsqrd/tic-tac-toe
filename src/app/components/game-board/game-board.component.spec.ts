@@ -28,6 +28,8 @@ import {
 import { RoundState } from '../../store/round/round.reducer';
 import { getInitialRoundStateMock } from '../../store/mocks/round-mocks';
 import { RoundActions } from '../../store/round/round.actions';
+import { GameModeEnum } from '../../enums/game-mode.enum';
+import { Player } from '../../models/player';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -37,6 +39,7 @@ describe('GameBoardComponent', () => {
   let initialGameStateMock: GameState;
   let initialPlayerStateMock: PlayerState;
   let initialRoundStateMock: RoundState;
+  let currentPlayerMock: Player;
 
   beforeEach(async () => {
     initialGameStateMock = getInitialGameStateMock();
@@ -61,16 +64,12 @@ describe('GameBoardComponent', () => {
     component = fixture.componentInstance;
     dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
 
-    initialGameStateMock = getInitialGameStateMock();
-    initialPlayerStateMock = getInitialPlayerStateMock();
-    initialRoundStateMock = getInitialRoundStateMock();
+    currentPlayerMock =
+      initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
 
     store.overrideSelector(selectGameBoard, initialRoundStateMock.gameBoard);
     store.overrideSelector(selectOutcome, initialRoundStateMock.outcome);
-    store.overrideSelector(
-      selectCurrentPlayer,
-      initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex]
-    );
+    store.overrideSelector(selectCurrentPlayer, currentPlayerMock);
 
     // selectors used by scoring component
     store.overrideSelector(selectPlayers, initialPlayerStateMock.players);
@@ -96,8 +95,6 @@ describe('GameBoardComponent', () => {
 
   it('should dispatch attemptMove action when a square is clicked and there is no outcome', () => {
     component.outcome = OutcomeEnum.None;
-    const currentPlayerMock =
-      initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
 
     const squareDebugElement: DebugElement = fixture.debugElement.query(
       By.css('t3-square')
@@ -148,5 +145,20 @@ describe('GameBoardComponent', () => {
     expect(dispatchSpy).toHaveBeenCalledWith(
       startGame({ gameMode: component.gameMode })
     );
+  });
+
+  it('should show the coming soon message when the game mode is single player and enableSinglePlayer is false', () => {
+    component.gameMode = GameModeEnum.SinglePlayer;
+    component.enableSinglePlayer = false;
+
+    expect(component.showComingSoon).toBeTrue();
+  });
+
+  it('should display the correct game mode button text', () => {
+    component.gameModeValue = GameModeEnum.TwoPlayer;
+    expect(component.gameModeButtonText).toBe('Two Player');
+
+    component.gameModeValue = GameModeEnum.SinglePlayer;
+    expect(component.gameModeButtonText).toBe('Single Player');
   });
 });

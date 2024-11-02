@@ -55,13 +55,6 @@ describe('RoundEffects', () => {
 
     currentPlayerMock =
       initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
-
-    // Reset the state before each test
-    mockStore.setState({
-      game: initialGameStateMock,
-      player: initialPlayerStateMock,
-      round: initialRoundStateMock,
-    });
   });
 
   afterEach(() => {
@@ -94,16 +87,10 @@ describe('RoundEffects', () => {
 
     actions$ = of(action);
 
-    mockStore.setState({
-      round: {
-        ...initialRoundStateMock,
-        gameBoard: [
-          { gamePiece: 'X', isWinner: false },
-          ...Array(8).fill({ gamePiece: '', isWinner: false }),
-        ],
-      },
-      player: initialPlayerStateMock,
-    });
+    mockStore.overrideSelector(selectGameBoard, [
+      { gamePiece: 'X', isWinner: false },
+      ...Array(8).fill({ gamePiece: '', isWinner: false }),
+    ]);
 
     effects.attemptMove$.subscribe((result) => {
       expect(result).toEqual({ type: 'NO_OP' });
@@ -115,7 +102,9 @@ describe('RoundEffects', () => {
       position: 0,
       currentPlayer: currentPlayerMock,
     });
+
     actions$ = of(action);
+
     gameService.calculateWinner.and.returnValue([0, 1, 2]);
 
     effects.makeMove$.subscribe((result) => {
@@ -176,6 +165,7 @@ describe('RoundEffects', () => {
       outcome: OutcomeEnum.Win,
       winningPositions: [0, 1, 2],
     });
+
     actions$ = of(action);
 
     effects.endRound$.subscribe((result) => {
