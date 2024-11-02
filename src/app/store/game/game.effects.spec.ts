@@ -39,12 +39,6 @@ describe('GameEffects', () => {
 
     effects = TestBed.inject(GameEffects);
     mockStore = TestBed.inject(MockStore);
-
-    // Reset the state before each test
-    mockStore.setState({
-      game: initialGameStateMock,
-      player: initialPlayerStateMock,
-    });
   });
 
   afterEach(() => {

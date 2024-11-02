@@ -17,11 +17,13 @@ describe('PlayerEffects', () => {
   let actions$: Observable<any>;
   let effects: PlayerEffects;
   let store: MockStore<{ game: GameState; player: PlayerState }>;
-
-  const initialPlayerState = getInitialPlayerStateMock();
-  const initialGameState = getInitialGameStateMock();
+  let initialPlayerState: PlayerState;
+  let initialGameState: GameState;
 
   beforeEach(() => {
+    initialPlayerState = getInitialPlayerStateMock();
+    initialGameState = getInitialGameStateMock();
+
     TestBed.configureTestingModule({
       providers: [
         PlayerEffects,
