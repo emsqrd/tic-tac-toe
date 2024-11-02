@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Player } from '../../models/player';
-import { GameState } from '../../store/game/game.reducer';
 import { selectDraws } from '../../store/game/game.selectors';
 import { Observable } from 'rxjs';
 import { OutcomeEnum } from '../../enums/outcome.enum';
@@ -11,7 +10,6 @@ import {
   selectPlayers,
 } from '../../store/player/player.selectors';
 import { selectOutcome } from '../../store/round/round.selectors';
-import { PlayerState } from '../../store/player/player.reducer';
 
 @Component({
   selector: 't3-scoring',
