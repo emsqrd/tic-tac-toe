@@ -90,7 +90,6 @@ describe('ScoringComponent', () => {
     });
   });
 
-  // todo: figure out how to override the selectors instead of accessing component property directly
   it('should return true for isResult when outcome is Win', () => {
     component.outcome = OutcomeEnum.Win;
     expect(component.isResult).toBeTrue();
@@ -107,12 +106,12 @@ describe('ScoringComponent', () => {
   });
 
   it('should return true for selectPlayer1 when current player is player1', () => {
-    storeMock.overrideSelector(selectCurrentPlayer, currentPlayerMock);
+    component.currentPlayer = currentPlayerMock;
     expect(component.selectPlayer1).toBeTrue();
   });
 
   it('should return true for selectPlayer1 when isResult is true', () => {
-    storeMock.overrideSelector(selectOutcome, OutcomeEnum.Win);
+    component.outcome = OutcomeEnum.Win;
     expect(component.selectPlayer1).toBeTrue();
   });
 
