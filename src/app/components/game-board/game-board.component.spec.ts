@@ -3,13 +3,8 @@ import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { GameBoardComponent } from './game-board.component';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
+import { selectDraws } from '../../store/game/game.selectors';
 import {
-  selectDraws,
-  selectGameBoard,
-  selectOutcome,
-} from '../../store/game/game.selectors';
-import {
-  attemptMove,
   resetDraws,
   startGame,
   switchGameMode,
@@ -26,6 +21,13 @@ import { GameState } from '../../store/game/game.reducer';
 import { PlayerState } from '../../store/player/player.reducer';
 import { getInitialPlayerStateMock } from '../../store/mocks/player-mocks';
 import { getInitialGameStateMock } from '../../store/mocks/game-mocks';
+import {
+  selectGameBoard,
+  selectOutcome,
+} from '../../store/round/round.selectors';
+import { RoundState } from '../../store/round/round.reducer';
+import { getInitialRoundStateMock } from '../../store/mocks/round-mocks';
+import { RoundActions } from '../../store/round/round.actions';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -34,10 +36,12 @@ describe('GameBoardComponent', () => {
   let dispatchSpy: jasmine.Spy;
   let initialGameStateMock: GameState;
   let initialPlayerStateMock: PlayerState;
+  let initialRoundStateMock: RoundState;
 
   beforeEach(async () => {
     initialGameStateMock = getInitialGameStateMock();
     initialPlayerStateMock = getInitialPlayerStateMock();
+    initialRoundStateMock = getInitialRoundStateMock();
 
     await TestBed.configureTestingModule({
       imports: [GameBoardComponent, SquareComponent, ScoringComponent],
@@ -46,6 +50,7 @@ describe('GameBoardComponent', () => {
           initialState: {
             game: initialGameStateMock,
             player: initialPlayerStateMock,
+            round: initialRoundStateMock,
           },
         }),
       ],
@@ -58,9 +63,10 @@ describe('GameBoardComponent', () => {
 
     initialGameStateMock = getInitialGameStateMock();
     initialPlayerStateMock = getInitialPlayerStateMock();
+    initialRoundStateMock = getInitialRoundStateMock();
 
-    store.overrideSelector(selectGameBoard, initialGameStateMock.gameBoard);
-    store.overrideSelector(selectOutcome, initialGameStateMock.outcome);
+    store.overrideSelector(selectGameBoard, initialRoundStateMock.gameBoard);
+    store.overrideSelector(selectOutcome, initialRoundStateMock.outcome);
     store.overrideSelector(
       selectCurrentPlayer,
       initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex]
@@ -74,6 +80,7 @@ describe('GameBoardComponent', () => {
     store.setState({
       game: initialGameStateMock,
       player: initialPlayerStateMock,
+      round: initialRoundStateMock,
     });
     fixture.detectChanges();
   });
@@ -98,7 +105,10 @@ describe('GameBoardComponent', () => {
     squareDebugElement.triggerEventHandler('click', null);
 
     expect(dispatchSpy).toHaveBeenCalledWith(
-      attemptMove({ position: 0, currentPlayer: currentPlayerMock })
+      RoundActions.attemptMove({
+        position: 0,
+        currentPlayer: currentPlayerMock,
+      })
     );
   });
 

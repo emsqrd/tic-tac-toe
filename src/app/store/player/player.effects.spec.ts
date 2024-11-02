@@ -4,7 +4,6 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Observable, of } from 'rxjs';
 import { PlayerEffects } from './player.effects';
 import { switchPlayer, setCpuPlayer } from './player.actions';
-import { makeMove } from '../game/game.actions';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { getInitialPlayerStateMock } from '../mocks/player-mocks';
 import { getInitialGameStateMock } from '../mocks/game-mocks';
@@ -12,6 +11,7 @@ import { PlayerState } from './player.reducer';
 import { selectGameMode } from '../game/game.selectors';
 import { GameState } from '../game/game.reducer';
 import { selectCurrentPlayer } from './player.selectors';
+import { RoundActions } from '../round/round.actions';
 
 describe('PlayerEffects', () => {
   let actions$: Observable<any>;
@@ -59,7 +59,7 @@ describe('PlayerEffects', () => {
 
     effects.switchPlayer$.subscribe((action) => {
       expect(action).toEqual(
-        makeMove({
+        RoundActions.makeMove({
           currentPlayer: cpuCurrentPlayer,
         })
       );

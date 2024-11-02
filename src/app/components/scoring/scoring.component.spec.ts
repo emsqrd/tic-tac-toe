@@ -8,7 +8,9 @@ import { PlayerState } from '../../store/player/player.reducer';
 import { getInitialPlayerStateMock } from '../../store/mocks/player-mocks';
 import { getInitialGameStateMock } from '../../store/mocks/game-mocks';
 import { selectCurrentPlayer } from '../../store/player/player.selectors';
-import { selectOutcome } from '../../store/game/game.selectors';
+import { selectOutcome } from '../../store/round/round.selectors';
+import { getInitialRoundStateMock } from '../../store/mocks/round-mocks';
+import { RoundState } from '../../store/round/round.reducer';
 
 describe('ScoringComponent', () => {
   let component: ScoringComponent;
@@ -16,11 +18,13 @@ describe('ScoringComponent', () => {
   let storeMock: MockStore;
   let initialGameStateMock: GameState;
   let initialPlayerStateMock: PlayerState;
+  let initialRoundStateMock: RoundState;
   let currentPlayerMock: Player;
 
   beforeEach(async () => {
     initialGameStateMock = getInitialGameStateMock();
     initialPlayerStateMock = getInitialPlayerStateMock();
+    initialRoundStateMock = getInitialRoundStateMock();
 
     await TestBed.configureTestingModule({
       providers: [
@@ -28,6 +32,7 @@ describe('ScoringComponent', () => {
           initialState: {
             game: initialGameStateMock,
             player: initialPlayerStateMock,
+            round: initialRoundStateMock,
           },
         }),
       ],
@@ -38,6 +43,7 @@ describe('ScoringComponent', () => {
 
     initialGameStateMock = getInitialGameStateMock();
     initialPlayerStateMock = getInitialPlayerStateMock();
+    initialRoundStateMock = getInitialRoundStateMock();
 
     currentPlayerMock =
       initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
