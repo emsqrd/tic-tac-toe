@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { withLatestFrom, of, concatMap } from 'rxjs';
-import { GameService } from '../../services/game.service';
 import { startGame } from './game.actions';
 import { GameState } from './game.reducer';
 import { selectGameMode } from './game.selectors';
