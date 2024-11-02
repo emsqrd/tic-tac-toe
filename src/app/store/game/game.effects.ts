@@ -15,7 +15,6 @@ import { RoundActions } from '../round/round.actions';
 export class GameEffects {
   constructor(
     private actions$: Actions,
-    // ? Does store need to be injected like this with the types?
     private store: Store<{ game: GameState; player: PlayerState }>
   ) {}
 
