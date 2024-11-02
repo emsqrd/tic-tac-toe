@@ -1,7 +1,6 @@
-import { fakeAsync, flush, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Observable, of } from 'rxjs';
-
 import { RoundEffects } from './round.effects';
 import { GameService } from '../../services/game.service';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
@@ -14,7 +13,6 @@ import { getInitialPlayerStateMock } from '../mocks/player-mocks';
 import { getInitialRoundStateMock } from '../mocks/round-mocks';
 import { RoundActions } from './round.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { TestScheduler } from 'rxjs/testing';
 import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
 import { selectGameBoard } from './round.selectors';
@@ -158,44 +156,6 @@ describe('RoundEffects', () => {
       done();
     });
   });
-  // Keeping this as marble syntax as an example in case I want to use this later on
-  // it('should dispatch endRound action with Draw outcome if the board is full and no winner', fakeAsync(() => {
-  //   const testScheduler = new TestScheduler((actual, expected) => {
-  //     expect(actual).toEqual(expected);
-  //   });
-
-  //   // simulate a full board without a winner
-  //   const fullBoardMock = {
-  //     ...initialRoundStateMock,
-  //     gameBoard: Array(8).fill({ gamePiece: 'X', isWinner: false }),
-  //   };
-
-  //   // set the mock state with the full board
-  //   mockStore.setState({
-  //     game: fullBoardMock,
-  //     player: initialPlayerStateMock,
-  //   });
-
-  //   testScheduler.run(({ hot, cold, expectObservable }) => {
-  //     const action = RoundActions.makeMove({
-  //       position: 9,
-  //       currentPlayer: currentPlayerMock,
-  //     });
-
-  //     actions$ = hot('-a', { a: action });
-
-  //     gameService.calculateWinner.and.returnValue(null);
-
-  //     expectObservable(effects.makeMove$).toBe('-b', {
-  //       b: RoundActions.endRound({
-  //         outcome: OutcomeEnum.Draw,
-  //         winningPositions: null,
-  //       }),
-  //     });
-  //   });
-
-  //   flush();
-  // }));
 
   it('should dispatch switchPlayer action if there is no winner and the board is not full', (done) => {
     const action = RoundActions.makeMove({
@@ -224,7 +184,7 @@ describe('RoundEffects', () => {
     });
   });
 
-  it('should dispatch no-op action if the round ended with a Draw outcome', (done) => {
+  it('should dispatch updateDraws action if the round ended with a Draw outcome', (done) => {
     const action = RoundActions.endRound({
       outcome: OutcomeEnum.Draw,
       winningPositions: null,
@@ -233,6 +193,19 @@ describe('RoundEffects', () => {
 
     effects.endRound$.subscribe((result) => {
       expect(result).toEqual(updateDraws());
+      done();
+    });
+  });
+
+  it('should dispatch no-op action if the round ended without an outcome', (done) => {
+    const action = RoundActions.endRound({
+      outcome: OutcomeEnum.None,
+      winningPositions: null,
+    });
+    actions$ = of(action);
+
+    effects.endRound$.subscribe((result) => {
+      expect(result).toEqual({ type: 'NO_OP' });
       done();
     });
   });
