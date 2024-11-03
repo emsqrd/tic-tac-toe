@@ -40,6 +40,7 @@ export const playerReducer = createReducer(
       players: state.players.map((player) => ({
         ...player,
         wins: 0,
+        isCpu: false,
       })),
       currentPlayerIndex: 0,
     };

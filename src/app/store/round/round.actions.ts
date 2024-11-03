@@ -12,7 +12,8 @@ export const RoundActions = createActionGroup({
       outcome: OutcomeEnum;
       winningPositions: number[] | null;
     }>(),
-    'Attempt Move': props<{ position: number; currentPlayer: Player }>(),
+    'Set Processing Move': props<{ processingMove: boolean }>(),
+    'Attempt Move': props<{ position?: number; currentPlayer: Player }>(),
     'Make Move': props<{ position?: number; currentPlayer: Player }>(),
   },
 });

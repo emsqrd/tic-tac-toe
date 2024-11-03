@@ -1,4 +1,7 @@
-<article class="game-board-container">
+<article
+  class="game-board-container"
+  [ngClass]="{ 'processing-move': processingMove$ | async }"
+>
   <section class="game-mode-container">
     <div>
       <!--? Idea for toggle: https://codepen.io/Enki/pen/oBqBqG?editors=1100 -->
@@ -10,7 +13,9 @@
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
     <div
       class="game-board-grid"
-      [ngClass]="{ 'coming-soon-disabled': showComingSoon }"
+      [ngClass]="{ 
+        'coming-soon-disabled': showComingSoon,
+      }"
     >
       @for (square of gameBoard$ | async; track $index){
       <t3-square

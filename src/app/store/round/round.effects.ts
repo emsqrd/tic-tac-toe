@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { GameState } from '../game/game.reducer';
 import { PlayerState } from '../player/player.reducer';
 import { Store } from '@ngrx/store';
-import { withLatestFrom, switchMap, of } from 'rxjs';
+import { withLatestFrom, switchMap, of, delay } from 'rxjs';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { selectCurrentPlayer } from '../player/player.selectors';
@@ -30,17 +30,24 @@ export class RoundEffects {
       ofType(RoundActions.attemptMove),
       withLatestFrom(this.store.select(selectGameBoard)),
       switchMap(([action, gameBoard]) => {
+        const position = action.position;
         // If the square is already taken, do nothing
-        if (gameBoard[action.position].gamePiece !== '') {
+        if (position !== undefined && gameBoard[position].gamePiece !== '') {
           return of({ type: 'NO_OP' }); // return a no-op action
         }
+
+        const moveDelay = action.currentPlayer.isCpu ? 1000 : 0;
+
+        this.store.dispatch(
+          RoundActions.setProcessingMove({ processingMove: true })
+        );
 
         return of(
           RoundActions.makeMove({
             position: action.position,
             currentPlayer: action.currentPlayer,
           })
-        );
+        ).pipe(delay(moveDelay));
       })
     )
   );
@@ -50,25 +57,31 @@ export class RoundEffects {
       ofType(RoundActions.makeMove),
       withLatestFrom(this.store.select(selectGameBoard)),
       switchMap(([_, gameBoard]) => {
+        let actions = [];
+
         const winningPositions = this.gameService.calculateWinner(gameBoard);
 
         if (winningPositions) {
-          return of(
+          actions.push(
             RoundActions.endRound({
               outcome: OutcomeEnum.Win,
               winningPositions,
             })
           );
         } else if (gameBoard.every((square) => square.gamePiece !== '')) {
-          return of(
+          actions.push(
             RoundActions.endRound({
               outcome: OutcomeEnum.Draw,
               winningPositions: null,
             })
           );
         } else {
-          return of(switchPlayer());
+          actions.push(switchPlayer());
         }
+
+        actions.push(RoundActions.endTurn());
+
+        return of(...actions);
       })
     )
   );
