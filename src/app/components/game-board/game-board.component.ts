@@ -98,12 +98,7 @@ export class GameBoardComponent implements OnInit {
       this.store.dispatch(startGame({ gameMode: this.gameMode }));
       this.store.dispatch(switchPlayer());
     } else {
-      this.store.dispatch(
-        RoundActions.attemptMove({
-          position,
-          currentPlayer: this.currentPlayer,
-        })
-      );
+      this.store.dispatch(RoundActions.attemptMove({ position }));
     }
   }
 

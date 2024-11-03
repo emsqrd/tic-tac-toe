@@ -25,11 +25,8 @@ export class PlayerEffects {
         this.store.select(selectGameMode)
       ),
       switchMap(([_, currentPlayer, gameMode]) => {
-        this.store.dispatch(
-          RoundActions.setProcessingMove({ processingMove: false })
-        );
         if (gameMode === GameModeEnum.SinglePlayer && currentPlayer.isCpu) {
-          return of(RoundActions.attemptMove({ currentPlayer: currentPlayer }));
+          return of(RoundActions.attemptMove({}));
         } else {
           return of({ type: 'NO_OP' });
         }

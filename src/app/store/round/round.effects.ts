@@ -28,22 +28,25 @@ export class RoundEffects {
   attemptMove$ = createEffect(() =>
     this.actions$.pipe(
       ofType(RoundActions.attemptMove),
-      withLatestFrom(this.store.select(selectGameBoard)),
-      switchMap(([action, gameBoard]) => {
+      withLatestFrom(
+        this.store.select(selectGameBoard),
+        this.store.select(selectCurrentPlayer)
+      ),
+      switchMap(([action, gameBoard, currentPlayer]) => {
         const position = action.position;
         // If the square is already taken, do nothing
         if (position !== undefined && gameBoard[position].gamePiece !== '') {
           return of({ type: 'NO_OP' }); // return a no-op action
         }
 
-        const moveDelay = action.currentPlayer.isCpu ? 1000 : 0;
+        const moveDelay = currentPlayer.isCpu ? 500 : 0;
 
         return concat(
           of(RoundActions.setProcessingMove({ processingMove: true })),
           of(
             RoundActions.makeMove({
               position: action.position,
-              currentPlayer: action.currentPlayer,
+              currentPlayer: currentPlayer,
             })
           ).pipe(delay(moveDelay))
         );
@@ -78,7 +81,7 @@ export class RoundEffects {
           actions.push(switchPlayer());
         }
 
-        actions.push(RoundActions.endTurn());
+        actions.push(RoundActions.setProcessingMove({ processingMove: false }));
 
         return of(...actions);
       })

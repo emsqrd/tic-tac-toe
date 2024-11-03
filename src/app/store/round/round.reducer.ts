@@ -34,20 +34,6 @@ export const roundReducer = createReducer(
       processingMove,
     };
   }),
-  on(RoundActions.startTurn, (state) => {
-    console.log('start turn');
-    return {
-      ...state,
-      processingMove: true,
-    };
-  }),
-  on(RoundActions.endTurn, (state) => {
-    console.log('end turn');
-    return {
-      ...state,
-      processingMove: false,
-    };
-  }),
   on(RoundActions.makeMove, (state, { position, currentPlayer }) => {
     console.log('make move');
     let newBoard = state.gameBoard;
