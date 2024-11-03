@@ -3,7 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { GameState } from '../game/game.reducer';
 import { PlayerState } from '../player/player.reducer';
 import { Store } from '@ngrx/store';
-import { withLatestFrom, switchMap, of, delay } from 'rxjs';
+import { withLatestFrom, switchMap, of, delay, concat } from 'rxjs';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { selectCurrentPlayer } from '../player/player.selectors';
@@ -38,16 +38,15 @@ export class RoundEffects {
 
         const moveDelay = action.currentPlayer.isCpu ? 1000 : 0;
 
-        this.store.dispatch(
-          RoundActions.setProcessingMove({ processingMove: true })
+        return concat(
+          of(RoundActions.setProcessingMove({ processingMove: true })),
+          of(
+            RoundActions.makeMove({
+              position: action.position,
+              currentPlayer: action.currentPlayer,
+            })
+          ).pipe(delay(moveDelay))
         );
-
-        return of(
-          RoundActions.makeMove({
-            position: action.position,
-            currentPlayer: action.currentPlayer,
-          })
-        ).pipe(delay(moveDelay));
       })
     )
   );
