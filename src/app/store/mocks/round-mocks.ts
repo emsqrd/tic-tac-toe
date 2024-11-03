@@ -4,4 +4,5 @@ import { RoundState } from '../round/round.reducer';
 export const getInitialRoundStateMock = (): RoundState => ({
   gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
   outcome: OutcomeEnum.None,
+  processingTurn: false,
 });
