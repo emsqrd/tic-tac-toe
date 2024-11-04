@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { Observable, of } from 'rxjs';
+import { Observable, of, toArray } from 'rxjs';
 import { RoundEffects } from './round.effects';
 import { GameService } from '../../services/game.service';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
@@ -62,28 +62,26 @@ describe('RoundEffects', () => {
   });
 
   it('should dispatch makeMove action on attemptMove if the square is not taken', (done) => {
-    const action = RoundActions.attemptMove({
-      position: 0,
-      currentPlayer: currentPlayerMock,
-    });
+    const action = RoundActions.attemptMove({ position: 0 });
+
     actions$ = of(action);
 
-    effects.attemptMove$.subscribe((result) => {
-      expect(result).toEqual(
-        RoundActions.makeMove({
-          position: 0,
-          currentPlayer: currentPlayerMock,
-        })
-      );
+    const expectedActions = [
+      RoundActions.setProcessingMove({ processingMove: true }),
+      RoundActions.makeMove({
+        position: 0,
+        currentPlayer: currentPlayerMock,
+      }),
+    ];
+
+    effects.attemptMove$.pipe(toArray()).subscribe((result) => {
+      expect(result).toEqual(expectedActions);
       done();
     });
   });
 
   it('should dispatch no-op action on attemptMove if the square is taken', () => {
-    const action = RoundActions.attemptMove({
-      position: 0,
-      currentPlayer: currentPlayerMock,
-    });
+    const action = RoundActions.attemptMove({ position: 0 });
 
     actions$ = of(action);
 
@@ -107,13 +105,16 @@ describe('RoundEffects', () => {
 
     gameService.calculateWinner.and.returnValue([0, 1, 2]);
 
-    effects.makeMove$.subscribe((result) => {
-      expect(result).toEqual(
-        RoundActions.endRound({
-          outcome: OutcomeEnum.Win,
-          winningPositions: [0, 1, 2],
-        })
-      );
+    const expectedActions = [
+      RoundActions.endRound({
+        outcome: OutcomeEnum.Win,
+        winningPositions: [0, 1, 2],
+      }),
+      RoundActions.setProcessingMove({ processingMove: false }),
+    ];
+
+    effects.makeMove$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });
@@ -135,13 +136,16 @@ describe('RoundEffects', () => {
 
     actions$ = of(action);
 
-    effects.makeMove$.subscribe((result) => {
-      expect(result).toEqual(
-        RoundActions.endRound({
-          outcome: OutcomeEnum.Draw,
-          winningPositions: null,
-        })
-      );
+    const expectedActions = [
+      RoundActions.endRound({
+        outcome: OutcomeEnum.Draw,
+        winningPositions: null,
+      }),
+      RoundActions.setProcessingMove({ processingMove: false }),
+    ];
+
+    effects.makeMove$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });
@@ -154,8 +158,13 @@ describe('RoundEffects', () => {
     actions$ = of(action);
     gameService.calculateWinner.and.returnValue(null);
 
-    effects.makeMove$.subscribe((result) => {
-      expect(result).toEqual(switchPlayer());
+    const expectedActions = [
+      switchPlayer(),
+      RoundActions.setProcessingMove({ processingMove: false }),
+    ];
+
+    effects.makeMove$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });

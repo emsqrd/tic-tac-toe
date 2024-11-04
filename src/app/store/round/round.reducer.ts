@@ -20,7 +20,6 @@ export const initialState: RoundState = {
 export const roundReducer = createReducer(
   initialState,
   on(RoundActions.startRound, (state) => {
-    console.log('start round');
     return {
       ...state,
       gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
@@ -28,14 +27,12 @@ export const roundReducer = createReducer(
     };
   }),
   on(RoundActions.setProcessingMove, (state, { processingMove }) => {
-    console.log('set processing turn');
     return {
       ...state,
       processingMove,
     };
   }),
   on(RoundActions.makeMove, (state, { position, currentPlayer }) => {
-    console.log('make move');
     let newBoard = state.gameBoard;
 
     // If no position is provided, make a random move
@@ -69,7 +66,6 @@ export const roundReducer = createReducer(
     };
   }),
   on(RoundActions.endRound, (state, { outcome, winningPositions }) => {
-    console.log('end round');
     let newBoard = state.gameBoard;
 
     if (outcome === OutcomeEnum.Win) {

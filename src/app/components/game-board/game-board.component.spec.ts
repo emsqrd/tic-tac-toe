@@ -102,10 +102,7 @@ describe('GameBoardComponent', () => {
     squareDebugElement.triggerEventHandler('click', null);
 
     expect(dispatchSpy).toHaveBeenCalledWith(
-      RoundActions.attemptMove({
-        position: 0,
-        currentPlayer: currentPlayerMock,
-      })
+      RoundActions.attemptMove({ position: 0 })
     );
   });
 

@@ -83,10 +83,6 @@ export class GameBoardComponent implements OnInit {
       this.gameModeValue = gameMode.valueOf();
     });
 
-    this.processingMove$.subscribe((processingMove) => {
-      console.log('Processing move:', processingMove);
-    });
-
     this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
 
