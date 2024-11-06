@@ -82,4 +82,13 @@ describe('Round Reducer', () => {
     );
     expect(state.outcome).toEqual(OutcomeEnum.Draw);
   });
+
+  it('should handle setProcessingMove action', () => {
+    const processingMove = true;
+    const state = roundReducer(
+      initialRoundStateMock,
+      RoundActions.setProcessingMove({ processingMove })
+    );
+    expect(state.processingMove).toBe(processingMove);
+  });
 });
