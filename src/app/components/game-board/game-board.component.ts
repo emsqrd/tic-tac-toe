@@ -19,6 +19,7 @@ import { GameModeEnum } from '../../enums/game-mode.enum';
 import {
   selectGameBoard,
   selectOutcome,
+  selectProcessingMove,
 } from '../../store/round/round.selectors';
 import { RoundActions } from '../../store/round/round.actions';
 
@@ -34,6 +35,7 @@ export class GameBoardComponent implements OnInit {
   outcome$: Observable<OutcomeEnum>;
   currentPlayer$: Observable<Player>;
   gameMode$: Observable<GameModeEnum>;
+  processingMove$: Observable<boolean>;
 
   outcome!: OutcomeEnum;
   currentPlayer!: Player;
@@ -47,6 +49,7 @@ export class GameBoardComponent implements OnInit {
     this.outcome$ = store.select(selectOutcome);
     this.currentPlayer$ = store.select(selectCurrentPlayer);
     this.gameMode$ = store.select(selectGameMode);
+    this.processingMove$ = store.select(selectProcessingMove);
   }
 
   get isDraw() {
@@ -79,6 +82,8 @@ export class GameBoardComponent implements OnInit {
       this.gameMode = gameMode;
       this.gameModeValue = gameMode.valueOf();
     });
+
+    this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
 
   // Clicking a square triggers a move
@@ -89,12 +94,7 @@ export class GameBoardComponent implements OnInit {
       this.store.dispatch(startGame({ gameMode: this.gameMode }));
       this.store.dispatch(switchPlayer());
     } else {
-      this.store.dispatch(
-        RoundActions.attemptMove({
-          position,
-          currentPlayer: this.currentPlayer,
-        })
-      );
+      this.store.dispatch(RoundActions.attemptMove({ position }));
     }
   }
 

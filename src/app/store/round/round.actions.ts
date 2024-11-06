@@ -6,11 +6,14 @@ export const RoundActions = createActionGroup({
   source: 'Round',
   events: {
     'Start Round': emptyProps(),
+    'Start Turn': emptyProps(),
+    'End Turn': emptyProps(),
     'End Round': props<{
       outcome: OutcomeEnum;
       winningPositions: number[] | null;
     }>(),
-    'Attempt Move': props<{ position: number; currentPlayer: Player }>(),
+    'Set Processing Move': props<{ processingMove: boolean }>(),
+    'Attempt Move': props<{ position?: number }>(),
     'Make Move': props<{ position?: number; currentPlayer: Player }>(),
   },
 });

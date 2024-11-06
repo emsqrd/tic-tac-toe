@@ -12,3 +12,8 @@ export const selectOutcome = createSelector(
   selectRoundState,
   (state) => state.outcome
 );
+
+export const selectProcessingMove = createSelector(
+  selectRoundState,
+  (state) => state.processingMove
+);

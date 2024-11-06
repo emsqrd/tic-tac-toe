@@ -8,11 +8,13 @@ export const roundFeatureKey = 'round';
 export interface RoundState {
   gameBoard: Square[];
   outcome: OutcomeEnum;
+  processingMove: boolean;
 }
 
 export const initialState: RoundState = {
   gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
   outcome: OutcomeEnum.None,
+  processingMove: false,
 };
 
 export const roundReducer = createReducer(
@@ -22,6 +24,12 @@ export const roundReducer = createReducer(
       ...state,
       gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
       outcome: OutcomeEnum.None,
+    };
+  }),
+  on(RoundActions.setProcessingMove, (state, { processingMove }) => {
+    return {
+      ...state,
+      processingMove,
     };
   }),
   on(RoundActions.makeMove, (state, { position, currentPlayer }) => {

@@ -60,11 +60,7 @@ describe('PlayerEffects', () => {
     actions$ = of(switchPlayer());
 
     effects.switchPlayer$.subscribe((action) => {
-      expect(action).toEqual(
-        RoundActions.makeMove({
-          currentPlayer: cpuCurrentPlayer,
-        })
-      );
+      expect(action).toEqual(RoundActions.attemptMove({}));
       done();
     });
   });

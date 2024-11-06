@@ -26,9 +26,7 @@ export class PlayerEffects {
       ),
       switchMap(([_, currentPlayer, gameMode]) => {
         if (gameMode === GameModeEnum.SinglePlayer && currentPlayer.isCpu) {
-          return of(
-            RoundActions.makeMove({ currentPlayer: currentPlayer })
-          ).pipe(delay(500));
+          return of(RoundActions.attemptMove({}));
         } else {
           return of({ type: 'NO_OP' });
         }

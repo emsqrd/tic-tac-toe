@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
+import { Observable, of, toArray } from 'rxjs';
 import { RoundEffects } from './round.effects';
 import { GameService } from '../../services/game.service';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
@@ -16,6 +17,13 @@ import { OutcomeEnum } from '../../enums/outcome.enum';
 import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
 import { selectGameBoard } from './round.selectors';
+import { selectCurrentPlayer } from '../player/player.selectors';
+
+export function mockDelay<T>(
+  duration: number
+): (source: Observable<T>) => Observable<T> {
+  return (source: Observable<T>) => source;
+}
 
 describe('RoundEffects', () => {
   let actions$: Observable<any>;
@@ -62,28 +70,26 @@ describe('RoundEffects', () => {
   });
 
   it('should dispatch makeMove action on attemptMove if the square is not taken', (done) => {
-    const action = RoundActions.attemptMove({
-      position: 0,
-      currentPlayer: currentPlayerMock,
-    });
+    const action = RoundActions.attemptMove({ position: 0 });
+
     actions$ = of(action);
 
-    effects.attemptMove$.subscribe((result) => {
-      expect(result).toEqual(
-        RoundActions.makeMove({
-          position: 0,
-          currentPlayer: currentPlayerMock,
-        })
-      );
+    const expectedActions = [
+      RoundActions.setProcessingMove({ processingMove: true }),
+      RoundActions.makeMove({
+        position: 0,
+        currentPlayer: currentPlayerMock,
+      }),
+    ];
+
+    effects.attemptMove$.pipe(toArray()).subscribe((result) => {
+      expect(result).toEqual(expectedActions);
       done();
     });
   });
 
   it('should dispatch no-op action on attemptMove if the square is taken', () => {
-    const action = RoundActions.attemptMove({
-      position: 0,
-      currentPlayer: currentPlayerMock,
-    });
+    const action = RoundActions.attemptMove({ position: 0 });
 
     actions$ = of(action);
 
@@ -97,6 +103,57 @@ describe('RoundEffects', () => {
     });
   });
 
+  it('should dispatch the makeMove action with a delay if the current player is the CPU', (done) => {
+    const cpuPlayer = {
+      ...currentPlayerMock,
+      isCpu: true,
+    };
+
+    const position = 0;
+
+    const action = RoundActions.attemptMove({ position });
+
+    // Test for delay with CPU player
+    mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
+    actions$ = of(action);
+
+    spyOn<any>(effects, 'applyDelay').and.callFake(mockDelay);
+
+    effects.attemptMove$.subscribe((result) => {
+      if (result.type === RoundActions.makeMove.type) {
+        expect(effects['applyDelay']).toHaveBeenCalledWith(500);
+        expect(result).toEqual(
+          RoundActions.makeMove({ position: 0, currentPlayer: cpuPlayer })
+        );
+        done();
+      }
+    });
+  });
+
+  it('should dispatch makeMove action without a delay when current player is human', (done) => {
+    const humanPlayer = {
+      ...currentPlayerMock,
+      isCpu: false,
+    };
+
+    const position = 0;
+
+    mockStore.overrideSelector(selectCurrentPlayer, humanPlayer);
+    actions$ = of(RoundActions.attemptMove({ position }));
+
+    spyOn<any>(effects, 'applyDelay').and.callFake(mockDelay); // Mock the applyDelay function
+
+    effects.attemptMove$.subscribe((action) => {
+      if (action.type === RoundActions.makeMove.type) {
+        expect(effects['applyDelay']).toHaveBeenCalledWith(0); // Check if no delay is applied
+        expect(action).toEqual(
+          RoundActions.makeMove({ position, currentPlayer: humanPlayer })
+        );
+        done();
+      }
+    });
+  });
+
   it('should dispatch endRound action with Win outcome if there is a winner', (done) => {
     const action = RoundActions.makeMove({
       position: 0,
@@ -107,13 +164,16 @@ describe('RoundEffects', () => {
 
     gameService.calculateWinner.and.returnValue([0, 1, 2]);
 
-    effects.makeMove$.subscribe((result) => {
-      expect(result).toEqual(
-        RoundActions.endRound({
-          outcome: OutcomeEnum.Win,
-          winningPositions: [0, 1, 2],
-        })
-      );
+    const expectedActions = [
+      RoundActions.endRound({
+        outcome: OutcomeEnum.Win,
+        winningPositions: [0, 1, 2],
+      }),
+      RoundActions.setProcessingMove({ processingMove: false }),
+    ];
+
+    effects.makeMove$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });
@@ -135,13 +195,16 @@ describe('RoundEffects', () => {
 
     actions$ = of(action);
 
-    effects.makeMove$.subscribe((result) => {
-      expect(result).toEqual(
-        RoundActions.endRound({
-          outcome: OutcomeEnum.Draw,
-          winningPositions: null,
-        })
-      );
+    const expectedActions = [
+      RoundActions.endRound({
+        outcome: OutcomeEnum.Draw,
+        winningPositions: null,
+      }),
+      RoundActions.setProcessingMove({ processingMove: false }),
+    ];
+
+    effects.makeMove$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });
@@ -154,8 +217,13 @@ describe('RoundEffects', () => {
     actions$ = of(action);
     gameService.calculateWinner.and.returnValue(null);
 
-    effects.makeMove$.subscribe((result) => {
-      expect(result).toEqual(switchPlayer());
+    const expectedActions = [
+      switchPlayer(),
+      RoundActions.setProcessingMove({ processingMove: false }),
+    ];
+
+    effects.makeMove$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });
