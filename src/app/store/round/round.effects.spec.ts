@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
+import { delay } from 'rxjs/operators';
 import { Observable, of, toArray } from 'rxjs';
 import { RoundEffects } from './round.effects';
 import { GameService } from '../../services/game.service';
@@ -16,6 +17,13 @@ import { OutcomeEnum } from '../../enums/outcome.enum';
 import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
 import { selectGameBoard } from './round.selectors';
+import { selectCurrentPlayer } from '../player/player.selectors';
+
+export function mockDelay<T>(
+  duration: number
+): (source: Observable<T>) => Observable<T> {
+  return (source: Observable<T>) => source;
+}
 
 describe('RoundEffects', () => {
   let actions$: Observable<any>;
@@ -92,6 +100,57 @@ describe('RoundEffects', () => {
 
     effects.attemptMove$.subscribe((result) => {
       expect(result).toEqual({ type: 'NO_OP' });
+    });
+  });
+
+  it('should dispatch the makeMove action with a delay if the current player is the CPU', (done) => {
+    const cpuPlayer = {
+      ...currentPlayerMock,
+      isCpu: true,
+    };
+
+    const position = 0;
+
+    const action = RoundActions.attemptMove({ position });
+
+    // Test for delay with CPU player
+    mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
+    actions$ = of(action);
+
+    spyOn<any>(effects, 'applyDelay').and.callFake(mockDelay);
+
+    effects.attemptMove$.subscribe((result) => {
+      if (result.type === RoundActions.makeMove.type) {
+        expect(effects['applyDelay']).toHaveBeenCalledWith(500);
+        expect(result).toEqual(
+          RoundActions.makeMove({ position: 0, currentPlayer: cpuPlayer })
+        );
+        done();
+      }
+    });
+  });
+
+  it('should dispatch makeMove action without a delay when current player is human', (done) => {
+    const humanPlayer = {
+      ...currentPlayerMock,
+      isCpu: false,
+    };
+
+    const position = 0;
+
+    mockStore.overrideSelector(selectCurrentPlayer, humanPlayer);
+    actions$ = of(RoundActions.attemptMove({ position }));
+
+    spyOn<any>(effects, 'applyDelay').and.callFake(mockDelay); // Mock the applyDelay function
+
+    effects.attemptMove$.subscribe((action) => {
+      if (action.type === RoundActions.makeMove.type) {
+        expect(effects['applyDelay']).toHaveBeenCalledWith(0); // Check if no delay is applied
+        expect(action).toEqual(
+          RoundActions.makeMove({ position, currentPlayer: humanPlayer })
+        );
+        done();
+      }
     });
   });
 

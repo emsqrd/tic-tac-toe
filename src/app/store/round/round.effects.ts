@@ -25,6 +25,10 @@ export class RoundEffects {
     }>
   ) {}
 
+  private applyDelay<T>(duration: number) {
+    return delay<T>(duration);
+  }
+
   attemptMove$ = createEffect(() =>
     this.actions$.pipe(
       ofType(RoundActions.attemptMove),
@@ -48,7 +52,7 @@ export class RoundEffects {
               position: action.position,
               currentPlayer: currentPlayer,
             })
-          ).pipe(delay(moveDelay))
+          ).pipe(this.applyDelay(moveDelay))
         );
       })
     )
