@@ -185,9 +185,11 @@ describe('GameBoardComponent', () => {
 
   it('should display the correct game mode button text', () => {
     component.gameMode = GameModeEnum.TwoPlayer;
-    expect(component.gameModeButtonText).toBe('Two Player');
+    expect(component.gameModeButtonText).toBe(GameModeEnum.TwoPlayer.valueOf());
 
     component.gameMode = GameModeEnum.SinglePlayer;
-    expect(component.gameModeButtonText).toBe('Single Player');
+    expect(component.gameModeButtonText).toBe(
+      GameModeEnum.SinglePlayer.valueOf()
+    );
   });
 });

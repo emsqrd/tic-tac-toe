@@ -1,4 +1,4 @@
 export enum GameModeEnum {
-  SinglePlayer = 'Single Player',
-  TwoPlayer = 'Two Player',
+  SinglePlayer = '1P',
+  TwoPlayer = '2P',
 }
