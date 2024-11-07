@@ -62,7 +62,7 @@ export const gameReducer = createReducer(
 
     let currentDifficultyIndex = gameDifficulties.indexOf(state.gameDifficulty);
 
-    let newDifficultyIndex: number;
+    let newDifficultyIndex: number = 0;
 
     switch (currentDifficultyIndex) {
       case 0:
@@ -73,9 +73,6 @@ export const gameReducer = createReducer(
         break;
       case 2:
         newDifficultyIndex = 0;
-        break;
-      default:
-        newDifficultyIndex = currentDifficultyIndex;
         break;
     }
 
