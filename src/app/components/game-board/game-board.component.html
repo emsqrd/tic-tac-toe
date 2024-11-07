@@ -10,7 +10,9 @@
       </a>
     </div>
     <div>
-      <a id="btnDifficulty" type="button">{{ gameDifficultyButtonText }}</a>
+      <a id="btnDifficulty" type="button" (click)="gameDifficultyClick()">
+        {{ gameDifficultyButtonText }}</a
+      >
     </div>
   </section>
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">

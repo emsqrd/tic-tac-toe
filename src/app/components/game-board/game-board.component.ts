@@ -8,6 +8,7 @@ import {
   switchGameMode,
   startGame,
   resetDraws,
+  switchGameDifficulty,
 } from '../../store/game/game.actions';
 import {
   selectGameDifficulty,
@@ -110,5 +111,9 @@ export class GameBoardComponent implements OnInit {
     this.store.dispatch(resetPlayers());
     this.store.dispatch(resetDraws());
     this.store.dispatch(startGame({ gameMode: this.gameMode }));
+  }
+
+  gameDifficultyClick() {
+    this.store.dispatch(switchGameDifficulty());
   }
 }

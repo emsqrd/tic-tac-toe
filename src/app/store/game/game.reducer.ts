@@ -4,6 +4,7 @@ import {
   startGame,
   resetDraws,
   updateDraws,
+  switchGameDifficulty,
 } from './game.actions';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
@@ -49,6 +50,37 @@ export const gameReducer = createReducer(
     return {
       ...state,
       draws: state.draws + 1,
+    };
+  }),
+  on(switchGameDifficulty, (state) => {
+    let gameDifficulties = [
+      GameDifficultyEnum.Easy,
+      GameDifficultyEnum.Medium,
+      GameDifficultyEnum.Hard,
+    ];
+
+    let currentDifficultyIndex = gameDifficulties.indexOf(state.gameDifficulty);
+
+    let newDifficultyIndex: number;
+
+    switch (currentDifficultyIndex) {
+      case 0:
+        newDifficultyIndex = 1;
+        break;
+      case 1:
+        newDifficultyIndex = 2;
+        break;
+      case 2:
+        newDifficultyIndex = 0;
+        break;
+      default:
+        newDifficultyIndex = currentDifficultyIndex;
+        break;
+    }
+
+    return {
+      ...state,
+      gameDifficulty: gameDifficulties[newDifficultyIndex],
     };
   })
 );

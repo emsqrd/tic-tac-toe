@@ -14,3 +14,7 @@ export const switchGameMode = createAction('[Game] Switch Game Mode');
 export const resetDraws = createAction('[Game] Reset Draws');
 
 export const updateDraws = createAction('[Game] Update Draws');
+
+export const switchGameDifficulty = createAction(
+  '[Game] Switch Game Difficulty'
+);
