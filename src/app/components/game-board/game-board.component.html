@@ -5,10 +5,12 @@
   <!--? Idea for toggle: https://codepen.io/Enki/pen/oBqBqG?editors=1100 -->
   <section class="game-nav-container">
     <div>
-      <a type="button" (click)="gameModeClick()">{{ gameModeButtonText }} </a>
+      <a id="btnGameMode" type="button" (click)="gameModeClick()"
+        >{{ gameModeButtonText }}
+      </a>
     </div>
     <div>
-      <a type="button">{{ gameDifficultyButtonText }}</a>
+      <a id="btnDifficulty" type="button">{{ gameDifficultyButtonText }}</a>
     </div>
   </section>
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
