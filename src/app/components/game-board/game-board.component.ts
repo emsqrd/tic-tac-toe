@@ -22,6 +22,7 @@ import {
   selectProcessingMove,
 } from '../../store/round/round.selectors';
 import { RoundActions } from '../../store/round/round.actions';
+import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
 @Component({
   selector: 't3-game-board',
@@ -40,9 +41,11 @@ export class GameBoardComponent implements OnInit {
   outcome!: OutcomeEnum;
   currentPlayer!: Player;
   gameMode!: GameModeEnum;
+  gameDifficulty!: GameDifficultyEnum;
 
   gameModeValue!: string;
   enableSinglePlayer = true;
+  gameDifficultyValue!: string;
 
   constructor(private store: Store) {
     this.gameBoard$ = store.select(selectGameBoard);
@@ -58,8 +61,26 @@ export class GameBoardComponent implements OnInit {
 
   get gameModeButtonText() {
     return this.gameModeValue === GameModeEnum.TwoPlayer
-      ? 'Two Player'
-      : 'Single Player';
+      ? GameModeEnum.TwoPlayer.valueOf()
+      : GameModeEnum.SinglePlayer.valueOf();
+  }
+
+  get gameDifficultyButtonText() {
+    let gameDifficultyText;
+
+    switch (this.gameDifficultyValue) {
+      case GameDifficultyEnum.Easy:
+        gameDifficultyText = GameDifficultyEnum.Easy.valueOf();
+        break;
+      case GameDifficultyEnum.Medium:
+        gameDifficultyText = GameDifficultyEnum.Medium.valueOf();
+        break;
+      case GameDifficultyEnum.Hard:
+        gameDifficultyText = GameDifficultyEnum.Hard.valueOf();
+        break;
+    }
+
+    return gameDifficultyText;
   }
 
   get showComingSoon() {
@@ -82,6 +103,8 @@ export class GameBoardComponent implements OnInit {
       this.gameMode = gameMode;
       this.gameModeValue = gameMode.valueOf();
     });
+
+    this.gameDifficultyValue = GameDifficultyEnum.Easy.valueOf();
 
     this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
