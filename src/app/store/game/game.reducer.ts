@@ -53,28 +53,14 @@ export const gameReducer = createReducer(
     };
   }),
   on(switchGameDifficulty, (state) => {
-    // todo: find a better way to work through this
-    let gameDifficulties = [
-      GameDifficultyEnum.Easy,
-      GameDifficultyEnum.Medium,
-      GameDifficultyEnum.Hard,
-    ];
+    const gameDifficulties = Object.values(GameDifficultyEnum);
 
-    let currentDifficultyIndex = gameDifficulties.indexOf(state.gameDifficulty);
+    const currentDifficultyIndex = gameDifficulties.indexOf(
+      state.gameDifficulty
+    );
 
-    let newDifficultyIndex: number = 0;
-
-    switch (currentDifficultyIndex) {
-      case 0:
-        newDifficultyIndex = 1;
-        break;
-      case 1:
-        newDifficultyIndex = 2;
-        break;
-      case 2:
-        newDifficultyIndex = 0;
-        break;
-    }
+    const newDifficultyIndex =
+      (currentDifficultyIndex + 1) % gameDifficulties.length;
 
     return {
       ...state,
