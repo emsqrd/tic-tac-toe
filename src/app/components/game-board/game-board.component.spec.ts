@@ -144,7 +144,30 @@ describe('GameBoardComponent', () => {
     );
   });
 
+  it('should display the switch difficulty button when the game mode is single player', () => {
+    component.gameMode = GameModeEnum.SinglePlayer;
+    fixture.detectChanges();
+
+    const gameDifficultyButtonDebugElement: DebugElement =
+      fixture.debugElement.query(By.css('#btnGameDifficulty'));
+
+    expect(gameDifficultyButtonDebugElement).toBeTruthy();
+  });
+
+  it('should not display the switch difficulty button when the game mode is two player', () => {
+    component.gameMode = GameModeEnum.TwoPlayer;
+    fixture.detectChanges();
+
+    const gameDifficultyButtonDebugElement: DebugElement =
+      fixture.debugElement.query(By.css('#btnGameDifficulty'));
+
+    expect(gameDifficultyButtonDebugElement).toBeFalsy();
+  });
+
   it('should switch the game difficulty and start a new game when game difficulty button is clicked', () => {
+    component.gameMode = GameModeEnum.SinglePlayer;
+    fixture.detectChanges();
+
     const gameDifficultyButtonDebugElement: DebugElement =
       fixture.debugElement.query(By.css('#btnGameDifficulty'));
     gameDifficultyButtonDebugElement.triggerEventHandler('click', null);

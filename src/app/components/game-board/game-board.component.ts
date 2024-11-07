@@ -69,6 +69,10 @@ export class GameBoardComponent implements OnInit {
     return this.gameDifficulty.valueOf();
   }
 
+  get showDifficultyButton() {
+    return this.gameMode === GameModeEnum.SinglePlayer;
+  }
+
   get showComingSoon() {
     return this.gameDifficulty !== GameDifficultyEnum.Easy;
   }

@@ -9,11 +9,13 @@
         {{ gameModeButtonText }}
       </a>
     </div>
+    @if (showDifficultyButton) {
     <div>
       <a id="btnGameDifficulty" type="button" (click)="gameDifficultyClick()">
         {{ gameDifficultyButtonText }}
       </a>
     </div>
+    }
   </section>
   <section class="game-board-content" [ngClass]="{ draw: isDraw }">
     <div
