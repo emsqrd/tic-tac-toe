@@ -6,17 +6,20 @@ import {
   updateDraws,
 } from './game.actions';
 import { GameModeEnum } from '../../enums/game-mode.enum';
+import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
 export const gameFeatureKey = 'game';
 
 export interface GameState {
   draws: number;
   gameMode: GameModeEnum;
+  gameDifficulty: GameDifficultyEnum;
 }
 
 export const initialState: GameState = {
   draws: 0,
   gameMode: GameModeEnum.TwoPlayer,
+  gameDifficulty: GameDifficultyEnum.Easy,
 };
 
 export const gameReducer = createReducer(

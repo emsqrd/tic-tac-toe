@@ -9,7 +9,10 @@ import {
   startGame,
   resetDraws,
 } from '../../store/game/game.actions';
-import { selectGameMode } from '../../store/game/game.selectors';
+import {
+  selectGameDifficulty,
+  selectGameMode,
+} from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
 import { Player } from '../../models/player';
@@ -37,15 +40,12 @@ export class GameBoardComponent implements OnInit {
   currentPlayer$: Observable<Player>;
   gameMode$: Observable<GameModeEnum>;
   processingMove$: Observable<boolean>;
+  gameDifficulty$: Observable<GameDifficultyEnum>;
 
   outcome!: OutcomeEnum;
   currentPlayer!: Player;
   gameMode!: GameModeEnum;
   gameDifficulty!: GameDifficultyEnum;
-
-  gameModeValue!: string;
-  enableSinglePlayer = true;
-  gameDifficultyValue!: string;
 
   constructor(private store: Store) {
     this.gameBoard$ = store.select(selectGameBoard);
@@ -53,6 +53,7 @@ export class GameBoardComponent implements OnInit {
     this.currentPlayer$ = store.select(selectCurrentPlayer);
     this.gameMode$ = store.select(selectGameMode);
     this.processingMove$ = store.select(selectProcessingMove);
+    this.gameDifficulty$ = store.select(selectGameDifficulty);
   }
 
   get isDraw() {
@@ -60,33 +61,15 @@ export class GameBoardComponent implements OnInit {
   }
 
   get gameModeButtonText() {
-    return this.gameModeValue === GameModeEnum.TwoPlayer
-      ? GameModeEnum.TwoPlayer.valueOf()
-      : GameModeEnum.SinglePlayer.valueOf();
+    return this.gameMode.valueOf();
   }
 
   get gameDifficultyButtonText() {
-    let gameDifficultyText;
-
-    switch (this.gameDifficultyValue) {
-      case GameDifficultyEnum.Easy:
-        gameDifficultyText = GameDifficultyEnum.Easy.valueOf();
-        break;
-      case GameDifficultyEnum.Medium:
-        gameDifficultyText = GameDifficultyEnum.Medium.valueOf();
-        break;
-      case GameDifficultyEnum.Hard:
-        gameDifficultyText = GameDifficultyEnum.Hard.valueOf();
-        break;
-    }
-
-    return gameDifficultyText;
+    return this.gameDifficulty.valueOf();
   }
 
   get showComingSoon() {
-    return (
-      this.gameMode === GameModeEnum.SinglePlayer && !this.enableSinglePlayer
-    );
+    return false;
   }
 
   // Start the game when the component is initialized
@@ -101,10 +84,11 @@ export class GameBoardComponent implements OnInit {
 
     this.gameMode$.subscribe((gameMode) => {
       this.gameMode = gameMode;
-      this.gameModeValue = gameMode.valueOf();
     });
 
-    this.gameDifficultyValue = GameDifficultyEnum.Easy.valueOf();
+    this.gameDifficulty$.subscribe((gameDifficulty) => {
+      this.gameDifficulty = gameDifficulty;
+    });
 
     this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
