@@ -53,6 +53,7 @@ export const gameReducer = createReducer(
     };
   }),
   on(switchGameDifficulty, (state) => {
+    // todo: find a better way to work through this
     let gameDifficulties = [
       GameDifficultyEnum.Easy,
       GameDifficultyEnum.Medium,
