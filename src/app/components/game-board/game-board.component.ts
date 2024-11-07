@@ -108,12 +108,21 @@ export class GameBoardComponent implements OnInit {
 
   gameModeClick() {
     this.store.dispatch(switchGameMode());
-    this.store.dispatch(resetPlayers());
-    this.store.dispatch(resetDraws());
-    this.store.dispatch(startGame({ gameMode: this.gameMode }));
+    this.startNewGame();
   }
 
   gameDifficultyClick() {
     this.store.dispatch(switchGameDifficulty());
+    this.startNewGame();
+  }
+
+  resetGame() {
+    this.store.dispatch(resetPlayers());
+    this.store.dispatch(resetDraws());
+  }
+
+  startNewGame() {
+    this.resetGame();
+    this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
 }
