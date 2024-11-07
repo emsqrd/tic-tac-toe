@@ -7,6 +7,7 @@ import { selectDraws } from '../../store/game/game.selectors';
 import {
   resetDraws,
   startGame,
+  switchGameDifficulty,
   switchGameMode,
 } from '../../store/game/game.actions';
 import { By } from '@angular/platform-browser';
@@ -30,6 +31,7 @@ import { getInitialRoundStateMock } from '../../store/mocks/round-mocks';
 import { RoundActions } from '../../store/round/round.actions';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { Player } from '../../models/player';
+import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -130,32 +132,64 @@ describe('GameBoardComponent', () => {
     expect(component.isDraw).toBeFalse();
   });
 
-  it('should switch the game mode, reset players, reset draws and start a new game when game mode button is clicked', () => {
+  it('should switch the game mode and start a new game when game mode button is clicked', () => {
     const gameModeButtonDebugElement: DebugElement = fixture.debugElement.query(
       By.css('#btnGameMode')
     );
     gameModeButtonDebugElement.triggerEventHandler('click', null);
 
     expect(dispatchSpy).toHaveBeenCalledWith(switchGameMode());
-    expect(dispatchSpy).toHaveBeenCalledWith(resetPlayers());
-    expect(dispatchSpy).toHaveBeenCalledWith(resetDraws());
     expect(dispatchSpy).toHaveBeenCalledWith(
       startGame({ gameMode: component.gameMode })
     );
   });
 
-  it('should show the coming soon message when the game mode is single player and enableSinglePlayer is false', () => {
-    component.gameMode = GameModeEnum.SinglePlayer;
-    component.enableSinglePlayer = false;
+  it('should switch the game difficulty and start a new game when game difficulty button is clicked', () => {
+    const gameDifficultyButtonDebugElement: DebugElement =
+      fixture.debugElement.query(By.css('#btnGameDifficulty'));
+    gameDifficultyButtonDebugElement.triggerEventHandler('click', null);
 
+    expect(dispatchSpy).toHaveBeenCalledWith(switchGameDifficulty());
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      startGame({ gameMode: component.gameMode })
+    );
+  });
+
+  it('should reset players and draw count when resetGame is called', () => {
+    component.resetGame();
+
+    expect(dispatchSpy).toHaveBeenCalledWith(resetPlayers());
+    expect(dispatchSpy).toHaveBeenCalledWith(resetDraws());
+  });
+
+  it('should reset the game and start a new game when startNewGame is called', () => {
+    spyOn(component, 'resetGame').and.callThrough();
+
+    component.startNewGame();
+
+    expect(component.resetGame).toHaveBeenCalled();
+    expect(dispatchSpy).toHaveBeenCalledWith(
+      startGame({ gameMode: component.gameMode })
+    );
+  });
+
+  it('should show the coming soon message when the game mode is not easy', () => {
+    component.gameDifficulty = GameDifficultyEnum.Medium;
     expect(component.showComingSoon).toBeTrue();
   });
 
-  it('should display the correct game mode button text', () => {
-    component.gameModeValue = GameModeEnum.TwoPlayer;
-    expect(component.gameModeButtonText).toBe('Two Player');
+  it('should not show the coming soon message when the game mode is easy', () => {
+    component.gameDifficulty = GameDifficultyEnum.Easy;
+    expect(component.showComingSoon).toBeFalse();
+  });
 
-    component.gameModeValue = GameModeEnum.SinglePlayer;
-    expect(component.gameModeButtonText).toBe('Single Player');
+  it('should display the correct game mode button text', () => {
+    component.gameMode = GameModeEnum.TwoPlayer;
+    expect(component.gameModeButtonText).toBe(GameModeEnum.TwoPlayer.valueOf());
+
+    component.gameMode = GameModeEnum.SinglePlayer;
+    expect(component.gameModeButtonText).toBe(
+      GameModeEnum.SinglePlayer.valueOf()
+    );
   });
 });

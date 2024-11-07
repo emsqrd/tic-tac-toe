@@ -4,11 +4,13 @@ import {
   switchGameMode,
   resetDraws,
   updateDraws,
+  switchGameDifficulty,
 } from './game.actions';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { getInitialGameStateMock } from '../mocks/game-mocks';
 import { getInitialPlayerStateMock } from '../mocks/player-mocks';
 import { PlayerState } from '../player/player.reducer';
+import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
 describe('Game Reducer', () => {
   let initialGameStateMock: GameState;
@@ -61,5 +63,29 @@ describe('Game Reducer', () => {
     );
 
     expect(state.draws).toEqual(1);
+  });
+
+  it('should handle switchGameDifficulty action and switch game difficulty from easy to medium', () => {
+    const state = gameReducer(
+      { ...initialGameStateMock, gameDifficulty: GameDifficultyEnum.Easy },
+      switchGameDifficulty()
+    );
+    expect(state.gameDifficulty).toEqual(GameDifficultyEnum.Medium);
+  });
+
+  it('should handle switchGameDifficulty action and switch game difficulty from medium to hard', () => {
+    const state = gameReducer(
+      { ...initialGameStateMock, gameDifficulty: GameDifficultyEnum.Medium },
+      switchGameDifficulty()
+    );
+    expect(state.gameDifficulty).toEqual(GameDifficultyEnum.Hard);
+  });
+
+  it('should handle switchGameDifficulty action and switch game difficulty from hard to easy', () => {
+    const state = gameReducer(
+      { ...initialGameStateMock, gameDifficulty: GameDifficultyEnum.Hard },
+      switchGameDifficulty()
+    );
+    expect(state.gameDifficulty).toEqual(GameDifficultyEnum.Easy);
   });
 });

@@ -11,7 +11,10 @@ export const endGame = createAction('[Game] End Game');
 
 export const switchGameMode = createAction('[Game] Switch Game Mode');
 
-// todo: adding this temporarily until deciding on how to handle rounds
 export const resetDraws = createAction('[Game] Reset Draws');
 
 export const updateDraws = createAction('[Game] Update Draws');
+
+export const switchGameDifficulty = createAction(
+  '[Game] Switch Game Difficulty'
+);

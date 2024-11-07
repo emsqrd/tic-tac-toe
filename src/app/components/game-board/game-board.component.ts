@@ -8,8 +8,12 @@ import {
   switchGameMode,
   startGame,
   resetDraws,
+  switchGameDifficulty,
 } from '../../store/game/game.actions';
-import { selectGameMode } from '../../store/game/game.selectors';
+import {
+  selectGameDifficulty,
+  selectGameMode,
+} from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
 import { Player } from '../../models/player';
@@ -22,6 +26,7 @@ import {
   selectProcessingMove,
 } from '../../store/round/round.selectors';
 import { RoundActions } from '../../store/round/round.actions';
+import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
 @Component({
   selector: 't3-game-board',
@@ -36,13 +41,12 @@ export class GameBoardComponent implements OnInit {
   currentPlayer$: Observable<Player>;
   gameMode$: Observable<GameModeEnum>;
   processingMove$: Observable<boolean>;
+  gameDifficulty$: Observable<GameDifficultyEnum>;
 
   outcome!: OutcomeEnum;
   currentPlayer!: Player;
   gameMode!: GameModeEnum;
-
-  gameModeValue!: string;
-  enableSinglePlayer = true;
+  gameDifficulty!: GameDifficultyEnum;
 
   constructor(private store: Store) {
     this.gameBoard$ = store.select(selectGameBoard);
@@ -50,6 +54,7 @@ export class GameBoardComponent implements OnInit {
     this.currentPlayer$ = store.select(selectCurrentPlayer);
     this.gameMode$ = store.select(selectGameMode);
     this.processingMove$ = store.select(selectProcessingMove);
+    this.gameDifficulty$ = store.select(selectGameDifficulty);
   }
 
   get isDraw() {
@@ -57,15 +62,15 @@ export class GameBoardComponent implements OnInit {
   }
 
   get gameModeButtonText() {
-    return this.gameModeValue === GameModeEnum.TwoPlayer
-      ? 'Two Player'
-      : 'Single Player';
+    return this.gameMode.valueOf();
+  }
+
+  get gameDifficultyButtonText() {
+    return this.gameDifficulty.valueOf();
   }
 
   get showComingSoon() {
-    return (
-      this.gameMode === GameModeEnum.SinglePlayer && !this.enableSinglePlayer
-    );
+    return this.gameDifficulty !== GameDifficultyEnum.Easy;
   }
 
   // Start the game when the component is initialized
@@ -80,7 +85,10 @@ export class GameBoardComponent implements OnInit {
 
     this.gameMode$.subscribe((gameMode) => {
       this.gameMode = gameMode;
-      this.gameModeValue = gameMode.valueOf();
+    });
+
+    this.gameDifficulty$.subscribe((gameDifficulty) => {
+      this.gameDifficulty = gameDifficulty;
     });
 
     this.store.dispatch(startGame({ gameMode: this.gameMode }));
@@ -100,8 +108,21 @@ export class GameBoardComponent implements OnInit {
 
   gameModeClick() {
     this.store.dispatch(switchGameMode());
+    this.startNewGame();
+  }
+
+  gameDifficultyClick() {
+    this.store.dispatch(switchGameDifficulty());
+    this.startNewGame();
+  }
+
+  resetGame() {
     this.store.dispatch(resetPlayers());
     this.store.dispatch(resetDraws());
+  }
+
+  startNewGame() {
+    this.resetGame();
     this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
 }
