@@ -5,15 +5,15 @@ export const selectGameState = createFeatureSelector<GameState>('game');
 
 export const selectDraws = createSelector(
   selectGameState,
-  (state) => state.draws
+  (state: GameState) => state.draws
 );
 
 export const selectGameMode = createSelector(
   selectGameState,
-  (state) => state.gameMode
+  (state: GameState) => state.gameMode
 );
 
 export const selectGameDifficulty = createSelector(
   selectGameState,
-  (state) => state.gameDifficulty
+  (state: GameState) => state.gameDifficulty
 );

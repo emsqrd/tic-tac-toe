@@ -12,6 +12,7 @@ import { GameService } from '../../services/game.service';
 import { updateDraws } from '../game/game.actions';
 import { RoundState } from './round.reducer';
 import { selectGameBoard } from './round.selectors';
+import { selectGameDifficulty } from '../game/game.selectors';
 
 @Injectable()
 export class RoundEffects {
@@ -34,9 +35,10 @@ export class RoundEffects {
       ofType(RoundActions.attemptMove),
       withLatestFrom(
         this.store.select(selectGameBoard),
-        this.store.select(selectCurrentPlayer)
+        this.store.select(selectCurrentPlayer),
+        this.store.select(selectGameDifficulty)
       ),
-      switchMap(([action, gameBoard, currentPlayer]) => {
+      switchMap(([action, gameBoard, currentPlayer, gameDifficulty]) => {
         const position = action.position;
         // If the square is already taken, do nothing
         if (position !== undefined && gameBoard[position].gamePiece !== '') {
@@ -51,6 +53,7 @@ export class RoundEffects {
             RoundActions.makeMove({
               position: action.position,
               currentPlayer: currentPlayer,
+              gameDifficulty: gameDifficulty,
             })
           ).pipe(this.applyDelay(moveDelay))
         );
