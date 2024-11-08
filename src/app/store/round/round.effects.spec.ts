@@ -18,6 +18,7 @@ import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
 import { selectGameBoard } from './round.selectors';
 import { selectCurrentPlayer } from '../player/player.selectors';
+import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
 export function mockDelay<T>(
   duration: number
@@ -79,6 +80,7 @@ describe('RoundEffects', () => {
       RoundActions.makeMove({
         position: 0,
         currentPlayer: currentPlayerMock,
+        gameDifficulty: GameDifficultyEnum.Easy,
       }),
     ];
 
@@ -123,7 +125,11 @@ describe('RoundEffects', () => {
       if (result.type === RoundActions.makeMove.type) {
         expect(effects['applyDelay']).toHaveBeenCalledWith(500);
         expect(result).toEqual(
-          RoundActions.makeMove({ position: 0, currentPlayer: cpuPlayer })
+          RoundActions.makeMove({
+            position: 0,
+            currentPlayer: cpuPlayer,
+            gameDifficulty: GameDifficultyEnum.Easy,
+          })
         );
         done();
       }
@@ -147,7 +153,11 @@ describe('RoundEffects', () => {
       if (action.type === RoundActions.makeMove.type) {
         expect(effects['applyDelay']).toHaveBeenCalledWith(0); // Check if no delay is applied
         expect(action).toEqual(
-          RoundActions.makeMove({ position, currentPlayer: humanPlayer })
+          RoundActions.makeMove({
+            position,
+            currentPlayer: humanPlayer,
+            gameDifficulty: GameDifficultyEnum.Easy,
+          })
         );
         done();
       }
@@ -158,6 +168,7 @@ describe('RoundEffects', () => {
     const action = RoundActions.makeMove({
       position: 0,
       currentPlayer: currentPlayerMock,
+      gameDifficulty: GameDifficultyEnum.Easy,
     });
 
     actions$ = of(action);
@@ -189,6 +200,7 @@ describe('RoundEffects', () => {
     const action = RoundActions.makeMove({
       position: 9,
       currentPlayer: currentPlayerMock,
+      gameDifficulty: GameDifficultyEnum.Easy,
     });
 
     gameService.calculateWinner.and.returnValue(null);
@@ -213,7 +225,9 @@ describe('RoundEffects', () => {
     const action = RoundActions.makeMove({
       position: 0,
       currentPlayer: currentPlayerMock,
+      gameDifficulty: GameDifficultyEnum.Easy,
     });
+
     actions$ = of(action);
     gameService.calculateWinner.and.returnValue(null);
 

@@ -1,3 +1,4 @@
+import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { Player } from '../../models/player';
 import { GameState } from '../game/game.reducer';
@@ -43,7 +44,11 @@ describe('Round Reducer', () => {
     const position = 0;
     const state = roundReducer(
       initialRoundStateMock,
-      RoundActions.makeMove({ position, currentPlayer: currentPlayerMock })
+      RoundActions.makeMove({
+        position,
+        currentPlayer: currentPlayerMock,
+        gameDifficulty: GameDifficultyEnum.Easy,
+      })
     );
 
     expect(state.gameBoard[position].gamePiece).toEqual(
@@ -54,7 +59,10 @@ describe('Round Reducer', () => {
   it('should handle makeMove action when no position is provided', () => {
     const state = roundReducer(
       initialRoundStateMock,
-      RoundActions.makeMove({ currentPlayer: currentPlayerMock })
+      RoundActions.makeMove({
+        currentPlayer: currentPlayerMock,
+        gameDifficulty: GameDifficultyEnum.Easy,
+      })
     );
 
     const emptySquares = state.gameBoard.filter(
