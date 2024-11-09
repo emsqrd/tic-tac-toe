@@ -90,21 +90,6 @@ describe('RoundEffects', () => {
     });
   });
 
-  it('should dispatch no-op action on attemptMove if the square is taken', () => {
-    const action = RoundActions.attemptMove({ position: 0 });
-
-    actions$ = of(action);
-
-    mockStore.overrideSelector(selectGameBoard, [
-      { gamePiece: 'X', isWinner: false },
-      ...Array(8).fill({ gamePiece: '', isWinner: false }),
-    ]);
-
-    effects.attemptMove$.subscribe((result) => {
-      expect(result).toEqual({ type: 'NO_OP' });
-    });
-  });
-
   it('should dispatch the makeMove action with a delay if the current player is the CPU', (done) => {
     const cpuPlayer = {
       ...currentPlayerMock,

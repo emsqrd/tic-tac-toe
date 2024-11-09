@@ -61,6 +61,10 @@ export class GameBoardComponent implements OnInit {
     return this.outcome === OutcomeEnum.Draw;
   }
 
+  get moveDelay() {
+    return this.currentPlayer.isCpu ? 500 : 0;
+  }
+
   get gameModeButtonText() {
     return this.gameMode.valueOf();
   }
@@ -106,8 +110,21 @@ export class GameBoardComponent implements OnInit {
       this.store.dispatch(startGame({ gameMode: this.gameMode }));
       this.store.dispatch(switchPlayer());
     } else {
-      this.store.dispatch(RoundActions.attemptMove({ position }));
+      this.attemptMove(position);
     }
+  }
+
+  attemptMove(position: number) {
+    this.gameBoard$.subscribe((gameBoard) => {
+      const square = gameBoard[position];
+
+      // If the square is already taken, do nothing
+      if (square.gamePiece !== '') {
+        return;
+      }
+    });
+
+    this.store.dispatch(RoundActions.makeHumanMove({ position }));
   }
 
   gameModeClick() {

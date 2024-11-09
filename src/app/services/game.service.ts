@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Square } from '../models/square';
+import { OutcomeEnum } from '../enums/outcome.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -31,5 +32,30 @@ export class GameService {
       }
     }
     return null;
+  }
+
+  determineOutcome(gameBoard: Square[]): OutcomeEnum {
+    const winningPositions = this.calculateWinner(gameBoard);
+    let outcome: OutcomeEnum = OutcomeEnum.None;
+
+    if (winningPositions) {
+      outcome = OutcomeEnum.Win;
+    } else if (gameBoard.every((square) => square.gamePiece !== '')) {
+      outcome = OutcomeEnum.Draw;
+    }
+
+    return outcome;
+  }
+
+  makeCpuMove(gameBoard: Square[]): number {
+    const emptySquares: number[] = [];
+    gameBoard.forEach((square, index) => {
+      if (square.gamePiece === '') {
+        emptySquares.push(index);
+      }
+    });
+
+    const randomIndex = Math.floor(Math.random() * emptySquares.length);
+    return emptySquares[randomIndex];
   }
 }

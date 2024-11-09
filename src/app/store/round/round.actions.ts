@@ -3,6 +3,12 @@ import { OutcomeEnum } from '../../enums/outcome.enum';
 import { Player } from '../../models/player';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
+// todo: create different action groups for different types of actions
+/*
+  command actions - triggers effect only - i.e. make cpu move
+  event actions with payload - triggers effect - i.e. attempt move
+  result actions - updates state in reducer - i.e. start round
+*/
 export const RoundActions = createActionGroup({
   source: 'Round',
   events: {
@@ -14,11 +20,8 @@ export const RoundActions = createActionGroup({
       winningPositions: number[] | null;
     }>(),
     'Set Processing Move': props<{ processingMove: boolean }>(),
-    'Attempt Move': props<{ position?: number }>(),
-    'Make Move': props<{
-      position?: number;
-      currentPlayer: Player;
-      gameDifficulty: GameDifficultyEnum;
-    }>(),
+    'Set Board Position': props<{ position: number; piece: string }>(),
+    'Make Human Move': props<{ position: number }>(),
+    'Make CPU Move': emptyProps(),
   },
 });

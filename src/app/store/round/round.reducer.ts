@@ -2,7 +2,6 @@ import { createReducer, on } from '@ngrx/store';
 import { RoundActions } from './round.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { Square } from '../../models/square';
-import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
 export const roundFeatureKey = 'round';
 
@@ -33,45 +32,16 @@ export const roundReducer = createReducer(
       processingMove,
     };
   }),
-  on(
-    RoundActions.makeMove,
-    (state, { position, currentPlayer, gameDifficulty }) => {
-      let newBoard = state.gameBoard;
+  on(RoundActions.setBoardPosition, (state, { position, piece }) => {
+    const newBoard = state.gameBoard.map((square, index) =>
+      index === position ? { ...square, gamePiece: piece } : square
+    );
 
-      // If no position is provided or game difficulty is easy, make a random move
-      if (
-        position === undefined &&
-        gameDifficulty === GameDifficultyEnum.Easy
-      ) {
-        const emptySquares: number[] = [];
-        state.gameBoard.forEach((square, index) => {
-          if (square.gamePiece === '') {
-            emptySquares.push(index);
-          }
-        });
-
-        const randomIndex = Math.floor(Math.random() * emptySquares.length);
-        const randomEmptySquareIndex = emptySquares[randomIndex];
-
-        newBoard = state.gameBoard.map((square, index) =>
-          index === randomEmptySquareIndex
-            ? { ...square, gamePiece: currentPlayer.piece }
-            : square
-        );
-      } else {
-        newBoard = state.gameBoard.map((square, index) =>
-          index === position
-            ? { ...square, gamePiece: currentPlayer.piece }
-            : square
-        );
-      }
-
-      return {
-        ...state,
-        gameBoard: newBoard,
-      };
-    }
-  ),
+    return {
+      ...state,
+      gameBoard: newBoard,
+    };
+  }),
   on(RoundActions.endRound, (state, { outcome, winningPositions }) => {
     let newBoard = state.gameBoard;
 

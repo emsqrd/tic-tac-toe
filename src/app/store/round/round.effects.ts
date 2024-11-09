@@ -30,60 +30,59 @@ export class RoundEffects {
     return delay<T>(duration);
   }
 
-  attemptMove$ = createEffect(() =>
+  makeHumanMove$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(RoundActions.attemptMove),
-      withLatestFrom(
-        this.store.select(selectGameBoard),
-        this.store.select(selectCurrentPlayer),
-        this.store.select(selectGameDifficulty)
-      ),
-      switchMap(([action, gameBoard, currentPlayer, gameDifficulty]) => {
-        const position = action.position;
-        // If the square is already taken, do nothing
-        if (position !== undefined && gameBoard[position].gamePiece !== '') {
-          return of({ type: 'NO_OP' }); // return a no-op action
-        }
-
-        const moveDelay = currentPlayer.isCpu ? 500 : 0;
-
+      ofType(RoundActions.makeHumanMove),
+      withLatestFrom(this.store.select(selectCurrentPlayer)),
+      switchMap(([action, currentPlayer]) => {
         return concat(
           of(RoundActions.setProcessingMove({ processingMove: true })),
           of(
-            RoundActions.makeMove({
+            RoundActions.setBoardPosition({
               position: action.position,
-              currentPlayer: currentPlayer,
-              gameDifficulty: gameDifficulty,
+              piece: currentPlayer.piece,
             })
-          ).pipe(this.applyDelay(moveDelay))
+          )
         );
       })
     )
   );
 
-  makeMove$ = createEffect(() =>
+  makeCpuMove$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(RoundActions.makeMove),
+      ofType(RoundActions.makeCPUMove),
+      withLatestFrom(
+        this.store.select(selectGameBoard),
+        this.store.select(selectCurrentPlayer)
+      ),
+      switchMap(([_, gameBoard, currentPlayer]) => {
+        const position = this.gameService.makeCpuMove(gameBoard);
+
+        return concat(
+          of(RoundActions.setProcessingMove({ processingMove: true })),
+          of(
+            RoundActions.setBoardPosition({
+              position,
+              piece: currentPlayer.piece,
+            })
+          ).pipe(this.applyDelay(500))
+        );
+      })
+    )
+  );
+
+  setBoardPosition$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RoundActions.setBoardPosition),
       withLatestFrom(this.store.select(selectGameBoard)),
       switchMap(([_, gameBoard]) => {
         let actions = [];
 
         const winningPositions = this.gameService.calculateWinner(gameBoard);
+        const outcome = this.gameService.determineOutcome(gameBoard);
 
-        if (winningPositions) {
-          actions.push(
-            RoundActions.endRound({
-              outcome: OutcomeEnum.Win,
-              winningPositions,
-            })
-          );
-        } else if (gameBoard.every((square) => square.gamePiece !== '')) {
-          actions.push(
-            RoundActions.endRound({
-              outcome: OutcomeEnum.Draw,
-              winningPositions: null,
-            })
-          );
+        if (outcome !== OutcomeEnum.None) {
+          actions.push(RoundActions.endRound({ outcome, winningPositions }));
         } else {
           actions.push(switchPlayer());
         }

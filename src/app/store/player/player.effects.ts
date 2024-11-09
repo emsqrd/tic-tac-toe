@@ -26,7 +26,7 @@ export class PlayerEffects {
       ),
       switchMap(([_, currentPlayer, gameMode]) => {
         if (gameMode === GameModeEnum.SinglePlayer && currentPlayer.isCpu) {
-          return of(RoundActions.attemptMove({}));
+          return of(RoundActions.makeCPUMove());
         } else {
           return of({ type: 'NO_OP' });
         }

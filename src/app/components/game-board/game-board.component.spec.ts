@@ -108,6 +108,8 @@ describe('GameBoardComponent', () => {
     );
   });
 
+  it('should not dispatch attemptMove action when a square is clicked that is already taken', () => {});
+
   it('should dispatch startGame and swtichPlayer actions when a square is clicked and the outcome is not None', () => {
     component.outcome = OutcomeEnum.Win;
 
