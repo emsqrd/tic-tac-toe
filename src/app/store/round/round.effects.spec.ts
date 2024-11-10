@@ -41,7 +41,6 @@ describe('RoundEffects', () => {
     initialPlayerStateMock = getInitialPlayerStateMock();
     initialRoundStateMock = getInitialRoundStateMock();
 
-    // todo: refactor this to use separate spies
     gameService = jasmine.createSpyObj('GameService', [
       'calculateWinner',
       'determineOutcome',
@@ -93,41 +92,35 @@ describe('RoundEffects', () => {
     });
   });
 
-  // todo: double check this one
-  it('should dispatch the makeCpuMove action', (done) => {
+  it('should dispatch the makeCpuMove action with correct sequence', (done) => {
     const cpuPlayer = {
       ...currentPlayerMock,
       isCpu: true,
     };
-
+    const mockGameBoard = Array(9).fill({ gamePiece: '', isWinner: false });
     const position = 0;
+
+    // Override selectors used in the effect
+    mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
+    mockStore.overrideSelector(selectGameBoard, mockGameBoard);
     gameService.makeCpuMove.and.returnValue(position);
 
     const action = RoundActions.makeCPUMove();
 
-    // Test for delay with CPU player
-    mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
     actions$ = of(action);
+
+    const expectedActions = [
+      RoundActions.setProcessingMove({ processingMove: true }),
+      RoundActions.setBoardPosition({ position, piece: cpuPlayer.piece }),
+    ];
 
     spyOn<any>(effects, 'applyDelay').and.callFake(mockDelay);
 
-    effects.makeCpuMove$.subscribe((result) => {
-      if (result.type === RoundActions.setProcessingMove.type) {
-        expect(result).toEqual(
-          RoundActions.setProcessingMove({ processingMove: true })
-        );
-      }
-
-      if (result.type === RoundActions.setBoardPosition.type) {
-        expect(effects['applyDelay']).toHaveBeenCalledWith(500);
-        expect(result).toEqual(
-          RoundActions.setBoardPosition({
-            position: position,
-            piece: cpuPlayer.piece,
-          })
-        );
-        done();
-      }
+    effects.makeCpuMove$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
+      expect(effects['applyDelay']).toHaveBeenCalledWith(500);
+      expect(gameService.makeCpuMove).toHaveBeenCalledWith(mockGameBoard);
+      done();
     });
   });
 
