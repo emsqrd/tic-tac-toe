@@ -51,16 +51,12 @@ describe('PlayerEffects', () => {
       isCpu: true,
     };
 
-    // Dispatch the setCpuPlayer action to update the state
-    store.dispatch(setCpuPlayer({ gamePiece: 'O' }));
-
     // Override the selectors used in the effect
-    store.overrideSelector(selectGameMode, GameModeEnum.SinglePlayer);
     store.overrideSelector(selectCurrentPlayer, cpuCurrentPlayer);
     actions$ = of(switchPlayer());
 
     effects.switchPlayer$.subscribe((action) => {
-      expect(action).toEqual(RoundActions.attemptMove({}));
+      expect(action).toEqual(RoundActions.makeCPUMove());
       done();
     });
   });
@@ -73,17 +69,6 @@ describe('PlayerEffects', () => {
 
     // Override the selectors used in the effect
     store.overrideSelector(selectCurrentPlayer, humanCurrentPlayer);
-    actions$ = of(switchPlayer());
-
-    effects.switchPlayer$.subscribe((action) => {
-      expect(action).toEqual({ type: 'NO_OP' });
-      done();
-    });
-  });
-
-  it('should dispatch NO_OP action if game mode is not single player', (done) => {
-    store.overrideSelector(selectGameMode, GameModeEnum.TwoPlayer);
-
     actions$ = of(switchPlayer());
 
     effects.switchPlayer$.subscribe((action) => {

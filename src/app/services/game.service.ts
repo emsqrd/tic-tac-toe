@@ -5,6 +5,8 @@ import { OutcomeEnum } from '../enums/outcome.enum';
 @Injectable({
   providedIn: 'root',
 })
+
+// todo: rename GameService to RoundService
 export class GameService {
   constructor() {}
 

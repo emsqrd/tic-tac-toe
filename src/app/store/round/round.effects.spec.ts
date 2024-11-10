@@ -16,7 +16,7 @@ import { RoundActions } from './round.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
-import { selectGameBoard } from './round.selectors';
+import { selectGameBoard, selectOutcome } from './round.selectors';
 import { selectCurrentPlayer } from '../player/player.selectors';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
@@ -41,8 +41,12 @@ describe('RoundEffects', () => {
     initialPlayerStateMock = getInitialPlayerStateMock();
     initialRoundStateMock = getInitialRoundStateMock();
 
-    // todo: rename GameService to RoundService
-    gameService = jasmine.createSpyObj('GameService', ['calculateWinner']);
+    // todo: refactor this to use separate spies
+    gameService = jasmine.createSpyObj('GameService', [
+      'calculateWinner',
+      'determineOutcome',
+      'makeCpuMove',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -70,35 +74,36 @@ describe('RoundEffects', () => {
     mockStore.resetSelectors();
   });
 
-  it('should dispatch makeMove action on attemptMove if the square is not taken', (done) => {
-    const action = RoundActions.attemptMove({ position: 0 });
+  it('should dispatch makeHumanMove action', (done) => {
+    const action = RoundActions.makeHumanMove({ position: 0 });
 
     actions$ = of(action);
 
     const expectedActions = [
       RoundActions.setProcessingMove({ processingMove: true }),
-      RoundActions.makeMove({
+      RoundActions.setBoardPosition({
         position: 0,
-        currentPlayer: currentPlayerMock,
-        gameDifficulty: GameDifficultyEnum.Easy,
+        piece: currentPlayerMock.piece,
       }),
     ];
 
-    effects.attemptMove$.pipe(toArray()).subscribe((result) => {
+    effects.makeHumanMove$.pipe(toArray()).subscribe((result) => {
       expect(result).toEqual(expectedActions);
       done();
     });
   });
 
-  it('should dispatch the makeMove action with a delay if the current player is the CPU', (done) => {
+  // todo: double check this one
+  it('should dispatch the makeCpuMove action', (done) => {
     const cpuPlayer = {
       ...currentPlayerMock,
       isCpu: true,
     };
 
     const position = 0;
+    gameService.makeCpuMove.and.returnValue(position);
 
-    const action = RoundActions.attemptMove({ position });
+    const action = RoundActions.makeCPUMove();
 
     // Test for delay with CPU player
     mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
@@ -106,42 +111,19 @@ describe('RoundEffects', () => {
 
     spyOn<any>(effects, 'applyDelay').and.callFake(mockDelay);
 
-    effects.attemptMove$.subscribe((result) => {
-      if (result.type === RoundActions.makeMove.type) {
+    effects.makeCpuMove$.subscribe((result) => {
+      if (result.type === RoundActions.setProcessingMove.type) {
+        expect(result).toEqual(
+          RoundActions.setProcessingMove({ processingMove: true })
+        );
+      }
+
+      if (result.type === RoundActions.setBoardPosition.type) {
         expect(effects['applyDelay']).toHaveBeenCalledWith(500);
         expect(result).toEqual(
-          RoundActions.makeMove({
-            position: 0,
-            currentPlayer: cpuPlayer,
-            gameDifficulty: GameDifficultyEnum.Easy,
-          })
-        );
-        done();
-      }
-    });
-  });
-
-  it('should dispatch makeMove action without a delay when current player is human', (done) => {
-    const humanPlayer = {
-      ...currentPlayerMock,
-      isCpu: false,
-    };
-
-    const position = 0;
-
-    mockStore.overrideSelector(selectCurrentPlayer, humanPlayer);
-    actions$ = of(RoundActions.attemptMove({ position }));
-
-    spyOn<any>(effects, 'applyDelay').and.callFake(mockDelay); // Mock the applyDelay function
-
-    effects.attemptMove$.subscribe((action) => {
-      if (action.type === RoundActions.makeMove.type) {
-        expect(effects['applyDelay']).toHaveBeenCalledWith(0); // Check if no delay is applied
-        expect(action).toEqual(
-          RoundActions.makeMove({
-            position,
-            currentPlayer: humanPlayer,
-            gameDifficulty: GameDifficultyEnum.Easy,
+          RoundActions.setBoardPosition({
+            position: position,
+            piece: cpuPlayer.piece,
           })
         );
         done();
@@ -150,25 +132,28 @@ describe('RoundEffects', () => {
   });
 
   it('should dispatch endRound action with Win outcome if there is a winner', (done) => {
-    const action = RoundActions.makeMove({
+    const action = RoundActions.setBoardPosition({
       position: 0,
-      currentPlayer: currentPlayerMock,
-      gameDifficulty: GameDifficultyEnum.Easy,
+      piece: currentPlayerMock.piece,
     });
 
     actions$ = of(action);
 
-    gameService.calculateWinner.and.returnValue([0, 1, 2]);
+    const winningPositions = [0, 1, 2];
+    const outcome = OutcomeEnum.Win;
+
+    gameService.calculateWinner.and.returnValue(winningPositions);
+    gameService.determineOutcome.and.returnValue(outcome);
 
     const expectedActions = [
       RoundActions.endRound({
-        outcome: OutcomeEnum.Win,
-        winningPositions: [0, 1, 2],
+        outcome: outcome,
+        winningPositions: winningPositions,
       }),
       RoundActions.setProcessingMove({ processingMove: false }),
     ];
 
-    effects.makeMove$.pipe(toArray()).subscribe((results) => {
+    effects.setBoardPosition$.pipe(toArray()).subscribe((results) => {
       expect(results).toEqual(expectedActions);
       done();
     });
@@ -182,46 +167,48 @@ describe('RoundEffects', () => {
 
     mockStore.overrideSelector(selectGameBoard, fullBoardMock.gameBoard);
 
-    const action = RoundActions.makeMove({
+    const action = RoundActions.setBoardPosition({
       position: 9,
-      currentPlayer: currentPlayerMock,
-      gameDifficulty: GameDifficultyEnum.Easy,
+      piece: currentPlayerMock.piece,
     });
 
+    const outcome = OutcomeEnum.Draw;
     gameService.calculateWinner.and.returnValue(null);
+    gameService.determineOutcome.and.returnValue(outcome);
 
     actions$ = of(action);
 
     const expectedActions = [
       RoundActions.endRound({
-        outcome: OutcomeEnum.Draw,
+        outcome: outcome,
         winningPositions: null,
       }),
       RoundActions.setProcessingMove({ processingMove: false }),
     ];
 
-    effects.makeMove$.pipe(toArray()).subscribe((results) => {
+    effects.setBoardPosition$.pipe(toArray()).subscribe((results) => {
       expect(results).toEqual(expectedActions);
       done();
     });
   });
 
   it('should dispatch switchPlayer action if there is no winner and the board is not full', (done) => {
-    const action = RoundActions.makeMove({
+    const action = RoundActions.setBoardPosition({
       position: 0,
-      currentPlayer: currentPlayerMock,
-      gameDifficulty: GameDifficultyEnum.Easy,
+      piece: currentPlayerMock.piece,
     });
 
-    actions$ = of(action);
     gameService.calculateWinner.and.returnValue(null);
+    gameService.determineOutcome.and.returnValue(OutcomeEnum.None);
+
+    actions$ = of(action);
 
     const expectedActions = [
       switchPlayer(),
       RoundActions.setProcessingMove({ processingMove: false }),
     ];
 
-    effects.makeMove$.pipe(toArray()).subscribe((results) => {
+    effects.setBoardPosition$.pipe(toArray()).subscribe((results) => {
       expect(results).toEqual(expectedActions);
       done();
     });

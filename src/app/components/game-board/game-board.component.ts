@@ -43,6 +43,7 @@ export class GameBoardComponent implements OnInit {
   processingMove$: Observable<boolean>;
   gameDifficulty$: Observable<GameDifficultyEnum>;
 
+  gameBoard!: Square[];
   outcome!: OutcomeEnum;
   currentPlayer!: Player;
   gameMode!: GameModeEnum;
@@ -99,6 +100,10 @@ export class GameBoardComponent implements OnInit {
       this.gameDifficulty = gameDifficulty;
     });
 
+    this.gameBoard$.subscribe((gameBoard) => {
+      this.gameBoard = gameBoard;
+    });
+
     this.store.dispatch(startGame({ gameMode: this.gameMode }));
   }
 
@@ -115,14 +120,9 @@ export class GameBoardComponent implements OnInit {
   }
 
   attemptMove(position: number) {
-    this.gameBoard$.subscribe((gameBoard) => {
-      const square = gameBoard[position];
-
-      // If the square is already taken, do nothing
-      if (square.gamePiece !== '') {
-        return;
-      }
-    });
+    if (this.gameBoard[position].gamePiece !== '') {
+      return;
+    }
 
     this.store.dispatch(RoundActions.makeHumanMove({ position }));
   }

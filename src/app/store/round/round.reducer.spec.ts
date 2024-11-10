@@ -40,37 +40,6 @@ describe('Round Reducer', () => {
     expect(state.outcome).toEqual(OutcomeEnum.None);
   });
 
-  it('should handle makeMove action when position is provided', () => {
-    const position = 0;
-    const state = roundReducer(
-      initialRoundStateMock,
-      RoundActions.makeMove({
-        position,
-        currentPlayer: currentPlayerMock,
-        gameDifficulty: GameDifficultyEnum.Easy,
-      })
-    );
-
-    expect(state.gameBoard[position].gamePiece).toEqual(
-      currentPlayerMock.piece
-    );
-  });
-
-  it('should handle makeMove action when no position is provided', () => {
-    const state = roundReducer(
-      initialRoundStateMock,
-      RoundActions.makeMove({
-        currentPlayer: currentPlayerMock,
-        gameDifficulty: GameDifficultyEnum.Easy,
-      })
-    );
-
-    const emptySquares = state.gameBoard.filter(
-      (square) => square.gamePiece === ''
-    );
-    expect(emptySquares.length).toBe(8);
-  });
-
   it('should handle endRound action with a win', () => {
     const winningPositions = [0, 1, 2];
     const state = roundReducer(
