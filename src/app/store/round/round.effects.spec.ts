@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
-import { delay } from 'rxjs/operators';
 import { Observable, of, toArray } from 'rxjs';
 import { RoundEffects } from './round.effects';
 import { GameService } from '../../services/game.service';
@@ -16,9 +15,8 @@ import { RoundActions } from './round.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
-import { selectGameBoard, selectOutcome } from './round.selectors';
+import { selectGameBoard } from './round.selectors';
 import { selectCurrentPlayer } from '../player/player.selectors';
-import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
 export function mockDelay<T>(
   duration: number

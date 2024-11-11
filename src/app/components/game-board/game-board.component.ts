@@ -62,10 +62,6 @@ export class GameBoardComponent implements OnInit {
     return this.outcome === OutcomeEnum.Draw;
   }
 
-  get moveDelay() {
-    return this.currentPlayer.isCpu ? 500 : 0;
-  }
-
   get gameModeButtonText() {
     return this.gameMode.valueOf();
   }

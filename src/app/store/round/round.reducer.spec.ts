@@ -46,6 +46,7 @@ describe('Round Reducer', () => {
       initialRoundStateMock,
       RoundActions.endRound({ outcome: OutcomeEnum.Win, winningPositions })
     );
+
     expect(state.outcome).toEqual(OutcomeEnum.Win);
     expect(state.gameBoard[0].isWinner).toBe(true);
     expect(state.gameBoard[1].isWinner).toBe(true);
@@ -67,5 +68,16 @@ describe('Round Reducer', () => {
       RoundActions.setProcessingMove({ processingMove })
     );
     expect(state.processingMove).toBe(processingMove);
+  });
+
+  it('should set the board position', () => {
+    const position = 0;
+    const piece = currentPlayerMock.piece;
+    const state = roundReducer(
+      initialRoundStateMock,
+      RoundActions.setBoardPosition({ position, piece })
+    );
+
+    expect(state.gameBoard[0].gamePiece).toBe(piece);
   });
 });

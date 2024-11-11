@@ -12,7 +12,6 @@ import { GameService } from '../../services/game.service';
 import { updateDraws } from '../game/game.actions';
 import { RoundState } from './round.reducer';
 import { selectGameBoard } from './round.selectors';
-import { selectGameDifficulty } from '../game/game.selectors';
 
 @Injectable()
 export class RoundEffects {
