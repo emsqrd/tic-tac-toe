@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { GameService } from './game.service';
 import { Square } from '../models/square';
+import { OutcomeEnum } from '../enums/outcome.enum';
 
 describe('GameService', () => {
   let service: GameService;
@@ -17,14 +18,14 @@ describe('GameService', () => {
   it('should return null if there is no winner', () => {
     const gameBoard: Square[] = [
       { gamePiece: 'X', isWinner: false },
-      { gamePiece: 'O', isWinner: false },
-      { gamePiece: 'X', isWinner: false },
-      { gamePiece: 'X', isWinner: false },
-      { gamePiece: 'X', isWinner: false },
-      { gamePiece: 'O', isWinner: false },
-      { gamePiece: 'O', isWinner: false },
-      { gamePiece: 'X', isWinner: false },
-      { gamePiece: 'O', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
     ];
     expect(service.calculateWinner(gameBoard)).toBeNull();
   });
@@ -80,5 +81,61 @@ describe('GameService', () => {
       isWinner: false,
     });
     expect(service.calculateWinner(gameBoard)).toBeNull();
+  });
+
+  it('should return Draw outcome if the board is full and no winner', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+    ];
+    expect(service.determineOutcome(gameBoard)).toEqual(OutcomeEnum.Draw);
+  });
+
+  it('should return Win outcome for determineOutcome if there is a winner', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+    ];
+    expect(service.determineOutcome(gameBoard)).toEqual(OutcomeEnum.Win);
+  });
+
+  it('should return None outcome if the board is not full and no winner', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+    ];
+    expect(service.determineOutcome(gameBoard)).toEqual(OutcomeEnum.None);
+  });
+
+  it('should return random index for a CPU move', () => {
+    const gameBoard: Square[] = Array(9).fill({
+      gamePiece: '',
+      isWinner: false,
+    });
+
+    const randomIndex = service.makeCpuMove(gameBoard);
+    expect(randomIndex).toBeGreaterThanOrEqual(0);
+    expect(randomIndex).toBeLessThanOrEqual(8);
   });
 });

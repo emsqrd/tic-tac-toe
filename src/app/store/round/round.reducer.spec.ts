@@ -40,43 +40,13 @@ describe('Round Reducer', () => {
     expect(state.outcome).toEqual(OutcomeEnum.None);
   });
 
-  it('should handle makeMove action when position is provided', () => {
-    const position = 0;
-    const state = roundReducer(
-      initialRoundStateMock,
-      RoundActions.makeMove({
-        position,
-        currentPlayer: currentPlayerMock,
-        gameDifficulty: GameDifficultyEnum.Easy,
-      })
-    );
-
-    expect(state.gameBoard[position].gamePiece).toEqual(
-      currentPlayerMock.piece
-    );
-  });
-
-  it('should handle makeMove action when no position is provided', () => {
-    const state = roundReducer(
-      initialRoundStateMock,
-      RoundActions.makeMove({
-        currentPlayer: currentPlayerMock,
-        gameDifficulty: GameDifficultyEnum.Easy,
-      })
-    );
-
-    const emptySquares = state.gameBoard.filter(
-      (square) => square.gamePiece === ''
-    );
-    expect(emptySquares.length).toBe(8);
-  });
-
   it('should handle endRound action with a win', () => {
     const winningPositions = [0, 1, 2];
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.endRound({ outcome: OutcomeEnum.Win, winningPositions })
     );
+
     expect(state.outcome).toEqual(OutcomeEnum.Win);
     expect(state.gameBoard[0].isWinner).toBe(true);
     expect(state.gameBoard[1].isWinner).toBe(true);
@@ -98,5 +68,16 @@ describe('Round Reducer', () => {
       RoundActions.setProcessingMove({ processingMove })
     );
     expect(state.processingMove).toBe(processingMove);
+  });
+
+  it('should set the board position', () => {
+    const position = 0;
+    const piece = currentPlayerMock.piece;
+    const state = roundReducer(
+      initialRoundStateMock,
+      RoundActions.setBoardPosition({ position, piece })
+    );
+
+    expect(state.gameBoard[0].gamePiece).toBe(piece);
   });
 });

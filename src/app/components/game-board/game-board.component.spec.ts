@@ -95,16 +95,41 @@ describe('GameBoardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should dispatch attemptMove action when a square is clicked and there is no outcome', () => {
+  it('should dispatch makeHumanMove action when a square is clicked and there is no outcome', () => {
     component.outcome = OutcomeEnum.None;
 
     const squareDebugElement: DebugElement = fixture.debugElement.query(
       By.css('t3-square')
     );
+
     squareDebugElement.triggerEventHandler('click', null);
 
     expect(dispatchSpy).toHaveBeenCalledWith(
-      RoundActions.attemptMove({ position: 0 })
+      RoundActions.makeHumanMove({ position: 0 })
+    );
+  });
+
+  it('should not dispatch makeHumanMove action when a square is clicked that is already taken', () => {
+    // Mock a game board with first square already taken
+    const position = 0;
+    const squareTakenMock = Array(9).fill({ gamePiece: '', isWinner: false });
+
+    squareTakenMock[position].gamePiece = currentPlayerMock.piece;
+    component.outcome = OutcomeEnum.None;
+
+    // Override selector with mock game board
+    store.overrideSelector(selectGameBoard, squareTakenMock);
+
+    // todo: should I be selecting the game board somewhere else?
+    // Reinitialize component to pick up new selector value
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    // Attempt move on first square
+    component.squareClick(position);
+
+    expect(dispatchSpy).not.toHaveBeenCalledWith(
+      RoundActions.makeHumanMove({ position: position })
     );
   });
 
