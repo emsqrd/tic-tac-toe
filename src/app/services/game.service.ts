@@ -6,23 +6,23 @@ import { OutcomeEnum } from '../enums/outcome.enum';
   providedIn: 'root',
 })
 export class GameService {
+  private winConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+
   constructor() {}
 
   // Calculate the winner and return the winning positions
   calculateWinner(gameBoard: Square[]): number[] | null {
-    const winConditions = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (let i = 0; i < winConditions.length; i++) {
-      const [a, b, c] = winConditions[i];
+    for (let i = 0; i < this.winConditions.length; i++) {
+      const [a, b, c] = this.winConditions[i];
       if (
         gameBoard[a].gamePiece &&
         gameBoard[a].gamePiece === gameBoard[b].gamePiece &&
@@ -77,18 +77,7 @@ export class GameService {
   }
 
   private findWinningMove(gameBoard: Square[], gamePiece: string): number {
-    const winConditions = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (const pattern of winConditions) {
+    for (const pattern of this.winConditions) {
       const [a, b, c] = pattern;
       const squares = [
         gameBoard[a].gamePiece,

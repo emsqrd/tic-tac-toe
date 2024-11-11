@@ -75,7 +75,7 @@ export class GameBoardComponent implements OnInit {
   }
 
   get showComingSoon() {
-    return this.gameDifficulty !== GameDifficultyEnum.Easy;
+    return this.gameDifficulty === GameDifficultyEnum.Hard;
   }
 
   // Start the game when the component is initialized

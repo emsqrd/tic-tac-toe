@@ -12,6 +12,8 @@ import { GameService } from '../../services/game.service';
 import { updateDraws } from '../game/game.actions';
 import { RoundState } from './round.reducer';
 import { selectGameBoard } from './round.selectors';
+import { selectGameDifficulty } from '../game/game.selectors';
+import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
 @Injectable()
 export class RoundEffects {
@@ -52,10 +54,20 @@ export class RoundEffects {
       ofType(RoundActions.makeCPUMove),
       withLatestFrom(
         this.store.select(selectGameBoard),
-        this.store.select(selectCurrentPlayer)
+        this.store.select(selectCurrentPlayer),
+        this.store.select(selectGameDifficulty)
       ),
-      switchMap(([_, gameBoard, currentPlayer]) => {
-        const position = this.gameService.getRandomEmptySquare(gameBoard);
+      switchMap(([_, gameBoard, currentPlayer, gameDifficulty]) => {
+        let position!: number;
+
+        switch (gameDifficulty) {
+          case GameDifficultyEnum.Easy:
+            position = this.gameService.getRandomEmptySquare(gameBoard);
+            break;
+          case GameDifficultyEnum.Medium:
+            position = this.gameService.makeMediumCpuMove(gameBoard);
+            break;
+        }
 
         return concat(
           of(RoundActions.setProcessingMove({ processingMove: true })),

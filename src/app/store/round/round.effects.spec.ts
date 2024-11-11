@@ -17,6 +17,8 @@ import { switchPlayer, updatePlayerWins } from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
 import { selectGameBoard } from './round.selectors';
 import { selectCurrentPlayer } from '../player/player.selectors';
+import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
+import { selectGameDifficulty } from '../game/game.selectors';
 
 export function mockDelay<T>(
   duration: number
@@ -42,7 +44,8 @@ describe('RoundEffects', () => {
     gameService = jasmine.createSpyObj('GameService', [
       'calculateWinner',
       'determineOutcome',
-      'makeCpuMove',
+      'getRandomEmptySquare',
+      'makeMediumCpuMove',
     ]);
 
     TestBed.configureTestingModule({
@@ -90,7 +93,7 @@ describe('RoundEffects', () => {
     });
   });
 
-  it('should dispatch the makeCpuMove action with correct sequence', (done) => {
+  it('should dispatch the makeCpuMove action for easy difficulty', (done) => {
     const cpuPlayer = {
       ...currentPlayerMock,
       isCpu: true,
@@ -101,6 +104,7 @@ describe('RoundEffects', () => {
     // Override selectors used in the effect
     mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
     mockStore.overrideSelector(selectGameBoard, mockGameBoard);
+    mockStore.overrideSelector(selectGameDifficulty, GameDifficultyEnum.Easy);
     gameService.getRandomEmptySquare.and.returnValue(position);
 
     const action = RoundActions.makeCPUMove();
@@ -120,6 +124,39 @@ describe('RoundEffects', () => {
       expect(gameService.getRandomEmptySquare).toHaveBeenCalledWith(
         mockGameBoard
       );
+      done();
+    });
+  });
+
+  it('should dispatch the makeCpuMove action for medium difficulty', (done) => {
+    const cpuPlayer = {
+      ...currentPlayerMock,
+      isCpu: true,
+    };
+    const mockGameBoard = Array(9).fill({ gamePiece: '', isWinner: false });
+    const position = 0;
+
+    // Override selectors used in the effect
+    mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
+    mockStore.overrideSelector(selectGameBoard, mockGameBoard);
+    mockStore.overrideSelector(selectGameDifficulty, GameDifficultyEnum.Medium);
+    gameService.makeMediumCpuMove.and.returnValue(position);
+
+    const action = RoundActions.makeCPUMove();
+
+    actions$ = of(action);
+
+    const expectedActions = [
+      RoundActions.setProcessingMove({ processingMove: true }),
+      RoundActions.setBoardPosition({ position, piece: cpuPlayer.piece }),
+    ];
+
+    spyOn<any>(effects, 'applyDelay').and.callFake(mockDelay);
+
+    effects.makeCpuMove$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
+      expect(effects['applyDelay']).toHaveBeenCalledWith(500);
+      expect(gameService.makeMediumCpuMove).toHaveBeenCalledWith(mockGameBoard);
       done();
     });
   });
