@@ -47,7 +47,7 @@ export class GameService {
     return outcome;
   }
 
-  makeCpuMove(gameBoard: Square[]): number {
+  getRandomEmptySquare(gameBoard: Square[]): number {
     const emptySquares: number[] = [];
     gameBoard.forEach((square, index) => {
       if (square.gamePiece === '') {
@@ -73,7 +73,7 @@ export class GameService {
     }
 
     // If no winning moves, make a random move
-    return this.makeCpuMove(gameBoard);
+    return this.getRandomEmptySquare(gameBoard);
   }
 
   private findWinningMove(gameBoard: Square[], gamePiece: string): number {

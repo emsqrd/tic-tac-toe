@@ -101,7 +101,7 @@ describe('RoundEffects', () => {
     // Override selectors used in the effect
     mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
     mockStore.overrideSelector(selectGameBoard, mockGameBoard);
-    gameService.makeCpuMove.and.returnValue(position);
+    gameService.getRandomEmptySquare.and.returnValue(position);
 
     const action = RoundActions.makeCPUMove();
 
@@ -117,7 +117,9 @@ describe('RoundEffects', () => {
     effects.makeCpuMove$.pipe(toArray()).subscribe((results) => {
       expect(results).toEqual(expectedActions);
       expect(effects['applyDelay']).toHaveBeenCalledWith(500);
-      expect(gameService.makeCpuMove).toHaveBeenCalledWith(mockGameBoard);
+      expect(gameService.getRandomEmptySquare).toHaveBeenCalledWith(
+        mockGameBoard
+      );
       done();
     });
   });

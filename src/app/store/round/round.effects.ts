@@ -55,7 +55,7 @@ export class RoundEffects {
         this.store.select(selectCurrentPlayer)
       ),
       switchMap(([_, gameBoard, currentPlayer]) => {
-        const position = this.gameService.makeCpuMove(gameBoard);
+        const position = this.gameService.getRandomEmptySquare(gameBoard);
 
         return concat(
           of(RoundActions.setProcessingMove({ processingMove: true })),

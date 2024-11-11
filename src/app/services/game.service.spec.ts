@@ -134,7 +134,7 @@ describe('GameService', () => {
       isWinner: false,
     });
 
-    const randomIndex = service.makeCpuMove(gameBoard);
+    const randomIndex = service.getRandomEmptySquare(gameBoard);
     expect(randomIndex).toBeGreaterThanOrEqual(0);
     expect(randomIndex).toBeLessThanOrEqual(8);
   });
