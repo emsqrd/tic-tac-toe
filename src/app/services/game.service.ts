@@ -76,7 +76,8 @@ export class GameService {
     return this.getRandomEmptySquare(gameBoard);
   }
 
-  private findWinningMove(gameBoard: Square[], gamePiece: string): number {
+  // todo: it feels like this isn't always finding the winning move
+  findWinningMove(gameBoard: Square[], gamePiece: string): number {
     for (const pattern of this.winConditions) {
       const [a, b, c] = pattern;
       const squares = [

@@ -138,4 +138,146 @@ describe('GameService', () => {
     expect(randomIndex).toBeGreaterThanOrEqual(0);
     expect(randomIndex).toBeLessThanOrEqual(8);
   });
+
+  it('should return winning move for CPU if available', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+    ];
+
+    const winningMove = service.findWinningMove(gameBoard, 'O');
+    expect(winningMove).toEqual(2);
+  });
+
+  it('should return winning move for human if available', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+    ];
+
+    const winningMove = service.findWinningMove(gameBoard, 'X');
+    expect(winningMove).toEqual(2);
+  });
+
+  it('should return -1 if no winning move is available', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+    ];
+
+    const winningMove = service.findWinningMove(gameBoard, 'O');
+    expect(winningMove).toEqual(-1);
+  });
+
+  it('should return a move that blocks a human win', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+    ];
+
+    const blockingMove = service.findWinningMove(gameBoard, 'X');
+    expect(blockingMove).toEqual(2);
+  });
+
+  it('should return -1 if no blocking move is available', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+    ];
+
+    const blockingMove = service.findWinningMove(gameBoard, 'O');
+    expect(blockingMove).toEqual(-1);
+  });
+
+  it('should return a random move if no winning or blocking move is available', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: '', isWinner: false },
+    ];
+
+    spyOn(service, 'getRandomEmptySquare').and.callThrough();
+
+    const randomMove = service.makeMediumCpuMove(gameBoard);
+    expect(randomMove).toBeGreaterThanOrEqual(0);
+    expect(randomMove).toBeLessThanOrEqual(8);
+  });
+
+  it('should return a cpu winning move if available', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+    ];
+
+    const cpuWinMove = service.makeMediumCpuMove(gameBoard);
+    expect(cpuWinMove).toEqual(2);
+  });
+
+  it('should return a blocking move if human has a winning move', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: 'O', isWinner: false },
+    ];
+
+    const blockingMove = service.makeMediumCpuMove(gameBoard);
+    expect(blockingMove).toEqual(2);
+  });
+
+  it('should return a random move if no winning or blocking move is available', () => {
+    const gameBoard: Square[] = [
+      { gamePiece: 'X', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+      { gamePiece: '', isWinner: false },
+    ];
+
+    spyOn(service, 'getRandomEmptySquare').and.callThrough();
+
+    service.makeMediumCpuMove(gameBoard);
+    expect(service.getRandomEmptySquare).toHaveBeenCalledWith(gameBoard);
+  });
 });
