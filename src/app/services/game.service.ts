@@ -7,16 +7,68 @@ import { OutcomeEnum } from '../enums/outcome.enum';
 })
 export class GameService {
   private winConditions = [
+    // rows
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
+
+    // columns
     [0, 3, 6],
     [1, 4, 7],
     [2, 5, 8],
+
+    // diagonals
     [0, 4, 8],
     [2, 4, 6],
   ];
 
+  private minimax(
+    board: Square[],
+    player: string
+  ): { score: number; move?: number } {
+    const availableMoves = this.getAvailableMoves(board);
+
+    // Check terminal states
+    if (this.checkWin(board, 'O')) return { score: 10 };
+    if (this.checkWin(board, 'X')) return { score: -10 };
+    if (availableMoves.length === 0) return { score: 0 };
+
+    const moves: { score: number; move: number }[] = [];
+
+    // Try all possible moves
+    for (const move of availableMoves) {
+      const newBoard = [...board];
+      newBoard[move] = { gamePiece: player, isWinner: false };
+
+      const score = this.minimax(newBoard, player === 'O' ? 'X' : 'O').score;
+      moves.push({ score, move });
+    }
+
+    // Maximize for CPU (O) and minimize for human (X)
+    if (player === 'O') {
+      const bestMove = moves.reduce((prev, curr) =>
+        curr.score > prev.score ? curr : prev
+      );
+      return bestMove;
+    } else {
+      const bestMove = moves.reduce((prev, curr) =>
+        curr.score < prev.score ? curr : prev
+      );
+      return bestMove;
+    }
+  }
+
+  private checkWin(board: Square[], player: string): boolean {
+    return this.winConditions.some((condition) =>
+      condition.every((index) => board[index].gamePiece === player)
+    );
+  }
+
+  private getAvailableMoves(board: Square[]): number[] {
+    return board
+      .map((square, index) => (square.gamePiece === '' ? index : -1))
+      .filter((index) => index !== -1);
+  }
   constructor() {}
 
   // Calculate the winner and return the winning positions
@@ -60,12 +112,6 @@ export class GameService {
   }
 
   makeMediumCpuMove(gameBoard: Square[]): number {
-    // todo: leave this for hard difficulty
-    // Take center if available
-    // if (gameBoard[4].gamePiece === '') {
-    //   return 4;
-    // }
-
     // Check if CPU can win
     const cpuWinMove = this.findWinningMove(gameBoard, 'O');
     if (cpuWinMove !== -1) {
@@ -86,6 +132,11 @@ export class GameService {
 
     // If no winning moves, make a random move
     return this.getRandomEmptySquare(gameBoard);
+  }
+
+  makeHardCpuMove(gameBoard: Square[]): number {
+    const move = this.minimax(gameBoard, 'O').move;
+    return move !== undefined ? move : this.getRandomEmptySquare(gameBoard);
   }
 
   findCornerMove(gameBoard: Square[]): number {
