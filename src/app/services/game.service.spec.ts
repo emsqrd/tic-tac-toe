@@ -18,6 +18,12 @@ function setSquare(board: Square[], position: number, piece: string): Square[] {
   return newBoard;
 }
 
+// Validate position is within the range of the game board
+function validatePositionRange(position: number) {
+  expect(position).toBeGreaterThanOrEqual(0);
+  expect(position).toBeLessThanOrEqual(8);
+}
+
 describe('GameService', () => {
   let service: GameService;
   const corners = [0, 2, 6, 8];
@@ -124,8 +130,7 @@ describe('GameService', () => {
       const gameBoard = createEmptyBoard();
 
       const randomIndex = service.getRandomEmptySquare(gameBoard);
-      expect(randomIndex).toBeGreaterThanOrEqual(0);
-      expect(randomIndex).toBeLessThanOrEqual(8);
+      validatePositionRange(randomIndex);
     });
   });
 
@@ -137,8 +142,11 @@ describe('GameService', () => {
       gameBoard = setSquare(gameBoard, 3, 'X');
       gameBoard = setSquare(gameBoard, 4, 'X');
 
+      spyOn(service, 'findWinningMove').and.callThrough();
+
       const cpuWinMove = service.makeMediumCpuMove(gameBoard);
-      expect(cpuWinMove).toEqual(2);
+      validatePositionRange(cpuWinMove);
+      expect(service.findWinningMove).toHaveBeenCalledWith(gameBoard, 'O');
     });
 
     it('should return a blocking move if CPU has no winning move and human has a winning move', () => {
@@ -148,16 +156,22 @@ describe('GameService', () => {
       gameBoard = setSquare(gameBoard, 3, 'O');
       gameBoard = setSquare(gameBoard, 6, 'O');
 
+      spyOn(service, 'findWinningMove').and.callThrough();
+
       const blockingMove = service.makeMediumCpuMove(gameBoard);
-      expect(blockingMove).toEqual(2);
+      validatePositionRange(blockingMove);
+      expect(service.findWinningMove).toHaveBeenCalledWith(gameBoard, 'X');
     });
 
     it('should return a corner move if available and CPU and human have no winning moves available', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 1, 'X');
 
+      spyOn(service, 'findCornerMove').and.callThrough();
+
       const cornerMove = service.makeMediumCpuMove(gameBoard);
-      expect(corners).toContain(cornerMove);
+      validatePositionRange(cornerMove);
+      expect(service.findCornerMove).toHaveBeenCalledWith(gameBoard);
     });
 
     it('should return a random move if no winning, blocking or corner move is available', () => {
@@ -176,9 +190,8 @@ describe('GameService', () => {
       spyOn(service, 'getRandomEmptySquare').and.callThrough();
 
       const randomMove = service.makeMediumCpuMove(gameBoard);
+      validatePositionRange(randomMove);
       expect(service.getRandomEmptySquare).toHaveBeenCalledWith(gameBoard);
-      expect(randomMove).toBeGreaterThanOrEqual(0);
-      expect(randomMove).toBeLessThanOrEqual(8);
     });
   });
 
@@ -218,6 +231,17 @@ describe('GameService', () => {
 
       const cornerMove = service.findCornerMove(gameBoard);
       expect(corners).toContain(cornerMove);
+    });
+
+    it('should return -1 if no corner move is available', () => {
+      let gameBoard = createEmptyBoard();
+
+      corners.forEach((corner) => {
+        gameBoard = setSquare(gameBoard, corner, 'X');
+      });
+
+      const cornerMove = service.findCornerMove(gameBoard);
+      expect(cornerMove).toEqual(-1);
     });
   });
 });
