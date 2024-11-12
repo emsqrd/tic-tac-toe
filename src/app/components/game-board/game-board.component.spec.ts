@@ -221,13 +221,7 @@ describe('GameBoardComponent', () => {
     );
   });
 
-  it('should show the coming soon message when the game mode is hard', () => {
-    component.gameDifficulty = GameDifficultyEnum.Hard;
-    expect(component.showComingSoon).toBeTrue();
-  });
-
-  it('should not show the coming soon message when the game mode is easy', () => {
-    component.gameDifficulty = GameDifficultyEnum.Easy;
+  it('should not show the coming soon message', () => {
     expect(component.showComingSoon).toBeFalse();
   });
 
