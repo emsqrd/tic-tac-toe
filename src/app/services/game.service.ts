@@ -60,6 +60,12 @@ export class GameService {
   }
 
   makeMediumCpuMove(gameBoard: Square[]): number {
+    // todo: leave this for hard difficulty
+    // Take center if available
+    // if (gameBoard[4].gamePiece === '') {
+    //   return 4;
+    // }
+
     // Check if CPU can win
     const cpuWinMove = this.findWinningMove(gameBoard, 'O');
     if (cpuWinMove !== -1) {
@@ -72,8 +78,27 @@ export class GameService {
       return humanWinMove;
     }
 
+    // Take a corner if available
+    const cornerMove = this.findCornerMove(gameBoard);
+    if (cornerMove !== -1) {
+      return cornerMove;
+    }
+
     // If no winning moves, make a random move
     return this.getRandomEmptySquare(gameBoard);
+  }
+
+  findCornerMove(gameBoard: Square[]): number {
+    const corners = [0, 2, 6, 8];
+    const emptyCorners = corners.filter(
+      (corner) => gameBoard[corner].gamePiece === ''
+    );
+
+    if (emptyCorners.length > 0) {
+      return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
+    }
+
+    return -1;
   }
 
   // todo: it feels like this isn't always finding the winning move
