@@ -59,13 +59,15 @@ export class RoundEffects {
       ),
       switchMap(([_, gameBoard, currentPlayer, gameDifficulty]) => {
         let position!: number;
-
         switch (gameDifficulty) {
           case GameDifficultyEnum.Easy:
             position = this.gameService.getRandomEmptySquare(gameBoard);
             break;
           case GameDifficultyEnum.Medium:
             position = this.gameService.makeMediumCpuMove(gameBoard);
+            break;
+          case GameDifficultyEnum.Hard:
+            position = this.gameService.makeHardCpuMove(gameBoard);
             break;
         }
 

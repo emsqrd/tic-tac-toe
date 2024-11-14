@@ -46,6 +46,7 @@ describe('RoundEffects', () => {
       'determineOutcome',
       'getRandomEmptySquare',
       'makeMediumCpuMove',
+      'makeHardCpuMove',
     ]);
 
     TestBed.configureTestingModule({
@@ -72,6 +73,23 @@ describe('RoundEffects', () => {
 
   afterEach(() => {
     mockStore.resetSelectors();
+  });
+
+  it('should apply delay with specified duration', (done) => {
+    const testValue = 'test';
+    const delayDuration = 10;
+
+    const source$ = of(testValue);
+    const start = Date.now();
+
+    source$.pipe(effects['applyDelay'](delayDuration)).subscribe({
+      next: (value) => {
+        const elapsed = Date.now() - start;
+        expect(value).toBe(testValue);
+        expect(elapsed).toBeGreaterThanOrEqual(delayDuration);
+        done();
+      },
+    });
   });
 
   it('should dispatch makeHumanMove action', (done) => {
@@ -157,6 +175,39 @@ describe('RoundEffects', () => {
       expect(results).toEqual(expectedActions);
       expect(effects['applyDelay']).toHaveBeenCalledWith(500);
       expect(gameService.makeMediumCpuMove).toHaveBeenCalledWith(mockGameBoard);
+      done();
+    });
+  });
+
+  it('should dispatch the makeCpuMove action for hard difficulty', (done) => {
+    const cpuPlayer = {
+      ...currentPlayerMock,
+      isCpu: true,
+    };
+    const mockGameBoard = Array(9).fill({ gamePiece: '', isWinner: false });
+    const position = 0;
+
+    // Override selectors used in the effect
+    mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
+    mockStore.overrideSelector(selectGameBoard, mockGameBoard);
+    mockStore.overrideSelector(selectGameDifficulty, GameDifficultyEnum.Hard);
+    gameService.makeHardCpuMove.and.returnValue(position);
+
+    const action = RoundActions.makeCPUMove();
+
+    actions$ = of(action);
+
+    const expectedActions = [
+      RoundActions.setProcessingMove({ processingMove: true }),
+      RoundActions.setBoardPosition({ position, piece: cpuPlayer.piece }),
+    ];
+
+    spyOn<any>(effects, 'applyDelay').and.callFake(mockDelay);
+
+    effects.makeCpuMove$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
+      expect(effects['applyDelay']).toHaveBeenCalledWith(500);
+      expect(gameService.makeHardCpuMove).toHaveBeenCalledWith(mockGameBoard);
       done();
     });
   });
