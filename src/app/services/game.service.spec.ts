@@ -222,6 +222,26 @@ describe('GameService', () => {
       const winningMove = service.findWinningMove(gameBoard, 'O');
       expect(winningMove).toEqual(2);
     });
+
+    it('should find winning move in diagonal', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'O');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+
+      const winningMove = service.findWinningMove(gameBoard, 'O');
+      expect(winningMove).toBe(8);
+    });
+
+    it('should prioritize win over block', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'O');
+      gameBoard = setSquare(gameBoard, 1, 'O');
+      gameBoard = setSquare(gameBoard, 3, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(2); // Win at position 2 instead of blocking at 5
+    });
   });
 
   describe('find corner move', () => {
@@ -242,6 +262,269 @@ describe('GameService', () => {
 
       const cornerMove = service.findCornerMove(gameBoard);
       expect(cornerMove).toEqual(-1);
+    });
+  });
+
+  describe('hard cpu moves', () => {
+    it('should return a valid move for an empty board', () => {
+      const gameBoard = createEmptyBoard();
+      const move = service.makeHardCpuMove(gameBoard);
+      validatePositionRange(move);
+    });
+
+    it('should take winning move when available', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 4, 'X');
+      gameBoard = setSquare(gameBoard, 0, 'O');
+      gameBoard = setSquare(gameBoard, 6, 'X');
+      gameBoard = setSquare(gameBoard, 2, 'O');
+      gameBoard = setSquare(gameBoard, 8, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(1); // Winning move at position 1
+    });
+
+    it('should block opponent winning move', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 1, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(2); // Block at position 2
+    });
+
+    it('should choose center when optimal', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(4); // Center position
+    });
+
+    it('should handle board with only one move left', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 1, 'O');
+      gameBoard = setSquare(gameBoard, 2, 'X');
+      gameBoard = setSquare(gameBoard, 3, 'O');
+      gameBoard = setSquare(gameBoard, 4, 'X');
+      gameBoard = setSquare(gameBoard, 5, 'O');
+      gameBoard = setSquare(gameBoard, 6, 'X');
+      gameBoard = setSquare(gameBoard, 8, 'O');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(7); // Only remaining position
+    });
+
+    it('should create fork opportunity when possible', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 4, 'O');
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 8, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(1); // Block potential win and create winning opportunity
+    });
+
+    it('should prevent opponent from creating a fork', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+      gameBoard = setSquare(gameBoard, 8, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      // Should take position 1, 3, 5, or 7 to prevent fork
+      expect([1, 3, 5, 7]).toContain(move);
+    });
+
+    it('should prefer winning in fewer moves over longer paths', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'O');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+      gameBoard = setSquare(gameBoard, 1, 'X');
+      gameBoard = setSquare(gameBoard, 7, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(8); // Immediate win over potential fork
+    });
+
+    it('should handle edge case where all corners are taken', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 2, 'O');
+      gameBoard = setSquare(gameBoard, 6, 'X');
+      gameBoard = setSquare(gameBoard, 8, 'O');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      validatePositionRange(move);
+    });
+
+    it('should block double threat scenarios', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+      gameBoard = setSquare(gameBoard, 2, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(1); // Block the double threat
+    });
+
+    it('should create a double threat when possible', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 4, 'O');
+      gameBoard = setSquare(gameBoard, 1, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect([0, 2]).toContain(move); // Create double threat opportunity
+    });
+
+    it('should handle symmetrical board positions correctly', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 8, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect([1, 3, 5, 7]).toContain(move); // Should take edge to prevent fork
+    });
+  });
+
+  describe('minimax optimization', () => {
+    it('should use memoized states for repeated board positions', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 4, 'O');
+
+      const firstMove = service.makeHardCpuMove(gameBoard);
+      const secondMove = service.makeHardCpuMove(gameBoard);
+
+      expect(firstMove).toBe(secondMove); // Should return same move for same board
+    });
+
+    it('should clear memoized states on destroy', () => {
+      const gameBoard = createEmptyBoard();
+      service.makeHardCpuMove(gameBoard);
+      service.ngOnDestroy();
+
+      // Make another move to ensure new calculation
+      const move = service.makeHardCpuMove(gameBoard);
+      validatePositionRange(move);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle board with alternating X and O', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 1, 'O');
+      gameBoard = setSquare(gameBoard, 2, 'X');
+      gameBoard = setSquare(gameBoard, 3, 'O');
+      gameBoard = setSquare(gameBoard, 4, 'X');
+      gameBoard = setSquare(gameBoard, 5, 'O');
+      gameBoard = setSquare(gameBoard, 6, 'X');
+      gameBoard = setSquare(gameBoard, 7, 'O');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(8); // Only remaining move
+    });
+
+    it('should prefer center over corners in early game', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(4); // Should take center
+    });
+  });
+
+  describe('fork opportunity detection', () => {
+    it('should detect potential fork in corners', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'O');
+      gameBoard = setSquare(gameBoard, 4, 'X');
+      gameBoard = setSquare(gameBoard, 8, 'O');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      // Should take an edge to force opponent's move and prevent their win
+      expect([1, 3, 5, 7]).toContain(move);
+    });
+
+    it('should prevent opponent fork in multiple threats scenario', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+      gameBoard = setSquare(gameBoard, 8, 'X');
+      gameBoard = setSquare(gameBoard, 1, 'O');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      // Should take position 7 to block the fork and create a threat
+      expect(move).toBe(7);
+    });
+  });
+
+  describe('performance', () => {
+    it('should make a decision in reasonable time', () => {
+      const gameBoard = createEmptyBoard();
+      const startTime = performance.now();
+
+      service.makeHardCpuMove(gameBoard);
+
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      expect(duration).toBeLessThan(1000); // Should decide within 1 second
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle invalid board state gracefully', () => {
+      let gameBoard = createEmptyBoard();
+      // Create invalid board with more X's than O's
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 1, 'X');
+      gameBoard = setSquare(gameBoard, 2, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      validatePositionRange(move);
+    });
+
+    it('should handle full board gracefully', () => {
+      let gameBoard = createEmptyBoard();
+      for (let i = 0; i < 9; i++) {
+        gameBoard = setSquare(gameBoard, i, i % 2 === 0 ? 'X' : 'O');
+      }
+
+      expect(() => service.makeHardCpuMove(gameBoard)).not.toThrow();
+    });
+
+    it('should fallback to random move when error occurs', () => {
+      const gameBoard = createEmptyBoard();
+      const error = new Error('Test error');
+
+      // Mock getEmptySquares to throw the error instead of findBestMove
+      spyOn(service as any, 'getEmptySquares').and.throwError(error);
+      spyOn(service, 'getRandomEmptySquare').and.returnValue(4);
+      spyOn(console, 'error');
+
+      const move = service.makeHardCpuMove(gameBoard);
+
+      expect(move).toBe(4);
+      expect(service.getRandomEmptySquare).toHaveBeenCalledWith(gameBoard);
+    });
+
+    it('should log error when exception occurs', () => {
+      const gameBoard = createEmptyBoard();
+      const error = new Error('Test error');
+      const consoleSpy = spyOn(console, 'error');
+
+      spyOn(service as any, 'getEmptySquares').and.throwError(error);
+
+      service.makeHardCpuMove(gameBoard);
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error in makeHardCpuMove:',
+        error
+      );
     });
   });
 });
