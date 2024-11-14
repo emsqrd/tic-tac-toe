@@ -294,12 +294,22 @@ describe('GameService', () => {
       expect(move).toBe(2); // Block at position 2
     });
 
-    it('should choose center when optimal', () => {
+    it('should block opponent winning move in column', () => {
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+      gameBoard = setSquare(gameBoard, 7, 'X');
+
+      const move = service.makeHardCpuMove(gameBoard);
+      expect(move).toBe(3); // Block at position 3
+    });
+
+    it('should prefer center over corners in early game', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
 
       const move = service.makeHardCpuMove(gameBoard);
-      expect(move).toBe(4); // Center position
+      expect(move).toBe(4); // Should take center
     });
 
     it('should handle board with only one move left', () => {
@@ -388,52 +398,66 @@ describe('GameService', () => {
       const move = service.makeHardCpuMove(gameBoard);
       expect([1, 3, 5, 7]).toContain(move); // Should take edge to prevent fork
     });
-  });
 
-  describe('minimax optimization', () => {
-    it('should use memoized states for repeated board positions', () => {
+    it('should return draw score in drawn position', () => {
       let gameBoard = createEmptyBoard();
-      gameBoard = setSquare(gameBoard, 4, 'O');
-
-      const firstMove = service.makeHardCpuMove(gameBoard);
-      const secondMove = service.makeHardCpuMove(gameBoard);
-
-      expect(firstMove).toBe(secondMove); // Should return same move for same board
-    });
-
-    it('should clear memoized states on destroy', () => {
-      const gameBoard = createEmptyBoard();
-      service.makeHardCpuMove(gameBoard);
-      service.ngOnDestroy();
-
-      // Make another move to ensure new calculation
-      const move = service.makeHardCpuMove(gameBoard);
-      validatePositionRange(move);
-    });
-  });
-
-  describe('edge cases', () => {
-    it('should handle board with alternating X and O', () => {
-      let gameBoard = createEmptyBoard();
+      // Setup a drawn board position
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 1, 'O');
       gameBoard = setSquare(gameBoard, 2, 'X');
-      gameBoard = setSquare(gameBoard, 3, 'O');
-      gameBoard = setSquare(gameBoard, 4, 'X');
-      gameBoard = setSquare(gameBoard, 5, 'O');
-      gameBoard = setSquare(gameBoard, 6, 'X');
-      gameBoard = setSquare(gameBoard, 7, 'O');
+      gameBoard = setSquare(gameBoard, 3, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+      gameBoard = setSquare(gameBoard, 5, 'X');
+      gameBoard = setSquare(gameBoard, 6, 'O');
+      gameBoard = setSquare(gameBoard, 7, 'X');
 
+      // Leave one move for CPU
       const move = service.makeHardCpuMove(gameBoard);
-      expect(move).toBe(8); // Only remaining move
+      expect(move).toBe(8); // Only possible move
+
+      // Complete the board
+      gameBoard = setSquare(gameBoard, 8, 'O');
+
+      // Verify it's actually a draw
+      expect(service.determineOutcome(gameBoard)).toBe(OutcomeEnum.Draw);
+    });
+  });
+
+  describe('minimax optimization', () => {
+    it('should make optimal moves consistently', () => {
+      let gameBoard = createEmptyBoard();
+      // Setup a board where there's only one optimal move
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 8, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+
+      // Running multiple times should always give the same optimal move
+      const moves = new Set();
+      for (let i = 0; i < 5; i++) {
+        moves.add(service.makeHardCpuMove(gameBoard));
+      }
+
+      // Should always choose the same optimal move
+      expect(moves.size).toBe(1);
     });
 
-    it('should prefer center over corners in early game', () => {
+    it('should use memoization to improve performance', () => {
       let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 4, 'O');
       gameBoard = setSquare(gameBoard, 0, 'X');
 
-      const move = service.makeHardCpuMove(gameBoard);
-      expect(move).toBe(4); // Should take center
+      const minimaxSpy = spyOn<any>(service, 'minimax').and.callThrough();
+
+      // First call should compute all values
+      service.makeHardCpuMove(gameBoard);
+      const firstCallCount = minimaxSpy.calls.count();
+      minimaxSpy.calls.reset();
+
+      // Second call should use memoized values and make fewer minimax calls
+      service.makeHardCpuMove(gameBoard);
+      const secondCallCount = minimaxSpy.calls.count();
+
+      expect(secondCallCount).toBeLessThan(firstCallCount);
     });
   });
 

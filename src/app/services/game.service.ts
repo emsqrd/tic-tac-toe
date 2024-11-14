@@ -143,6 +143,7 @@ export class GameService {
       boardCopy[position].gamePiece = this.PLAYERS.CPU;
 
       const boardKey = this.getBoardKey(boardCopy);
+
       let score = this.memoizedStates.get(boardKey);
 
       if (score === undefined) {
@@ -208,7 +209,7 @@ export class GameService {
   }
 
   private getBoardKey(board: Square[]): string {
-    return board.map((square) => square.gamePiece).join('');
+    return board.map((square) => square.gamePiece).join('-');
   }
 
   private clearMemoizedStates(): void {
@@ -273,33 +274,37 @@ export class GameService {
   }
 
   private hasForkOpportunity(board: Square[], player: string): boolean {
-    // Count potential winning lines (having one piece and two empty spaces)
-    let potentialWins = 0;
     const emptyPositions = this.getEmptySquares(board);
 
-    // Check each empty position if it creates multiple winning opportunities
     for (const position of emptyPositions) {
       const testBoard = this.copyBoard(board);
       testBoard[position].gamePiece = player;
 
-      // Count how many winning lines this position creates
+      let winningThreats = 0;
+
+      // Count how many winning threats this position creates
       for (const [a, b, c] of this.winConditions) {
-        const pieces = [
+        const line = [
           testBoard[a].gamePiece,
           testBoard[b].gamePiece,
           testBoard[c].gamePiece,
         ];
 
+        // A winning threat must have two of our pieces and one empty space
         if (
-          pieces.filter((p) => p === player).length === 2 &&
-          pieces.filter((p) => p === this.PLAYERS.EMPTY).length === 1
+          line.filter((p) => p === player).length === 2 &&
+          line.filter((p) => p === this.PLAYERS.EMPTY).length === 1
         ) {
-          potentialWins++;
+          winningThreats++;
         }
+      }
+
+      // A fork requires at least two winning threats
+      if (winningThreats >= 2) {
+        return true;
       }
     }
 
-    // A fork opportunity exists if there are multiple potential winning lines
-    return potentialWins >= 2;
+    return false;
   }
 }
