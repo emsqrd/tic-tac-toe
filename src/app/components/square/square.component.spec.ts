@@ -28,7 +28,7 @@ describe('SquareComponent', () => {
 
     fixture.detectChanges();
 
-    expect(gamePieceDiv.innerHTML).toBe('X');
+    expect(gamePieceDiv).toHaveClass('x');
   });
 
   it('should apply the win css class when the square is a winning square', () => {
