@@ -11,5 +11,13 @@ import { Square } from '../../models/square';
 })
 export class SquareComponent {
   @Input() isWinner: boolean | undefined;
-  @Input() gamePiece: string | undefined;
+  @Input() gamePiece!: string | undefined;
+
+  get displayXPiece(): boolean {
+    return this.gamePiece === 'X';
+  }
+
+  get displayOPiece(): boolean {
+    return this.gamePiece === 'O';
+  }
 }
