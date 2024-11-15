@@ -13,13 +13,12 @@
 
 .x,
 .o {
-  // border: 1px solid #000;
-  width: 50%;
-  height: 50%;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: 50%; // Set both to 50%
+  height: 50%;
 }
 
 .x {
@@ -27,7 +26,7 @@
   &::after {
     content: "";
     position: absolute;
-    width: 141%;
+    width: 141%; // Keep this the same for X proportion
     height: 8px;
     background: #000;
     left: 0;
@@ -50,8 +49,9 @@
 }
 
 .o {
-  width: 70%; // Increase from 50% to 70%
-  height: 70%; // Increase from 50% to 70%
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   svg {
     width: 100%;
@@ -59,15 +59,24 @@
     overflow: visible;
   }
 
-  circle {
-    fill: none;
-    stroke: #000;
+  .animated-circle {
     stroke-width: 10;
+    stroke: #000;
+    fill: none;
+    transform: rotate(90deg) scale(-1, 1);
     stroke-linecap: round;
-    stroke-dasharray: 220;
-    transform-origin: center;
-    transform: rotate(-90deg);
+    stroke-dasharray: calc(2 * 3.14286 * 50);
+    stroke-dashoffset: calc(2 * 3.14286 * 50);
     animation: drawO 0.6s ease-out forwards;
+  }
+}
+
+@keyframes drawO {
+  from {
+    stroke-dashoffset: calc(2 * 3.14286 * 50);
+  }
+  to {
+    stroke-dashoffset: 0;
   }
 }
 
@@ -86,14 +95,5 @@
   }
   to {
     transform: translate(0, -50%) rotate(-45deg) scaleX(1);
-  }
-}
-
-@keyframes drawO {
-  from {
-    stroke-dashoffset: -220;
-  }
-  to {
-    stroke-dashoffset: 0;
   }
 }

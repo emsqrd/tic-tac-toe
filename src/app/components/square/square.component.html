@@ -1,7 +1,7 @@
 <div id="squareContainer" [ngClass]="{ win: isWinner }">
   <div id="gamePiece" [class]="gamePiece?.toLowerCase()">
-    <svg *ngIf="gamePiece === 'O'" viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="35" />
+    <svg *ngIf="gamePiece === 'O'" viewBox="-50 -50 100 100">
+      <circle cx="0" cy="0" r="50" class="animated-circle" />
     </svg>
   </div>
 </div>
