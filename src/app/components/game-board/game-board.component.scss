@@ -93,14 +93,17 @@
   font-size: 6rem;
   transition: background-color 0.1s;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .game-board-square:nth-of-type(3n + 3) {
-  border-right: 0;
+  margin-right: 4px;
+  border-right: none;
 }
 
 .game-board-square:nth-of-type(n + 7) {
-  border-bottom: 0;
+  margin-bottom: 4px;
+  border-bottom: none;
 }
 
 @media (max-width: 480px) {
@@ -157,9 +160,8 @@
     transform: translateX(-3px);
   }
 
-  &.diagonal,
   &.antiDiagonal {
-    transform: translate(-3px, -3px);
+    transform: translate(-2px, -2px);
   }
 }
 

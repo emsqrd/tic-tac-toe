@@ -13,6 +13,8 @@ export class SquareComponent {
   @Input() winType?: 'row' | 'column' | 'diagonal' | 'antiDiagonal';
   @Input() gamePiece!: string | undefined;
 
+  displayGrideLines: boolean = false;
+
   get displayXPiece(): boolean {
     return this.gamePiece === 'X';
   }
