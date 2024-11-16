@@ -1,4 +1,9 @@
 <div id="squareContainer" [ngClass]="{ win: isWinner }">
+  <!-- Grid lines -->
+  <!-- <svg class="grid-lines" viewBox="-50 -50 100 100">
+    <line class="grid-line vertical" x1="0" y1="-50" x2="0" y2="50" />
+    <line class="grid-line horizontal" x1="-50" y1="0" x2="50" y2="0" />
+  </svg> -->
   <div class="square" [class]="gamePiece?.toLowerCase() || ''">
     @if(displayXPiece) {
     <svg viewBox="-50 -50 100 100">

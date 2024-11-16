@@ -78,6 +78,66 @@ export class GameBoardComponent implements OnInit {
     return false;
   }
 
+  get hasWinner(): boolean {
+    return this.gameBoard?.some((square) => square.isWinner) || false;
+  }
+
+  get winningPattern(): string {
+    // Find the winning squares
+    const winningSquares = this.gameBoard
+      .map((square, index) => ({ ...square, index }))
+      .filter((square) => square.isWinner);
+
+    if (winningSquares.length === 0) return '';
+
+    const indices = winningSquares
+      .map((square) => square.index)
+      .sort((a, b) => a - b);
+
+    // Rows: [0,1,2], [3,4,5], [6,7,8]
+    if (Math.floor(indices[0] / 3) === Math.floor(indices[1] / 3)) return 'row';
+
+    // Columns: [0,3,6], [1,4,7], [2,5,8]
+    if (indices[0] % 3 === indices[1] % 3) return 'column';
+
+    // Diagonals: [0,4,8], [2,4,6]
+    if (indices.includes(4)) {
+      if (indices.includes(0)) return 'diagonal';
+      if (indices.includes(2)) return 'antiDiagonal';
+    }
+    return '';
+  }
+
+  get lineStart(): { x: number; y: number } {
+    const pattern = this.winningPattern;
+    const coordinates = {
+      row: {
+        x: 0,
+        y:
+          50 +
+          Math.floor(this.gameBoard.findIndex((s) => s.isWinner) / 3) * 100,
+      },
+      column: {
+        x: 50 + (this.gameBoard.findIndex((s) => s.isWinner) % 3) * 100,
+        y: 0,
+      },
+      diagonal: { x: 0, y: 0 },
+      antiDiagonal: { x: 300, y: 0 },
+    };
+    return coordinates[pattern as keyof typeof coordinates] || { x: 0, y: 0 };
+  }
+
+  get lineEnd(): { x: number; y: number } {
+    const pattern = this.winningPattern;
+    const coordinates = {
+      row: { x: 300, y: this.lineStart.y },
+      column: { x: this.lineStart.x, y: 300 },
+      diagonal: { x: 300, y: 300 },
+      antiDiagonal: { x: 0, y: 300 },
+    };
+    return coordinates[pattern as keyof typeof coordinates] || { x: 0, y: 0 };
+  }
+
   // Start the game when the component is initialized
   ngOnInit(): void {
     this.outcome$.subscribe((outcome) => {

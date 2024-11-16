@@ -22,7 +22,7 @@ describe('SquareComponent', () => {
 
   it('should display the game piece when a move is made', () => {
     const gamePieceDiv =
-      fixture.debugElement.nativeElement.querySelector('#gamePiece');
+      fixture.debugElement.nativeElement.querySelector('.square');
 
     component.gamePiece = 'X';
 

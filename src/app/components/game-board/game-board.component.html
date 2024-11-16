@@ -31,6 +31,19 @@
         [isWinner]="square.isWinner"
         (click)="squareClick($index)"
       ></t3-square>
+      } @if (hasWinner) {
+      <svg
+        class="strike-through"
+        [class]="winningPattern"
+        viewBox="-1 -1 302 302"
+      >
+        <line
+          [attr.x1]="lineStart.x"
+          [attr.y1]="lineStart.y"
+          [attr.x2]="lineEnd.x"
+          [attr.y2]="lineEnd.y"
+        />
+      </svg>
       }
     </div>
     @if (showComingSoon) {
