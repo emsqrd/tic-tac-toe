@@ -13,3 +13,9 @@
   -webkit-user-select: none; /* Prevents text selection on tap */
   user-select: none; /* General selection disabling */
 }
+
+@keyframes blink {
+  50% {
+    visibility: hidden;
+  }
+}
