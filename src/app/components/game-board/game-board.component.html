@@ -6,22 +6,22 @@
   <section class="game-nav-container">
     <div>
       <a id="btnGameMode" type="button" (click)="gameModeClick()">
-        {{ gameModeButtonText }}
+        {{ gameModeButtonText$ | async }}
       </a>
     </div>
-    @if (showDifficultyButton) {
+    @if (showDifficultyButton$ | async) {
     <div>
       <a id="btnGameDifficulty" type="button" (click)="gameDifficultyClick()">
-        {{ gameDifficultyButtonText }}
+        {{ gameDifficultyButtonText$ | async }}
       </a>
     </div>
     }
   </section>
-  <section class="game-board-content" [ngClass]="{ draw: isDraw }">
+  <section class="game-board-content" [ngClass]="{ draw: isDraw$ | async }">
     <div
       class="game-board-grid"
-      [ngClass]="{ 
-        'coming-soon-disabled': showComingSoon,
+      [ngClass]="{
+        'coming-soon-disabled': showComingSoon$ | async
       }"
     >
       @for (square of gameBoard$ | async; track $index){
@@ -31,28 +31,28 @@
         [isWinner]="square.isWinner"
         (click)="squareClick($index)"
       ></t3-square>
-      } @if (hasWinner) {
+      } @if ((hasWinner$ | async)) {
       <svg
         class="strike-through"
-        [class]="winningPattern"
+        [class]="winningPattern$ | async"
         viewBox="0 0 300 300"
       >
         <line
-          [attr.x1]="lineStart.x"
-          [attr.y1]="lineStart.y"
-          [attr.x2]="lineEnd.x"
-          [attr.y2]="lineEnd.y"
+          [attr.x1]="(lineStart$ | async)?.x"
+          [attr.y1]="(lineStart$ | async)?.y"
+          [attr.x2]="(lineEnd$ | async)?.x"
+          [attr.y2]="(lineEnd$ | async)?.y"
         />
       </svg>
       }
     </div>
-    @if (showComingSoon) {
+    @if (showComingSoon$ | async) {
     <div class="coming-soon">
       <h1>coming soon</h1>
     </div>
     }
   </section>
-  @if (!showComingSoon) {
+  @if (!(showComingSoon$ | async)) {
   <section class="scoring-container">
     <t3-scoring class="scoring-content"></t3-scoring>
   </section>

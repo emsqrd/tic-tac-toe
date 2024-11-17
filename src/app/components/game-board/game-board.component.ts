@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
@@ -16,9 +16,7 @@ import {
 } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
-import { Player } from '../../models/player';
 import { selectCurrentPlayer } from '../../store/player/player.selectors';
-import { Square } from '../../models/square';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import {
   selectGameBoard,
@@ -26,7 +24,8 @@ import {
   selectProcessingMove,
 } from '../../store/round/round.selectors';
 import { RoundActions } from '../../store/round/round.actions';
-import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
+import { map, withLatestFrom, take } from 'rxjs/operators';
+import { LineCalculatorService } from '../../services/line-calculator.service';
 
 @Component({
   selector: 't3-game-board',
@@ -36,151 +35,87 @@ import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
   styleUrl: './game-board.component.scss',
 })
 export class GameBoardComponent implements OnInit {
-  gameBoard$: Observable<Square[]>;
-  outcome$: Observable<OutcomeEnum>;
-  currentPlayer$: Observable<Player>;
-  gameMode$: Observable<GameModeEnum>;
-  processingMove$: Observable<boolean>;
-  gameDifficulty$: Observable<GameDifficultyEnum>;
+  private readonly store = inject(Store);
+  private readonly lineCalculator = inject(LineCalculatorService);
 
-  gameBoard!: Square[];
-  outcome!: OutcomeEnum;
-  currentPlayer!: Player;
-  gameMode!: GameModeEnum;
-  gameDifficulty!: GameDifficultyEnum;
+  readonly gameBoard$ = this.store.select(selectGameBoard);
+  readonly outcome$ = this.store.select(selectOutcome);
+  readonly currentPlayer$ = this.store.select(selectCurrentPlayer);
+  readonly gameMode$ = this.store.select(selectGameMode);
+  readonly processingMove$ = this.store.select(selectProcessingMove);
+  readonly gameDifficulty$ = this.store.select(selectGameDifficulty);
 
-  constructor(private store: Store) {
-    this.gameBoard$ = store.select(selectGameBoard);
-    this.outcome$ = store.select(selectOutcome);
-    this.currentPlayer$ = store.select(selectCurrentPlayer);
-    this.gameMode$ = store.select(selectGameMode);
-    this.processingMove$ = store.select(selectProcessingMove);
-    this.gameDifficulty$ = store.select(selectGameDifficulty);
-  }
+  readonly isDraw$ = this.outcome$.pipe(
+    map((outcome) => outcome === OutcomeEnum.Draw)
+  );
 
-  get isDraw() {
-    return this.outcome === OutcomeEnum.Draw;
-  }
+  readonly hasWinner$ = this.gameBoard$.pipe(
+    map((board) => board?.some((square) => square.isWinner) || false)
+  );
 
-  get gameModeButtonText() {
-    return this.gameMode.valueOf();
-  }
+  readonly winningPattern$ = this.gameBoard$.pipe(
+    map((board) => this.lineCalculator.calculateWinningPattern(board))
+  );
 
-  get gameDifficultyButtonText() {
-    return this.gameDifficulty.valueOf();
-  }
+  readonly lineStart$ = this.gameBoard$.pipe(
+    withLatestFrom(this.winningPattern$),
+    map(([board, pattern]) =>
+      this.lineCalculator.calculateLineStart(board, pattern)
+    )
+  );
 
-  get showDifficultyButton() {
-    return this.gameMode === GameModeEnum.SinglePlayer;
-  }
+  readonly lineEnd$ = this.gameBoard$.pipe(
+    withLatestFrom(this.winningPattern$, this.lineStart$),
+    map(([board, pattern, start]) =>
+      this.lineCalculator.calculateLineEnd(pattern, start)
+    )
+  );
 
-  get showComingSoon() {
-    return false;
-  }
+  readonly gameModeButtonText$ = this.gameMode$.pipe(
+    map((mode) => mode.valueOf())
+  );
 
-  get hasWinner(): boolean {
-    return this.gameBoard?.some((square) => square.isWinner) || false;
-  }
+  readonly gameDifficultyButtonText$ = this.gameDifficulty$.pipe(
+    map((difficulty) => difficulty.valueOf())
+  );
 
-  get winningPattern(): string {
-    // Find the winning squares
-    const winningSquares = this.gameBoard
-      .map((square, index) => ({ ...square, index }))
-      .filter((square) => square.isWinner);
+  readonly showDifficultyButton$ = this.gameMode$.pipe(
+    map((mode) => mode === GameModeEnum.SinglePlayer)
+  );
 
-    if (winningSquares.length === 0) return '';
+  readonly showComingSoon$ = new Observable<boolean>((subscriber) =>
+    subscriber.next(false)
+  );
 
-    const indices = winningSquares
-      .map((square) => square.index)
-      .sort((a, b) => a - b);
+  constructor() {}
 
-    // Rows: [0,1,2], [3,4,5], [6,7,8]
-    if (Math.floor(indices[0] / 3) === Math.floor(indices[1] / 3)) return 'row';
-
-    // Columns: [0,3,6], [1,4,7], [2,5,8]
-    if (indices[0] % 3 === indices[1] % 3) return 'column';
-
-    // Diagonals: [0,4,8], [2,4,6]
-    if (indices.includes(4)) {
-      if (indices.includes(0)) return 'diagonal';
-      if (indices.includes(2)) return 'antiDiagonal';
-    }
-    return '';
-  }
-
-  get lineStart(): { x: number; y: number } {
-    const pattern = this.winningPattern;
-    const coordinates = {
-      row: {
-        x: 0,
-        y:
-          50 +
-          Math.floor(this.gameBoard.findIndex((s) => s.isWinner) / 3) * 100,
-      },
-      column: {
-        x: 50 + (this.gameBoard.findIndex((s) => s.isWinner) % 3) * 100,
-        y: 0,
-      },
-      diagonal: { x: 0, y: 0 },
-      antiDiagonal: { x: 300, y: 0 },
-    };
-    return coordinates[pattern as keyof typeof coordinates] || { x: 0, y: 0 };
-  }
-
-  get lineEnd(): { x: number; y: number } {
-    const pattern = this.winningPattern;
-    const coordinates = {
-      row: { x: 300, y: this.lineStart.y },
-      column: { x: this.lineStart.x, y: 300 },
-      diagonal: { x: 300, y: 300 },
-      antiDiagonal: { x: 0, y: 300 },
-    };
-    return coordinates[pattern as keyof typeof coordinates] || { x: 0, y: 0 };
-  }
-
-  // Start the game when the component is initialized
   ngOnInit(): void {
-    this.outcome$.subscribe((outcome) => {
-      this.outcome = outcome;
-    });
-
-    this.currentPlayer$.subscribe((player) => {
-      this.currentPlayer = player;
-    });
-
-    this.gameMode$.subscribe((gameMode) => {
-      this.gameMode = gameMode;
-    });
-
-    this.gameDifficulty$.subscribe((gameDifficulty) => {
-      this.gameDifficulty = gameDifficulty;
-    });
-
-    this.gameBoard$.subscribe((gameBoard) => {
-      this.gameBoard = gameBoard;
-    });
-
-    this.store.dispatch(startGame({ gameMode: this.gameMode }));
+    this.store.dispatch(startGame({ gameMode: GameModeEnum.TwoPlayer }));
   }
 
   // Clicking a square triggers a move
   // If the game is over, clicking a square should start a new game
   //  and switch the player
   squareClick(position: number) {
-    if (this.outcome !== OutcomeEnum.None) {
-      this.store.dispatch(startGame({ gameMode: this.gameMode }));
-      this.store.dispatch(switchPlayer());
-    } else {
-      this.attemptMove(position);
-    }
+    this.outcome$
+      .pipe(withLatestFrom(this.gameMode$), take(1))
+      .subscribe(([outcome, gameMode]) => {
+        if (outcome !== OutcomeEnum.None) {
+          this.store.dispatch(startGame({ gameMode }));
+          this.store.dispatch(switchPlayer());
+        } else {
+          this.attemptMove(position);
+        }
+      });
   }
 
   attemptMove(position: number) {
-    if (this.gameBoard[position].gamePiece !== '') {
-      return;
-    }
-
-    this.store.dispatch(RoundActions.makeHumanMove({ position }));
+    this.gameBoard$.pipe(take(1)).subscribe((gameBoard) => {
+      if (gameBoard[position].gamePiece !== '') {
+        return;
+      }
+      this.store.dispatch(RoundActions.makeHumanMove({ position }));
+    });
   }
 
   gameModeClick() {
@@ -200,6 +135,8 @@ export class GameBoardComponent implements OnInit {
 
   startNewGame() {
     this.resetGame();
-    this.store.dispatch(startGame({ gameMode: this.gameMode }));
+    this.gameMode$.pipe(take(1)).subscribe((gameMode) => {
+      this.store.dispatch(startGame({ gameMode }));
+    });
   }
 }

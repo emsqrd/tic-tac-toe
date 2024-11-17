@@ -3,7 +3,11 @@ import { provideMockStore, MockStore } from '@ngrx/store/testing';
 import { GameBoardComponent } from './game-board.component';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
-import { selectDraws } from '../../store/game/game.selectors';
+import {
+  selectDraws,
+  selectGameDifficulty,
+  selectGameMode,
+} from '../../store/game/game.selectors';
 import {
   resetDraws,
   startGame,
@@ -32,6 +36,7 @@ import { RoundActions } from '../../store/round/round.actions';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { Player } from '../../models/player';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
+import { take, combineLatest } from 'rxjs';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -91,147 +96,258 @@ describe('GameBoardComponent', () => {
     store.resetSelectors();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  describe('Component Creation', () => {
+    it('should create', () => {
+      expect(component).toBeTruthy();
+    });
   });
 
-  it('should dispatch makeHumanMove action when a square is clicked and there is no outcome', () => {
-    component.outcome = OutcomeEnum.None;
+  describe('Game Moves', () => {
+    it('should dispatch makeHumanMove action when a square is clicked and there is no outcome', () => {
+      store.overrideSelector(selectOutcome, OutcomeEnum.None);
+      store.refreshState();
+      fixture.detectChanges();
 
-    const squareDebugElement: DebugElement = fixture.debugElement.query(
-      By.css('t3-square')
-    );
+      const squareDebugElement: DebugElement = fixture.debugElement.query(
+        By.css('t3-square')
+      );
 
-    squareDebugElement.triggerEventHandler('click', null);
+      squareDebugElement.triggerEventHandler('click', null);
 
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      RoundActions.makeHumanMove({ position: 0 })
-    );
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        RoundActions.makeHumanMove({ position: 0 })
+      );
+    });
+
+    it('should not dispatch makeHumanMove action when a square is clicked that is already taken', () => {
+      const position = 0;
+      const squareTakenMock = Array(9).fill({ gamePiece: '', isWinner: false });
+      squareTakenMock[position].gamePiece = currentPlayerMock.piece;
+
+      store.overrideSelector(selectOutcome, OutcomeEnum.None);
+      store.overrideSelector(selectGameBoard, squareTakenMock);
+      store.refreshState();
+      fixture.detectChanges();
+
+      component.squareClick(position);
+
+      expect(dispatchSpy).not.toHaveBeenCalledWith(
+        RoundActions.makeHumanMove({ position: position })
+      );
+    });
+
+    it('should dispatch startGame and switchPlayer actions when a square is clicked and the outcome is not None', () => {
+      store.overrideSelector(selectOutcome, OutcomeEnum.Win);
+      store.refreshState();
+      fixture.detectChanges();
+
+      const squareDebugElement: DebugElement = fixture.debugElement.query(
+        By.css('t3-square')
+      );
+      squareDebugElement.triggerEventHandler('click', null);
+
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        startGame({ gameMode: initialGameStateMock.gameMode })
+      );
+      expect(dispatchSpy).toHaveBeenCalledWith(switchPlayer());
+    });
   });
 
-  it('should not dispatch makeHumanMove action when a square is clicked that is already taken', () => {
-    // Mock a game board with first square already taken
-    const position = 0;
-    const squareTakenMock = Array(9).fill({ gamePiece: '', isWinner: false });
+  describe('Game Outcome', () => {
+    it('should return true when the outcome is a draw', (done) => {
+      store.overrideSelector(selectOutcome, OutcomeEnum.Draw);
+      fixture.detectChanges();
 
-    squareTakenMock[position].gamePiece = currentPlayerMock.piece;
-    component.outcome = OutcomeEnum.None;
+      component.isDraw$.subscribe((isDraw) => {
+        expect(isDraw).toBeTrue();
+        done();
+      });
+    });
 
-    // Override selector with mock game board
-    store.overrideSelector(selectGameBoard, squareTakenMock);
+    it('should return false when the outcome is not a draw', (done) => {
+      store.overrideSelector(selectOutcome, OutcomeEnum.Win);
+      fixture.detectChanges();
 
-    // todo: should I be selecting the game board somewhere else?
-    // Reinitialize component to pick up new selector value
-    component.ngOnInit();
-    fixture.detectChanges();
+      component.isDraw$.subscribe((isDraw) => {
+        expect(isDraw).toBeFalse();
+        done();
+      });
+    });
 
-    // Attempt move on first square
-    component.squareClick(position);
+    it('should detect a winner when there are winning squares', (done) => {
+      const boardWithWinner = Array(9).fill({ gamePiece: '', isWinner: false });
+      boardWithWinner[0] = { gamePiece: 'X', isWinner: true };
+      boardWithWinner[1] = { gamePiece: 'X', isWinner: true };
+      boardWithWinner[2] = { gamePiece: 'X', isWinner: true };
 
-    expect(dispatchSpy).not.toHaveBeenCalledWith(
-      RoundActions.makeHumanMove({ position: position })
-    );
+      store.overrideSelector(selectGameBoard, boardWithWinner);
+      fixture.detectChanges();
+
+      component.hasWinner$.subscribe((hasWinner) => {
+        expect(hasWinner).toBeTrue();
+        done();
+      });
+    });
   });
 
-  it('should dispatch startGame and swtichPlayer actions when a square is clicked and the outcome is not None', () => {
-    component.outcome = OutcomeEnum.Win;
+  describe('Game Mode', () => {
+    it('should switch the game mode and start a new game when game mode button is clicked', () => {
+      store.overrideSelector(selectGameMode, GameModeEnum.TwoPlayer);
+      fixture.detectChanges();
 
-    const squareDebugElement: DebugElement = fixture.debugElement.query(
-      By.css('t3-square')
-    );
-    squareDebugElement.triggerEventHandler('click', null);
+      const gameModeButtonDebugElement: DebugElement =
+        fixture.debugElement.query(By.css('#btnGameMode'));
+      gameModeButtonDebugElement.triggerEventHandler('click', null);
 
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      startGame({ gameMode: initialGameStateMock.gameMode })
-    );
-    expect(dispatchSpy).toHaveBeenCalledWith(switchPlayer());
+      expect(dispatchSpy).toHaveBeenCalledWith(switchGameMode());
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        startGame({ gameMode: initialGameStateMock.gameMode })
+      );
+    });
+
+    it('should display Two Player text when game mode is Two Player', (done) => {
+      store.overrideSelector(selectGameMode, GameModeEnum.TwoPlayer);
+      store.refreshState();
+      fixture.detectChanges();
+
+      component.gameModeButtonText$.pipe(take(1)).subscribe((text) => {
+        expect(text).toBe(GameModeEnum.TwoPlayer.valueOf());
+        done();
+      });
+    });
+
+    it('should display Single Player text when game mode is Single Player', (done) => {
+      store.overrideSelector(selectGameMode, GameModeEnum.SinglePlayer);
+      store.refreshState();
+      fixture.detectChanges();
+
+      component.gameModeButtonText$.pipe(take(1)).subscribe((text) => {
+        expect(text).toBe(GameModeEnum.SinglePlayer.valueOf());
+        done();
+      });
+    });
   });
 
-  it('should return true when the outcome is a draw', () => {
-    component.outcome = OutcomeEnum.Draw;
-    expect(component.isDraw).toBeTrue();
+  describe('Game Difficulty', () => {
+    it('should switch the game difficulty and start a new game when game difficulty button is clicked', () => {
+      store.overrideSelector(selectGameMode, GameModeEnum.SinglePlayer);
+      store.overrideSelector(selectGameDifficulty, GameDifficultyEnum.Easy);
+      store.refreshState();
+      fixture.detectChanges();
+
+      const gameDifficultyButtonDebugElement: DebugElement =
+        fixture.debugElement.query(By.css('#btnGameDifficulty'));
+      gameDifficultyButtonDebugElement.triggerEventHandler('click', null);
+
+      expect(dispatchSpy).toHaveBeenCalledWith(switchGameDifficulty());
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        startGame({ gameMode: initialGameStateMock.gameMode })
+      );
+    });
+
+    it('should display the switch difficulty button when the game mode is single player', (done) => {
+      store.overrideSelector(selectGameMode, GameModeEnum.SinglePlayer);
+      fixture.detectChanges();
+
+      component.showDifficultyButton$.subscribe((show) => {
+        expect(show).toBeTrue();
+        done();
+      });
+    });
+
+    it('should not display the switch difficulty button when the game mode is two player', (done) => {
+      store.overrideSelector(selectGameMode, GameModeEnum.TwoPlayer);
+      fixture.detectChanges();
+
+      component.showDifficultyButton$.subscribe((show) => {
+        expect(show).toBeFalse();
+        done();
+      });
+    });
+
+    it('should display the correct game difficulty button text', (done) => {
+      store.overrideSelector(selectGameDifficulty, GameDifficultyEnum.Easy);
+      fixture.detectChanges();
+
+      component.gameDifficultyButtonText$.subscribe((text) => {
+        expect(text).toBe(GameDifficultyEnum.Easy.valueOf());
+        done();
+      });
+    });
   });
 
-  it('should return false when the outcome is not a draw', () => {
-    component.outcome = OutcomeEnum.Win;
-    expect(component.isDraw).toBeFalse();
+  describe('Game Reset and New Game', () => {
+    it('should reset players and draw count when resetGame is called', () => {
+      component.resetGame();
+
+      expect(dispatchSpy).toHaveBeenCalledWith(resetPlayers());
+      expect(dispatchSpy).toHaveBeenCalledWith(resetDraws());
+    });
+
+    it('should reset the game and start a new game when startNewGame is called', () => {
+      store.overrideSelector(selectGameMode, GameModeEnum.TwoPlayer);
+      store.refreshState();
+      fixture.detectChanges();
+
+      spyOn(component, 'resetGame').and.callThrough();
+      component.startNewGame();
+
+      expect(component.resetGame).toHaveBeenCalled();
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        startGame({ gameMode: GameModeEnum.TwoPlayer })
+      );
+    });
   });
 
-  it('should switch the game mode and start a new game when game mode button is clicked', () => {
-    const gameModeButtonDebugElement: DebugElement = fixture.debugElement.query(
-      By.css('#btnGameMode')
-    );
-    gameModeButtonDebugElement.triggerEventHandler('click', null);
-
-    expect(dispatchSpy).toHaveBeenCalledWith(switchGameMode());
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      startGame({ gameMode: component.gameMode })
-    );
+  describe('UI Elements', () => {
+    it('should not show the coming soon message', (done) => {
+      component.showComingSoon$.subscribe((show) => {
+        expect(show).toBeFalse();
+        done();
+      });
+    });
   });
 
-  it('should display the switch difficulty button when the game mode is single player', () => {
-    component.gameMode = GameModeEnum.SinglePlayer;
-    fixture.detectChanges();
+  describe('Winning Line Calculations', () => {
+    it('should calculate correct line coordinates for horizontal win', (done) => {
+      const boardWithHorizontalWin = Array(9).fill({
+        gamePiece: '',
+        isWinner: false,
+      });
+      boardWithHorizontalWin[0] = { gamePiece: 'X', isWinner: true };
+      boardWithHorizontalWin[1] = { gamePiece: 'X', isWinner: true };
+      boardWithHorizontalWin[2] = { gamePiece: 'X', isWinner: true };
 
-    const gameDifficultyButtonDebugElement: DebugElement =
-      fixture.debugElement.query(By.css('#btnGameDifficulty'));
+      store.overrideSelector(selectGameBoard, boardWithHorizontalWin);
+      store.refreshState();
+      fixture.detectChanges();
 
-    expect(gameDifficultyButtonDebugElement).toBeTruthy();
-  });
+      combineLatest([
+        component.lineStart$.pipe(take(1)),
+        component.lineEnd$.pipe(take(1)),
+      ]).subscribe(([start, end]) => {
+        expect(start).toEqual({ x: 0, y: 50 });
+        expect(end).toEqual({ x: 300, y: 50 });
+        done();
+      });
+    });
 
-  it('should not display the switch difficulty button when the game mode is two player', () => {
-    component.gameMode = GameModeEnum.TwoPlayer;
-    fixture.detectChanges();
+    it('should calculate winning pattern correctly', (done) => {
+      const boardWithDiagonalWin = Array(9).fill({
+        gamePiece: '',
+        isWinner: false,
+      });
+      boardWithDiagonalWin[0] = { gamePiece: 'X', isWinner: true };
+      boardWithDiagonalWin[4] = { gamePiece: 'X', isWinner: true };
+      boardWithDiagonalWin[8] = { gamePiece: 'X', isWinner: true };
 
-    const gameDifficultyButtonDebugElement: DebugElement =
-      fixture.debugElement.query(By.css('#btnGameDifficulty'));
+      store.overrideSelector(selectGameBoard, boardWithDiagonalWin);
+      fixture.detectChanges();
 
-    expect(gameDifficultyButtonDebugElement).toBeFalsy();
-  });
-
-  it('should switch the game difficulty and start a new game when game difficulty button is clicked', () => {
-    component.gameMode = GameModeEnum.SinglePlayer;
-    fixture.detectChanges();
-
-    const gameDifficultyButtonDebugElement: DebugElement =
-      fixture.debugElement.query(By.css('#btnGameDifficulty'));
-    gameDifficultyButtonDebugElement.triggerEventHandler('click', null);
-
-    expect(dispatchSpy).toHaveBeenCalledWith(switchGameDifficulty());
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      startGame({ gameMode: component.gameMode })
-    );
-  });
-
-  it('should reset players and draw count when resetGame is called', () => {
-    component.resetGame();
-
-    expect(dispatchSpy).toHaveBeenCalledWith(resetPlayers());
-    expect(dispatchSpy).toHaveBeenCalledWith(resetDraws());
-  });
-
-  it('should reset the game and start a new game when startNewGame is called', () => {
-    spyOn(component, 'resetGame').and.callThrough();
-
-    component.startNewGame();
-
-    expect(component.resetGame).toHaveBeenCalled();
-    expect(dispatchSpy).toHaveBeenCalledWith(
-      startGame({ gameMode: component.gameMode })
-    );
-  });
-
-  it('should not show the coming soon message', () => {
-    expect(component.showComingSoon).toBeFalse();
-  });
-
-  it('should display the correct game mode button text', () => {
-    component.gameMode = GameModeEnum.TwoPlayer;
-    expect(component.gameModeButtonText).toBe(GameModeEnum.TwoPlayer.valueOf());
-
-    component.gameMode = GameModeEnum.SinglePlayer;
-    expect(component.gameModeButtonText).toBe(
-      GameModeEnum.SinglePlayer.valueOf()
-    );
+      component.winningPattern$.subscribe((pattern) => {
+        expect(pattern).toBe('diagonal');
+        done();
+      });
+    });
   });
 });
