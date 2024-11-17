@@ -139,21 +139,4 @@ describe('ScoringComponent', () => {
     component.outcome = OutcomeEnum.Draw;
     expect(component.isDraw).toBeTrue();
   });
-
-  it('should return true for player1Wins when current player is player1 and outcome is Win', () => {
-    component.currentPlayer = currentPlayerMock;
-    component.outcome = OutcomeEnum.Win;
-    expect(component.player1Wins).toBeTrue();
-  });
-
-  it('should return true for player2Wins when current player is player2 and outcome is Win', () => {
-    component.currentPlayer = {
-      name: 'Player 2',
-      piece: 'O',
-      wins: 0,
-      isCpu: false,
-    };
-    component.outcome = OutcomeEnum.Win;
-    expect(component.player2Wins).toBeTrue();
-  });
 });

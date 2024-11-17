@@ -22,13 +22,13 @@ describe('SquareComponent', () => {
 
   it('should display the game piece when a move is made', () => {
     const gamePieceDiv =
-      fixture.debugElement.nativeElement.querySelector('#gamePiece');
+      fixture.debugElement.nativeElement.querySelector('.square');
 
     component.gamePiece = 'X';
 
     fixture.detectChanges();
 
-    expect(gamePieceDiv.innerHTML).toBe('X');
+    expect(gamePieceDiv).toHaveClass('x');
   });
 
   it('should apply the win css class when the square is a winning square', () => {

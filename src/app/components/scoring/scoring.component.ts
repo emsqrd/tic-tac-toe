@@ -52,20 +52,6 @@ export class ScoringComponent {
     return this.outcome === OutcomeEnum.Draw;
   }
 
-  get player1Wins() {
-    return (
-      this.currentPlayer.name === this.player1.name &&
-      this.outcome === OutcomeEnum.Win
-    );
-  }
-
-  get player2Wins() {
-    return (
-      this.currentPlayer.name === this.player2.name &&
-      this.outcome === OutcomeEnum.Win
-    );
-  }
-
   constructor(private store: Store) {
     this.players$ = store.select(selectPlayers);
     this.currentPlayer$ = store.select(selectCurrentPlayer);

@@ -1,3 +1,23 @@
 <div id="squareContainer" [ngClass]="{ win: isWinner }">
-  <div id="gamePiece">{{ gamePiece }}</div>
+  <!-- Grid lines -->
+  @if (displayGrideLines) {
+  <svg class="grid-lines" viewBox="-50 -50 100 100">
+    <line class="grid-line vertical" x1="0" y1="-50" x2="0" y2="50" />
+    <line class="grid-line horizontal" x1="-50" y1="0" x2="50" y2="0" />
+    <line class="grid-line diagonal" x1="-50" y1="-50" x2="50" y2="50" />
+    <line class="grid-line antiDiagonal" x1="50" y1="-50" x2="-50" y2="50" />
+  </svg>
+  }
+  <div class="square" [class]="gamePiece?.toLowerCase() || ''">
+    @if(displayXPiece) {
+    <svg viewBox="-50 -50 100 100">
+      <line class="x-line-left" x1="-35" y1="-35" x2="35" y2="35" />
+      <line class="x-line-right" x1="35" y1="-35" x2="-35" y2="35" />
+    </svg>
+    } @else if(displayOPiece) {
+    <svg viewBox="-50 -50 100 100">
+      <circle cx="0" cy="0" r="40" class="animated-circle" />
+    </svg>
+    }
+  </div>
 </div>

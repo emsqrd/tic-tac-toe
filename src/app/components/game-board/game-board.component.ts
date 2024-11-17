@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
@@ -16,9 +16,7 @@ import {
 } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
-import { Player } from '../../models/player';
 import { selectCurrentPlayer } from '../../store/player/player.selectors';
-import { Square } from '../../models/square';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import {
   selectGameBoard,
@@ -26,7 +24,8 @@ import {
   selectProcessingMove,
 } from '../../store/round/round.selectors';
 import { RoundActions } from '../../store/round/round.actions';
-import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
+import { map, withLatestFrom, take } from 'rxjs/operators';
+import { LineCalculatorService } from '../../services/line-calculator.service';
 
 @Component({
   selector: 't3-game-board',
@@ -36,91 +35,87 @@ import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
   styleUrl: './game-board.component.scss',
 })
 export class GameBoardComponent implements OnInit {
-  gameBoard$: Observable<Square[]>;
-  outcome$: Observable<OutcomeEnum>;
-  currentPlayer$: Observable<Player>;
-  gameMode$: Observable<GameModeEnum>;
-  processingMove$: Observable<boolean>;
-  gameDifficulty$: Observable<GameDifficultyEnum>;
+  private readonly store = inject(Store);
+  private readonly lineCalculator = inject(LineCalculatorService);
 
-  gameBoard!: Square[];
-  outcome!: OutcomeEnum;
-  currentPlayer!: Player;
-  gameMode!: GameModeEnum;
-  gameDifficulty!: GameDifficultyEnum;
+  readonly gameBoard$ = this.store.select(selectGameBoard);
+  readonly outcome$ = this.store.select(selectOutcome);
+  readonly currentPlayer$ = this.store.select(selectCurrentPlayer);
+  readonly gameMode$ = this.store.select(selectGameMode);
+  readonly processingMove$ = this.store.select(selectProcessingMove);
+  readonly gameDifficulty$ = this.store.select(selectGameDifficulty);
 
-  constructor(private store: Store) {
-    this.gameBoard$ = store.select(selectGameBoard);
-    this.outcome$ = store.select(selectOutcome);
-    this.currentPlayer$ = store.select(selectCurrentPlayer);
-    this.gameMode$ = store.select(selectGameMode);
-    this.processingMove$ = store.select(selectProcessingMove);
-    this.gameDifficulty$ = store.select(selectGameDifficulty);
-  }
+  readonly isDraw$ = this.outcome$.pipe(
+    map((outcome) => outcome === OutcomeEnum.Draw)
+  );
 
-  get isDraw() {
-    return this.outcome === OutcomeEnum.Draw;
-  }
+  readonly hasWinner$ = this.gameBoard$.pipe(
+    map((board) => board?.some((square) => square.isWinner) || false)
+  );
 
-  get gameModeButtonText() {
-    return this.gameMode.valueOf();
-  }
+  readonly winningPattern$ = this.gameBoard$.pipe(
+    map((board) => this.lineCalculator.calculateWinningPattern(board))
+  );
 
-  get gameDifficultyButtonText() {
-    return this.gameDifficulty.valueOf();
-  }
+  readonly lineStart$ = this.gameBoard$.pipe(
+    withLatestFrom(this.winningPattern$),
+    map(([board, pattern]) =>
+      this.lineCalculator.calculateLineStart(board, pattern)
+    )
+  );
 
-  get showDifficultyButton() {
-    return this.gameMode === GameModeEnum.SinglePlayer;
-  }
+  readonly lineEnd$ = this.gameBoard$.pipe(
+    withLatestFrom(this.winningPattern$, this.lineStart$),
+    map(([board, pattern, start]) =>
+      this.lineCalculator.calculateLineEnd(pattern, start)
+    )
+  );
 
-  get showComingSoon() {
-    return false;
-  }
+  readonly gameModeButtonText$ = this.gameMode$.pipe(
+    map((mode) => mode.valueOf())
+  );
 
-  // Start the game when the component is initialized
+  readonly gameDifficultyButtonText$ = this.gameDifficulty$.pipe(
+    map((difficulty) => difficulty.valueOf())
+  );
+
+  readonly showDifficultyButton$ = this.gameMode$.pipe(
+    map((mode) => mode === GameModeEnum.SinglePlayer)
+  );
+
+  readonly showComingSoon$ = new Observable<boolean>((subscriber) =>
+    subscriber.next(false)
+  );
+
+  constructor() {}
+
   ngOnInit(): void {
-    this.outcome$.subscribe((outcome) => {
-      this.outcome = outcome;
-    });
-
-    this.currentPlayer$.subscribe((player) => {
-      this.currentPlayer = player;
-    });
-
-    this.gameMode$.subscribe((gameMode) => {
-      this.gameMode = gameMode;
-    });
-
-    this.gameDifficulty$.subscribe((gameDifficulty) => {
-      this.gameDifficulty = gameDifficulty;
-    });
-
-    this.gameBoard$.subscribe((gameBoard) => {
-      this.gameBoard = gameBoard;
-    });
-
-    this.store.dispatch(startGame({ gameMode: this.gameMode }));
+    this.store.dispatch(startGame({ gameMode: GameModeEnum.TwoPlayer }));
   }
 
   // Clicking a square triggers a move
   // If the game is over, clicking a square should start a new game
   //  and switch the player
   squareClick(position: number) {
-    if (this.outcome !== OutcomeEnum.None) {
-      this.store.dispatch(startGame({ gameMode: this.gameMode }));
-      this.store.dispatch(switchPlayer());
-    } else {
-      this.attemptMove(position);
-    }
+    this.outcome$
+      .pipe(withLatestFrom(this.gameMode$), take(1))
+      .subscribe(([outcome, gameMode]) => {
+        if (outcome !== OutcomeEnum.None) {
+          this.store.dispatch(startGame({ gameMode }));
+          this.store.dispatch(switchPlayer());
+        } else {
+          this.attemptMove(position);
+        }
+      });
   }
 
   attemptMove(position: number) {
-    if (this.gameBoard[position].gamePiece !== '') {
-      return;
-    }
-
-    this.store.dispatch(RoundActions.makeHumanMove({ position }));
+    this.gameBoard$.pipe(take(1)).subscribe((gameBoard) => {
+      if (gameBoard[position].gamePiece !== '') {
+        return;
+      }
+      this.store.dispatch(RoundActions.makeHumanMove({ position }));
+    });
   }
 
   gameModeClick() {
@@ -140,6 +135,8 @@ export class GameBoardComponent implements OnInit {
 
   startNewGame() {
     this.resetGame();
-    this.store.dispatch(startGame({ gameMode: this.gameMode }));
+    this.gameMode$.pipe(take(1)).subscribe((gameMode) => {
+      this.store.dispatch(startGame({ gameMode }));
+    });
   }
 }
