@@ -13,10 +13,10 @@ export class GameService {
   } as const;
 
   private readonly SCORES = {
-    WIN: 10,
+    WIN: 1000, // Heavily weight winning
     DRAW: 0,
-    FORK: 8,
-    BLOCK_FORK: 7,
+    POSITION: 10, // Small bonus for good positions
+    DEPTH: 1, // Tiny bonus for winning sooner
   } as const;
 
   private readonly BOARD_SIZE = 9;
@@ -68,6 +68,7 @@ export class GameService {
     return outcome;
   }
 
+  // Used for easy mode and general random moves
   getRandomEmptySquare(gameBoard: Square[]): number {
     const emptySquares: number[] = [];
     gameBoard.forEach((square, index) => {
@@ -107,6 +108,7 @@ export class GameService {
     try {
       const emptyCells = this.getEmptySquares(gameBoard);
 
+      // Take the center if available
       if (
         emptyCells.length === this.BOARD_SIZE ||
         (emptyCells.length === this.BOARD_SIZE - 1 &&
@@ -115,6 +117,7 @@ export class GameService {
         return 4;
       }
 
+      // Make winning move or block human winning move
       const immediateMove = this.findImmediateMoves(gameBoard);
       if (immediateMove !== -1) return immediateMove;
 
@@ -132,24 +135,28 @@ export class GameService {
     }, []);
   }
 
+  // Check winning move first, then blocking move
+  private findImmediateMoves(gameBoard: Square[]): number {
+    const winningMove = this.findWinningMove(gameBoard, this.PLAYERS.CPU);
+    if (winningMove !== -1) return winningMove;
+
+    const blockingMove = this.findWinningMove(gameBoard, this.PLAYERS.HUMAN);
+    if (blockingMove !== -1) return blockingMove;
+
+    return -1;
+  }
+
   private findBestMove(gameBoard: Square[]): number {
     let bestScore = -Infinity;
     let bestMove = -1;
-
     const emptySquares = this.getEmptySquares(gameBoard);
+    const depth = emptySquares.length;
 
     for (const position of emptySquares) {
       const boardCopy = this.copyBoard(gameBoard);
       boardCopy[position].gamePiece = this.PLAYERS.CPU;
 
-      const boardKey = this.getBoardKey(boardCopy);
-
-      let score = this.memoizedStates.get(boardKey);
-
-      if (score === undefined) {
-        score = this.minimax(boardCopy, false, -Infinity, Infinity);
-        this.memoizedStates.set(boardKey, score);
-      }
+      const score = this.minimax(boardCopy, false, -Infinity, Infinity, depth);
 
       if (score > bestScore) {
         bestScore = score;
@@ -164,42 +171,47 @@ export class GameService {
     board: Square[],
     isMaximizing: boolean,
     alpha: number,
-    beta: number
+    beta: number,
+    depth: number
   ): number {
     const boardKey = this.getBoardKey(board);
     const memoizedScore = this.memoizedStates.get(boardKey);
     if (memoizedScore !== undefined) return memoizedScore;
 
     const winner = this.calculateWinner(board);
-    if (winner) return isMaximizing ? -this.SCORES.WIN : this.SCORES.WIN;
+    if (winner) {
+      return (
+        (isMaximizing ? -1 : 1) * (this.SCORES.WIN + depth * this.SCORES.DEPTH)
+      );
+    }
 
     const emptySquares = this.getEmptySquares(board);
     if (emptySquares.length === 0) return this.SCORES.DRAW;
 
     const currentPlayer = isMaximizing ? this.PLAYERS.CPU : this.PLAYERS.HUMAN;
-
-    if (this.hasForkOpportunity(board, currentPlayer)) {
-      const score = isMaximizing ? this.SCORES.FORK : -this.SCORES.FORK;
-      this.memoizedStates.set(boardKey, score);
-      return score;
-    }
-
     let bestScore = isMaximizing ? -Infinity : Infinity;
 
     for (const position of emptySquares) {
       board[position].gamePiece = currentPlayer;
-      const score = this.minimax(board, !isMaximizing, alpha, beta);
+
+      // Calculate position value
+      let positionValue = 0;
+      if (position === 4) positionValue = this.SCORES.POSITION;
+      else if ([0, 2, 6, 8].includes(position))
+        positionValue = this.SCORES.POSITION / 2;
+
+      const score =
+        this.minimax(board, !isMaximizing, alpha, beta, depth - 1) +
+        (isMaximizing ? positionValue : -positionValue);
+
       board[position].gamePiece = this.PLAYERS.EMPTY;
 
       bestScore = isMaximizing
         ? Math.max(bestScore, score)
         : Math.min(bestScore, score);
 
-      if (isMaximizing) {
-        alpha = Math.max(alpha, score);
-      } else {
-        beta = Math.min(beta, score);
-      }
+      if (isMaximizing) alpha = Math.max(alpha, score);
+      else beta = Math.min(beta, score);
 
       if (beta <= alpha) break;
     }
@@ -209,7 +221,7 @@ export class GameService {
   }
 
   private getBoardKey(board: Square[]): string {
-    return board.map((square) => square.gamePiece).join('-');
+    return board.map((square) => square.gamePiece || '-').join('');
   }
 
   private clearMemoizedStates(): void {
@@ -241,7 +253,6 @@ export class GameService {
     return -1;
   }
 
-  // todo: it feels like this isn't always finding the winning move
   findWinningMove(gameBoard: Square[], gamePiece: string): number {
     for (const pattern of this.winConditions) {
       const [a, b, c] = pattern;
@@ -260,51 +271,5 @@ export class GameService {
     }
 
     return -1;
-  }
-
-  private findImmediateMoves(gameBoard: Square[]): number {
-    // Check winning move first, then blocking move
-    const winningMove = this.findWinningMove(gameBoard, this.PLAYERS.CPU);
-    if (winningMove !== -1) return winningMove;
-
-    const blockingMove = this.findWinningMove(gameBoard, this.PLAYERS.HUMAN);
-    if (blockingMove !== -1) return blockingMove;
-
-    return -1;
-  }
-
-  private hasForkOpportunity(board: Square[], player: string): boolean {
-    const emptyPositions = this.getEmptySquares(board);
-
-    for (const position of emptyPositions) {
-      const testBoard = this.copyBoard(board);
-      testBoard[position].gamePiece = player;
-
-      let winningThreats = 0;
-
-      // Count how many winning threats this position creates
-      for (const [a, b, c] of this.winConditions) {
-        const line = [
-          testBoard[a].gamePiece,
-          testBoard[b].gamePiece,
-          testBoard[c].gamePiece,
-        ];
-
-        // A winning threat must have two of our pieces and one empty space
-        if (
-          line.filter((p) => p === player).length === 2 &&
-          line.filter((p) => p === this.PLAYERS.EMPTY).length === 1
-        ) {
-          winningThreats++;
-        }
-      }
-
-      // A fork requires at least two winning threats
-      if (winningThreats >= 2) {
-        return true;
-      }
-    }
-
-    return false;
   }
 }
