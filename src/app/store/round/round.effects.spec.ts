@@ -295,7 +295,7 @@ describe('RoundEffects', () => {
     });
   });
 
-  it('should dispatch updatePlayerWins action if the round ended with a Win outcome', (done) => {
+  it('should dispatch updatePlayerWins and switchRoundStartingPlayerIndex actions if the round ended with a Win outcome', (done) => {
     const action = RoundActions.endRound({
       outcome: OutcomeEnum.Win,
       winningPositions: [0, 1, 2],
@@ -303,21 +303,32 @@ describe('RoundEffects', () => {
 
     actions$ = of(action);
 
-    effects.endRound$.subscribe((result) => {
-      expect(result).toEqual(updatePlayerWins());
+    const expectedActions = [
+      updatePlayerWins(),
+      RoundActions.switchRoundStartingPlayerIndex(),
+    ];
+
+    effects.endRound$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });
 
-  it('should dispatch updateDraws action if the round ended with a Draw outcome', (done) => {
+  it('should dispatch updateDraws and switchRoundStartingPlayerIndex actions if the round ended with a Draw outcome', (done) => {
     const action = RoundActions.endRound({
       outcome: OutcomeEnum.Draw,
       winningPositions: null,
     });
+
     actions$ = of(action);
 
-    effects.endRound$.subscribe((result) => {
-      expect(result).toEqual(updateDraws());
+    const expectedActions = [
+      updateDraws(),
+      RoundActions.switchRoundStartingPlayerIndex(),
+    ];
+
+    effects.endRound$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });

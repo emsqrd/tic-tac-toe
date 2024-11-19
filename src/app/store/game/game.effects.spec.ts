@@ -13,6 +13,7 @@ import { GameModeEnum } from '../../enums/game-mode.enum';
 import { selectGameMode } from './game.selectors';
 import { RoundActions } from '../round/round.actions';
 import { RoundState } from '../round/round.reducer';
+import { getInitialRoundStateMock } from '../mocks/round-mocks';
 
 describe('GameEffects', () => {
   let actions$: Observable<any>;
@@ -25,6 +26,7 @@ describe('GameEffects', () => {
   beforeEach(() => {
     initialGameStateMock = getInitialGameStateMock();
     initialPlayerStateMock = getInitialPlayerStateMock();
+    initialRoundStateMock = getInitialRoundStateMock();
 
     TestBed.configureTestingModule({
       providers: [

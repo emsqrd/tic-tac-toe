@@ -95,10 +95,6 @@ export class GameBoardComponent implements OnInit {
 
   ngOnInit(): void {
     this.store.dispatch(startGame({ gameMode: GameModeEnum.TwoPlayer }));
-
-    this.currentPlayer$.subscribe((player) => {
-      console.log(player);
-    });
   }
 
   // Clicking a square triggers a move
