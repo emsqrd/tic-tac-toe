@@ -13,7 +13,11 @@ import { getInitialPlayerStateMock } from '../mocks/player-mocks';
 import { getInitialRoundStateMock } from '../mocks/round-mocks';
 import { RoundActions } from './round.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { switchPlayer, updatePlayerWins } from '../player/player.actions';
+import {
+  setCurrentPlayer,
+  switchPlayer,
+  updatePlayerWins,
+} from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
 import { selectGameBoard } from './round.selectors';
 import { selectCurrentPlayer } from '../player/player.selectors';
@@ -342,6 +346,22 @@ describe('RoundEffects', () => {
 
     effects.endRound$.subscribe((result) => {
       expect(result).toEqual(RoundActions.switchRoundStartingPlayerIndex());
+      done();
+    });
+  });
+
+  it('should dispatch setCurrentPlayer when starting a new round', (done) => {
+    const startingPlayerIndex = 1;
+    const action = RoundActions.startRound({ startingPlayerIndex });
+
+    actions$ = of(action);
+
+    const expectedActions = [
+      setCurrentPlayer({ currentPlayerIndex: startingPlayerIndex }),
+    ];
+
+    effects.startRound$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });

@@ -110,7 +110,6 @@ export class GameBoardComponent implements OnInit {
               startingPlayerIndex: roundStartingPlayerIndex,
             })
           );
-          // this.store.dispatch(switchPlayer());
         } else {
           this.attemptMove(position);
         }

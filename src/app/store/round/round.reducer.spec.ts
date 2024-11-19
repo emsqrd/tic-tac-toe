@@ -82,4 +82,13 @@ describe('Round Reducer', () => {
 
     expect(state.gameBoard[0].gamePiece).toBe(piece);
   });
+
+  it('should swith the round starting player index', () => {
+    const state = roundReducer(
+      initialRoundStateMock,
+      RoundActions.switchRoundStartingPlayerIndex()
+    );
+
+    expect(state.roundStartingPlayerIndex).toBe(1);
+  });
 });

@@ -20,7 +20,6 @@ export class PlayerEffects {
       ofType(switchPlayer),
       withLatestFrom(this.store.select(selectCurrentPlayer)),
       switchMap(([_, currentPlayer]) => {
-        console.log(`switching player: ${currentPlayer.name}`);
         if (currentPlayer.isCpu) {
           return of(RoundActions.makeCPUMove());
         } else {
