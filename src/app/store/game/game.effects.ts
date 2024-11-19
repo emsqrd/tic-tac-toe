@@ -10,6 +10,7 @@ import { PlayerState } from '../player/player.reducer';
 import { selectPlayers } from '../player/player.selectors';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { RoundActions } from '../round/round.actions';
+import { selectRoundStartingPlayerIndex } from '../round/round.selectors';
 
 @Injectable()
 export class GameEffects {
@@ -23,9 +24,10 @@ export class GameEffects {
       ofType(startGame),
       withLatestFrom(
         this.store.select(selectGameMode),
-        this.store.select(selectPlayers)
+        this.store.select(selectPlayers),
+        this.store.select(selectRoundStartingPlayerIndex)
       ),
-      concatMap(([_, gameMode, players]) => {
+      concatMap(([_, gameMode, players, roundStartingPlayerIndex]) => {
         // Create an array to hold actions so they can be chained together
         let actions = [];
 
@@ -33,7 +35,11 @@ export class GameEffects {
           actions.push(setCpuPlayer({ gamePiece: players[1].piece }));
         }
 
-        actions.push(RoundActions.startRound());
+        actions.push(
+          RoundActions.startRound({
+            startingPlayerIndex: roundStartingPlayerIndex,
+          })
+        );
 
         return of(...actions);
       })

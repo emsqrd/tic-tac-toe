@@ -350,4 +350,35 @@ describe('GameBoardComponent', () => {
       });
     });
   });
+
+  describe('Turn switching', () => {
+    fit('should switch to player O after O wins when X started the game', (done) => {
+      // Initial game start
+      store.dispatch(startGame({ gameMode: GameModeEnum.TwoPlayer }));
+
+      // Simulate O winning the game
+      const winningBoard = Array(9).fill({ gamePiece: '', isWinner: false });
+      winningBoard[0] = { gamePiece: 'X', isWinner: false };
+      winningBoard[3] = { gamePiece: 'O', isWinner: true };
+
+      winningBoard[1] = { gamePiece: 'X', isWinner: false };
+      winningBoard[4] = { gamePiece: 'O', isWinner: true };
+
+      winningBoard[6] = { gamePiece: 'X', isWinner: false };
+      winningBoard[5] = { gamePiece: 'O', isWinner: true };
+
+      store.overrideSelector(selectGameBoard, winningBoard);
+      store.overrideSelector(selectOutcome, OutcomeEnum.Win);
+      fixture.detectChanges();
+
+      // Simulate clicking a square to start new game
+      component.squareClick(4);
+
+      // Subscribe to current player to verify it switched to O
+      component.currentPlayer$.subscribe((player: Player) => {
+        expect(player.piece).toBe('O');
+        done();
+      });
+    });
+  });
 });

@@ -12,7 +12,7 @@ import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 export const RoundActions = createActionGroup({
   source: 'Round',
   events: {
-    'Start Round': emptyProps(),
+    'Start Round': props<{ startingPlayerIndex: number }>(),
     'Start Turn': emptyProps(),
     'End Turn': emptyProps(),
     'End Round': props<{
@@ -23,5 +23,6 @@ export const RoundActions = createActionGroup({
     'Set Board Position': props<{ position: number; piece: string }>(),
     'Make Human Move': props<{ position: number }>(),
     'Make CPU Move': emptyProps(),
+    'Switch Round Starting Player Index': emptyProps(),
   },
 });
