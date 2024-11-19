@@ -322,7 +322,7 @@ describe('RoundEffects', () => {
     });
   });
 
-  it('should dispatch no-op action if the round ended without an outcome', (done) => {
+  it('should dispatch switchRoundStartingPlayerIndex action if the round ended without an outcome', (done) => {
     const action = RoundActions.endRound({
       outcome: OutcomeEnum.None,
       winningPositions: null,
@@ -330,7 +330,7 @@ describe('RoundEffects', () => {
     actions$ = of(action);
 
     effects.endRound$.subscribe((result) => {
-      expect(result).toEqual({ type: 'NO_OP' });
+      expect(result).toEqual(RoundActions.switchRoundStartingPlayerIndex());
       done();
     });
   });

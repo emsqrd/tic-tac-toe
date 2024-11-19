@@ -12,6 +12,7 @@ import { getInitialPlayerStateMock } from '../mocks/player-mocks';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import { selectGameMode } from './game.selectors';
 import { RoundActions } from '../round/round.actions';
+import { RoundState } from '../round/round.reducer';
 
 describe('GameEffects', () => {
   let actions$: Observable<any>;
@@ -19,6 +20,7 @@ describe('GameEffects', () => {
   let mockStore: MockStore;
   let initialGameStateMock: GameState;
   let initialPlayerStateMock: PlayerState;
+  let initialRoundStateMock: RoundState;
 
   beforeEach(() => {
     initialGameStateMock = getInitialGameStateMock();
@@ -32,6 +34,7 @@ describe('GameEffects', () => {
           initialState: {
             game: initialGameStateMock,
             player: initialPlayerStateMock,
+            round: initialRoundStateMock,
           },
         }),
       ],
@@ -51,7 +54,11 @@ describe('GameEffects', () => {
     actions$ = of(action);
 
     effects.startGame$.subscribe((result) => {
-      expect(result).toEqual(RoundActions.startRound());
+      expect(result).toEqual(
+        RoundActions.startRound({
+          startingPlayerIndex: initialRoundStateMock.roundStartingPlayerIndex,
+        })
+      );
       done();
     });
   });
@@ -69,7 +76,9 @@ describe('GameEffects', () => {
     effects.startGame$.pipe(toArray()).subscribe((results) => {
       expect(results).toEqual([
         setCpuPlayer({ gamePiece: 'O' }),
-        RoundActions.startRound(),
+        RoundActions.startRound({
+          startingPlayerIndex: initialRoundStateMock.roundStartingPlayerIndex,
+        }),
       ]);
       done();
     });

@@ -149,7 +149,6 @@ describe('GameBoardComponent', () => {
       expect(dispatchSpy).toHaveBeenCalledWith(
         startGame({ gameMode: initialGameStateMock.gameMode })
       );
-      expect(dispatchSpy).toHaveBeenCalledWith(switchPlayer());
     });
   });
 
