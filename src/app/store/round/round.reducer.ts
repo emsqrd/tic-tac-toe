@@ -22,12 +22,11 @@ export const initialState: RoundState = {
 
 export const roundReducer = createReducer(
   initialState,
-  on(RoundActions.startRound, (state, { startingPlayerIndex }) => {
+  on(RoundActions.startRound, (state) => {
     return {
       ...state,
       gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
       outcome: OutcomeEnum.None,
-      roundStartingPlayerIndex: startingPlayerIndex,
     };
   }),
   on(RoundActions.setProcessingMove, (state, { processingMove }) => {
@@ -68,7 +67,6 @@ export const roundReducer = createReducer(
   on(RoundActions.switchRoundStartingPlayerIndex, (state) => {
     const nextroundStartingPlayerIndex =
       (state.roundStartingPlayerIndex + 1) % 2;
-
     return {
       ...state,
       roundStartingPlayerIndex: nextroundStartingPlayerIndex,

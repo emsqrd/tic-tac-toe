@@ -101,19 +101,13 @@ export class GameBoardComponent implements OnInit {
   // If the game is over, clicking a square should start a new game
   //  and switch the player
   squareClick(position: number) {
-    this.outcome$
-      .pipe(withLatestFrom(this.roundStartingPlayerIndex$), take(1))
-      .subscribe(([outcome, roundStartingPlayerIndex]) => {
-        if (outcome !== OutcomeEnum.None) {
-          this.store.dispatch(
-            RoundActions.startRound({
-              startingPlayerIndex: roundStartingPlayerIndex,
-            })
-          );
-        } else {
-          this.attemptMove(position);
-        }
-      });
+    this.outcome$.pipe(take(1)).subscribe((outcome) => {
+      if (outcome !== OutcomeEnum.None) {
+        this.store.dispatch(RoundActions.startRound());
+      } else {
+        this.attemptMove(position);
+      }
+    });
   }
 
   attemptMove(position: number) {

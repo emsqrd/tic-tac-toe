@@ -24,10 +24,9 @@ export class GameEffects {
       ofType(startGame),
       withLatestFrom(
         this.store.select(selectGameMode),
-        this.store.select(selectPlayers),
-        this.store.select(selectRoundStartingPlayerIndex)
+        this.store.select(selectPlayers)
       ),
-      concatMap(([_, gameMode, players, roundStartingPlayerIndex]) => {
+      concatMap(([_, gameMode, players]) => {
         // Create an array to hold actions so they can be chained together
         let actions = [];
 
@@ -35,11 +34,7 @@ export class GameEffects {
           actions.push(setCpuPlayer({ gamePiece: players[1].piece }));
         }
 
-        actions.push(
-          RoundActions.startRound({
-            startingPlayerIndex: roundStartingPlayerIndex,
-          })
-        );
+        actions.push(RoundActions.startRound());
 
         return of(...actions);
       })

@@ -15,7 +15,10 @@ import { RoundActions } from './round.actions';
 import { GameService } from '../../services/game.service';
 import { updateDraws } from '../game/game.actions';
 import { RoundState } from './round.reducer';
-import { selectGameBoard } from './round.selectors';
+import {
+  selectGameBoard,
+  selectRoundStartingPlayerIndex,
+} from './round.selectors';
 import { selectGameDifficulty } from '../game/game.selectors';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
@@ -38,9 +41,10 @@ export class RoundEffects {
   startRound$ = createEffect(() =>
     this.actions$.pipe(
       ofType(RoundActions.startRound),
-      switchMap((action) => {
+      withLatestFrom(this.store.select(selectRoundStartingPlayerIndex)),
+      switchMap(([_, roundStartingPlayerIndex]) => {
         return of(
-          setCurrentPlayer({ currentPlayerIndex: action.startingPlayerIndex })
+          setCurrentPlayer({ currentPlayerIndex: roundStartingPlayerIndex })
         );
       })
     )

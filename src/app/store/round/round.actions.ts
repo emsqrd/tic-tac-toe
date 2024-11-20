@@ -2,6 +2,7 @@ import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { Player } from '../../models/player';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
+import { empty } from 'rxjs';
 
 // todo: create different action groups for different types of actions
 /*
@@ -12,7 +13,7 @@ import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 export const RoundActions = createActionGroup({
   source: 'Round',
   events: {
-    'Start Round': props<{ startingPlayerIndex: number }>(),
+    'Start Round': emptyProps(),
     'Start Turn': emptyProps(),
     'End Turn': emptyProps(),
     'End Round': props<{
