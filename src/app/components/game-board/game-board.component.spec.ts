@@ -21,7 +21,7 @@ import {
   selectCurrentPlayer,
   selectPlayers,
 } from '../../store/player/player.selectors';
-import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
+import { resetPlayers } from '../../store/player/player.actions';
 import { GameState } from '../../store/game/game.reducer';
 import { PlayerState } from '../../store/player/player.reducer';
 import { getInitialPlayerStateMock } from '../../store/mocks/player-mocks';
@@ -29,7 +29,6 @@ import { getInitialGameStateMock } from '../../store/mocks/game-mocks';
 import {
   selectGameBoard,
   selectOutcome,
-  selectRoundStartingPlayerIndex,
 } from '../../store/round/round.selectors';
 import { RoundState } from '../../store/round/round.reducer';
 import { getInitialRoundStateMock } from '../../store/mocks/round-mocks';
@@ -280,6 +279,9 @@ describe('GameBoardComponent', () => {
     it('should reset players and draw count when resetGame is called', () => {
       component.resetGame();
 
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        RoundActions.resetRoundStartingPlayerIndex()
+      );
       expect(dispatchSpy).toHaveBeenCalledWith(resetPlayers());
       expect(dispatchSpy).toHaveBeenCalledWith(resetDraws());
     });

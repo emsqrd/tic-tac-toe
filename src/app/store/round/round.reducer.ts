@@ -71,5 +71,11 @@ export const roundReducer = createReducer(
       ...state,
       roundStartingPlayerIndex: nextroundStartingPlayerIndex,
     };
+  }),
+  on(RoundActions.resetRoundStartingPlayerIndex, (state) => {
+    return {
+      ...state,
+      roundStartingPlayerIndex: 0,
+    };
   })
 );

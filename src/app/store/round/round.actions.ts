@@ -25,5 +25,6 @@ export const RoundActions = createActionGroup({
     'Make Human Move': props<{ position: number }>(),
     'Make CPU Move': emptyProps(),
     'Switch Round Starting Player Index': emptyProps(),
+    'Reset Round Starting Player Index': emptyProps(),
   },
 });
