@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
 import { Observable } from 'rxjs';
-import { Store } from '@ngrx/store';
+import { Store, STORE_FEATURES } from '@ngrx/store';
 import {
   switchGameMode,
   startGame,
@@ -22,6 +22,7 @@ import {
   selectGameBoard,
   selectOutcome,
   selectProcessingMove,
+  selectRoundStartingPlayerIndex,
 } from '../../store/round/round.selectors';
 import { RoundActions } from '../../store/round/round.actions';
 import { map, withLatestFrom, take } from 'rxjs/operators';
@@ -44,6 +45,9 @@ export class GameBoardComponent implements OnInit {
   readonly gameMode$ = this.store.select(selectGameMode);
   readonly processingMove$ = this.store.select(selectProcessingMove);
   readonly gameDifficulty$ = this.store.select(selectGameDifficulty);
+  readonly roundStartingPlayerIndex$ = this.store.select(
+    selectRoundStartingPlayerIndex
+  );
 
   readonly isDraw$ = this.outcome$.pipe(
     map((outcome) => outcome === OutcomeEnum.Draw)
@@ -97,16 +101,13 @@ export class GameBoardComponent implements OnInit {
   // If the game is over, clicking a square should start a new game
   //  and switch the player
   squareClick(position: number) {
-    this.outcome$
-      .pipe(withLatestFrom(this.gameMode$), take(1))
-      .subscribe(([outcome, gameMode]) => {
-        if (outcome !== OutcomeEnum.None) {
-          this.store.dispatch(startGame({ gameMode }));
-          this.store.dispatch(switchPlayer());
-        } else {
-          this.attemptMove(position);
-        }
-      });
+    this.outcome$.pipe(take(1)).subscribe((outcome) => {
+      if (outcome !== OutcomeEnum.None) {
+        this.store.dispatch(RoundActions.startRound());
+      } else {
+        this.attemptMove(position);
+      }
+    });
   }
 
   attemptMove(position: number) {

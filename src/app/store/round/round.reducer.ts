@@ -2,6 +2,7 @@ import { createReducer, on } from '@ngrx/store';
 import { RoundActions } from './round.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { Square } from '../../models/square';
+import { Player } from '../../models/player';
 
 export const roundFeatureKey = 'round';
 
@@ -9,12 +10,14 @@ export interface RoundState {
   gameBoard: Square[];
   outcome: OutcomeEnum;
   processingMove: boolean;
+  roundStartingPlayerIndex: number;
 }
 
 export const initialState: RoundState = {
   gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
   outcome: OutcomeEnum.None,
   processingMove: false,
+  roundStartingPlayerIndex: 0,
 };
 
 export const roundReducer = createReducer(
@@ -59,6 +62,14 @@ export const roundReducer = createReducer(
       ...state,
       gameBoard: newBoard,
       outcome,
+    };
+  }),
+  on(RoundActions.switchRoundStartingPlayerIndex, (state) => {
+    const nextroundStartingPlayerIndex =
+      (state.roundStartingPlayerIndex + 1) % 2;
+    return {
+      ...state,
+      roundStartingPlayerIndex: nextroundStartingPlayerIndex,
     };
   })
 );

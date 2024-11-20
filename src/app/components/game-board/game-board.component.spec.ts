@@ -29,6 +29,7 @@ import { getInitialGameStateMock } from '../../store/mocks/game-mocks';
 import {
   selectGameBoard,
   selectOutcome,
+  selectRoundStartingPlayerIndex,
 } from '../../store/round/round.selectors';
 import { RoundState } from '../../store/round/round.reducer';
 import { getInitialRoundStateMock } from '../../store/mocks/round-mocks';
@@ -149,7 +150,6 @@ describe('GameBoardComponent', () => {
       expect(dispatchSpy).toHaveBeenCalledWith(
         startGame({ gameMode: initialGameStateMock.gameMode })
       );
-      expect(dispatchSpy).toHaveBeenCalledWith(switchPlayer());
     });
   });
 

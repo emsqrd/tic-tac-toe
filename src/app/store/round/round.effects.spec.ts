@@ -13,9 +13,16 @@ import { getInitialPlayerStateMock } from '../mocks/player-mocks';
 import { getInitialRoundStateMock } from '../mocks/round-mocks';
 import { RoundActions } from './round.actions';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { switchPlayer, updatePlayerWins } from '../player/player.actions';
+import {
+  setCurrentPlayer,
+  switchPlayer,
+  updatePlayerWins,
+} from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
-import { selectGameBoard } from './round.selectors';
+import {
+  selectGameBoard,
+  selectRoundStartingPlayerIndex,
+} from './round.selectors';
 import { selectCurrentPlayer } from '../player/player.selectors';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 import { selectGameDifficulty } from '../game/game.selectors';
@@ -295,7 +302,7 @@ describe('RoundEffects', () => {
     });
   });
 
-  it('should dispatch updatePlayerWins action if the round ended with a Win outcome', (done) => {
+  it('should dispatch updatePlayerWins and switchRoundStartingPlayerIndex actions if the round ended with a Win outcome', (done) => {
     const action = RoundActions.endRound({
       outcome: OutcomeEnum.Win,
       winningPositions: [0, 1, 2],
@@ -303,26 +310,37 @@ describe('RoundEffects', () => {
 
     actions$ = of(action);
 
-    effects.endRound$.subscribe((result) => {
-      expect(result).toEqual(updatePlayerWins());
+    const expectedActions = [
+      updatePlayerWins(),
+      RoundActions.switchRoundStartingPlayerIndex(),
+    ];
+
+    effects.endRound$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });
 
-  it('should dispatch updateDraws action if the round ended with a Draw outcome', (done) => {
+  it('should dispatch updateDraws and switchRoundStartingPlayerIndex actions if the round ended with a Draw outcome', (done) => {
     const action = RoundActions.endRound({
       outcome: OutcomeEnum.Draw,
       winningPositions: null,
     });
+
     actions$ = of(action);
 
-    effects.endRound$.subscribe((result) => {
-      expect(result).toEqual(updateDraws());
+    const expectedActions = [
+      updateDraws(),
+      RoundActions.switchRoundStartingPlayerIndex(),
+    ];
+
+    effects.endRound$.pipe(toArray()).subscribe((results) => {
+      expect(results).toEqual(expectedActions);
       done();
     });
   });
 
-  it('should dispatch no-op action if the round ended without an outcome', (done) => {
+  it('should dispatch switchRoundStartingPlayerIndex action if the round ended without an outcome', (done) => {
     const action = RoundActions.endRound({
       outcome: OutcomeEnum.None,
       winningPositions: null,
@@ -330,7 +348,27 @@ describe('RoundEffects', () => {
     actions$ = of(action);
 
     effects.endRound$.subscribe((result) => {
-      expect(result).toEqual({ type: 'NO_OP' });
+      expect(result).toEqual(RoundActions.switchRoundStartingPlayerIndex());
+      done();
+    });
+  });
+
+  it('should dispatch setCurrentPlayer when starting a new round', (done) => {
+    const startingPlayerIndex = 1;
+
+    mockStore.overrideSelector(
+      selectRoundStartingPlayerIndex,
+      startingPlayerIndex
+    );
+
+    const action = RoundActions.startRound();
+
+    actions$ = of(action);
+
+    effects.startRound$.subscribe((result) => {
+      expect(result).toEqual(
+        setCurrentPlayer({ currentPlayerIndex: startingPlayerIndex })
+      );
       done();
     });
   });

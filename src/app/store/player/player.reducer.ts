@@ -3,6 +3,7 @@ import { Player } from '../../models/player';
 import {
   resetPlayers,
   setCpuPlayer,
+  setCurrentPlayer,
   switchPlayer,
   updatePlayerWins,
 } from './player.actions';
@@ -72,6 +73,12 @@ export const playerReducer = createReducer(
     return {
       ...state,
       players: updatedPlayers,
+    };
+  }),
+  on(setCurrentPlayer, (state, { currentPlayerIndex }) => {
+    return {
+      ...state,
+      currentPlayerIndex,
     };
   })
 );

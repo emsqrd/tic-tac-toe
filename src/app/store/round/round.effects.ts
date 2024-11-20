@@ -5,13 +5,20 @@ import { PlayerState } from '../player/player.reducer';
 import { Store } from '@ngrx/store';
 import { withLatestFrom, switchMap, of, delay, concat } from 'rxjs';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { switchPlayer, updatePlayerWins } from '../player/player.actions';
+import {
+  setCurrentPlayer,
+  switchPlayer,
+  updatePlayerWins,
+} from '../player/player.actions';
 import { selectCurrentPlayer } from '../player/player.selectors';
 import { RoundActions } from './round.actions';
 import { GameService } from '../../services/game.service';
 import { updateDraws } from '../game/game.actions';
 import { RoundState } from './round.reducer';
-import { selectGameBoard } from './round.selectors';
+import {
+  selectGameBoard,
+  selectRoundStartingPlayerIndex,
+} from './round.selectors';
 import { selectGameDifficulty } from '../game/game.selectors';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
@@ -30,6 +37,18 @@ export class RoundEffects {
   private applyDelay<T>(duration: number) {
     return delay<T>(duration);
   }
+
+  startRound$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RoundActions.startRound),
+      withLatestFrom(this.store.select(selectRoundStartingPlayerIndex)),
+      switchMap(([_, roundStartingPlayerIndex]) => {
+        return of(
+          setCurrentPlayer({ currentPlayerIndex: roundStartingPlayerIndex })
+        );
+      })
+    )
+  );
 
   makeHumanMove$ = createEffect(() =>
     this.actions$.pipe(
@@ -110,15 +129,18 @@ export class RoundEffects {
   endRound$ = createEffect(() =>
     this.actions$.pipe(
       ofType(RoundActions.endRound),
-      withLatestFrom(this.store.select(selectCurrentPlayer)),
-      switchMap(([action]) => {
+      switchMap((action) => {
+        let actions = [];
+
         if (action.outcome === OutcomeEnum.Win) {
-          return of(updatePlayerWins());
+          actions.push(updatePlayerWins());
         } else if (action.outcome === OutcomeEnum.Draw) {
-          return of(updateDraws());
-        } else {
-          return of({ type: 'NO_OP' });
+          actions.push(updateDraws());
         }
+
+        actions.push(RoundActions.switchRoundStartingPlayerIndex());
+
+        return of(...actions);
       })
     )
   );

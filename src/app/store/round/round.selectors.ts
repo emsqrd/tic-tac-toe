@@ -17,3 +17,8 @@ export const selectProcessingMove = createSelector(
   selectRoundState,
   (state) => state.processingMove
 );
+
+export const selectRoundStartingPlayerIndex = createSelector(
+  selectRoundState,
+  (state) => state.roundStartingPlayerIndex
+);
