@@ -19,7 +19,10 @@ import {
   updatePlayerWins,
 } from '../player/player.actions';
 import { updateDraws } from '../game/game.actions';
-import { selectGameBoard } from './round.selectors';
+import {
+  selectGameBoard,
+  selectRoundStartingPlayerIndex,
+} from './round.selectors';
 import { selectCurrentPlayer } from '../player/player.selectors';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 import { selectGameDifficulty } from '../game/game.selectors';
@@ -352,16 +355,20 @@ describe('RoundEffects', () => {
 
   it('should dispatch setCurrentPlayer when starting a new round', (done) => {
     const startingPlayerIndex = 1;
-    const action = RoundActions.startRound({ startingPlayerIndex });
+
+    mockStore.overrideSelector(
+      selectRoundStartingPlayerIndex,
+      startingPlayerIndex
+    );
+
+    const action = RoundActions.startRound();
 
     actions$ = of(action);
 
-    const expectedActions = [
-      setCurrentPlayer({ currentPlayerIndex: startingPlayerIndex }),
-    ];
-
-    effects.startRound$.pipe(toArray()).subscribe((results) => {
-      expect(results).toEqual(expectedActions);
+    effects.startRound$.subscribe((result) => {
+      expect(result).toEqual(
+        setCurrentPlayer({ currentPlayerIndex: startingPlayerIndex })
+      );
       done();
     });
   });

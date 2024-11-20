@@ -56,11 +56,7 @@ describe('GameEffects', () => {
     actions$ = of(action);
 
     effects.startGame$.subscribe((result) => {
-      expect(result).toEqual(
-        RoundActions.startRound({
-          startingPlayerIndex: initialRoundStateMock.roundStartingPlayerIndex,
-        })
-      );
+      expect(result).toEqual(RoundActions.startRound());
       done();
     });
   });
@@ -78,9 +74,7 @@ describe('GameEffects', () => {
     effects.startGame$.pipe(toArray()).subscribe((results) => {
       expect(results).toEqual([
         setCpuPlayer({ gamePiece: 'O' }),
-        RoundActions.startRound({
-          startingPlayerIndex: initialRoundStateMock.roundStartingPlayerIndex,
-        }),
+        RoundActions.startRound(),
       ]);
       done();
     });

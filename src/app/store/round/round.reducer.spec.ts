@@ -31,9 +31,7 @@ describe('Round Reducer', () => {
   it('should handle startRound action', () => {
     const state = roundReducer(
       initialRoundStateMock,
-      RoundActions.startRound({
-        startingPlayerIndex: initialRoundStateMock.roundStartingPlayerIndex,
-      })
+      RoundActions.startRound()
     );
 
     expect(state.gameBoard).toEqual(
