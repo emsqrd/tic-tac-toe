@@ -130,6 +130,7 @@ export class GameBoardComponent implements OnInit {
   }
 
   resetGame() {
+    this.store.dispatch(RoundActions.resetRoundStartingPlayerIndex());
     this.store.dispatch(resetPlayers());
     this.store.dispatch(resetDraws());
   }
