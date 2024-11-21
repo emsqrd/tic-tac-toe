@@ -4,7 +4,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "types": ["jest", "node"]
+    "types": ["jest"],
+    "module": "CommonJS",
+    "emitDecoratorMetadata": true,
+    "allowJs": true
   },
   "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }

@@ -1,10 +1,17 @@
 module.exports = {
   preset: "jest-preset-angular",
   setupFilesAfterEnv: ["<rootDir>/setup-jest.ts"],
-  testPathIgnorePatterns: ["<rootDir>/node_modules/"],
-  globals: {
-    "ts-jest": {
-      tsconfig: "<rootDir>/tsconfig.spec.json",
-    },
+  globalSetup: "jest-preset-angular/global-setup",
+  moduleNameMapper: {
+    "^src/(.*)$": "<rootDir>/src/$1",
   },
+  collectCoverageFrom: [
+    "<rootDir>/src/**/*.ts",
+    "!<rootDir>/src/**/*.spec.ts",
+    "!<rootDir>/src/**/index.ts",
+    "!<rootDir>/src/main.ts",
+    "!<rootDir>/src/polyfills.ts",
+  ],
+  coverageDirectory: "coverage",
+  coverageReporters: ["html", "lcov", "text-summary"],
 };
