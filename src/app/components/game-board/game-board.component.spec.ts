@@ -90,9 +90,7 @@ describe('GameBoardComponent', () => {
   });
 
   afterEach(() => {
-    if (store) {
-      store.resetSelectors();
-    }
+    store.resetSelectors();
     jest.clearAllMocks();
   });
 
