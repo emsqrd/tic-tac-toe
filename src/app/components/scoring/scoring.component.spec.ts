@@ -7,8 +7,6 @@ import { GameState } from '../../store/game/game.reducer';
 import { PlayerState } from '../../store/player/player.reducer';
 import { getInitialPlayerStateMock } from '../../store/mocks/player-mocks';
 import { getInitialGameStateMock } from '../../store/mocks/game-mocks';
-import { selectCurrentPlayer } from '../../store/player/player.selectors';
-import { selectOutcome } from '../../store/round/round.selectors';
 import { getInitialRoundStateMock } from '../../store/mocks/round-mocks';
 import { RoundState } from '../../store/round/round.reducer';
 
@@ -92,27 +90,27 @@ describe('ScoringComponent', () => {
 
   it('should return true for isResult when outcome is Win', () => {
     component.outcome = OutcomeEnum.Win;
-    expect(component.isResult).toBeTrue();
+    expect(component.isResult).toBe(true);
   });
 
   it('should return true for isResult when outcome is Draw', () => {
     component.outcome = OutcomeEnum.Draw;
-    expect(component.isResult).toBeTrue();
+    expect(component.isResult).toBe(true);
   });
 
   it('should return false for isResult when outcome is None', () => {
     component.outcome = OutcomeEnum.None;
-    expect(component.isResult).toBeFalse();
+    expect(component.isResult).toBeFalsy();
   });
 
   it('should return true for selectPlayer1 when current player is player1', () => {
     component.currentPlayer = currentPlayerMock;
-    expect(component.selectPlayer1).toBeTrue();
+    expect(component.selectPlayer1).toBe(true);
   });
 
   it('should return true for selectPlayer1 when isResult is true', () => {
     component.outcome = OutcomeEnum.Win;
-    expect(component.selectPlayer1).toBeTrue();
+    expect(component.selectPlayer1).toBe(true);
   });
 
   it('should return true for selectPlayer2 when current player is player2', () => {
@@ -122,21 +120,21 @@ describe('ScoringComponent', () => {
       wins: 0,
       isCpu: false,
     };
-    expect(component.selectPlayer2).toBeTrue();
+    expect(component.selectPlayer2).toBe(true);
   });
 
   it('should return true for selectPlayer2 when isResult is true', () => {
     component.outcome = OutcomeEnum.Win;
-    expect(component.selectPlayer2).toBeTrue();
+    expect(component.selectPlayer2).toBe(true);
   });
 
   it('should return true for selectDraw when outcome is Draw', () => {
     component.outcome = OutcomeEnum.Draw;
-    expect(component.selectDraw).toBeTrue();
+    expect(component.selectDraw).toBe(true);
   });
 
   it('should return true for isDraw when outcome is Draw', () => {
     component.outcome = OutcomeEnum.Draw;
-    expect(component.isDraw).toBeTrue();
+    expect(component.isDraw).toBe(true);
   });
 });

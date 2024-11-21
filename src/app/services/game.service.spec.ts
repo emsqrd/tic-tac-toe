@@ -526,7 +526,7 @@ describe('GameService', () => {
       const error = new Error('Test error');
 
       // Mock getEmptySquares to throw the error instead of findBestMove
-      spyOn(service as any, 'getEmptySquares').and.throwError(error);
+      spyOn(service as any, 'getEmptySquares').and.throwError(error.message);
       spyOn(service, 'getRandomEmptySquare').and.returnValue(4);
       spyOn(console, 'error');
 
@@ -541,7 +541,7 @@ describe('GameService', () => {
       const error = new Error('Test error');
       const consoleSpy = spyOn(console, 'error');
 
-      spyOn(service as any, 'getEmptySquares').and.throwError(error);
+      spyOn(service as any, 'getEmptySquares').and.throwError(error.message);
 
       service.makeHardCpuMove(gameBoard);
 

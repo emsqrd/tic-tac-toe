@@ -36,7 +36,7 @@ export function mockDelay<T>(
 describe('RoundEffects', () => {
   let actions$: Observable<any>;
   let effects: RoundEffects;
-  let gameService: jasmine.SpyObj<GameService>;
+  let gameService: GameService;
   let mockStore: MockStore;
   let initialGameStateMock: GameState;
   let initialPlayerStateMock: PlayerState;
@@ -48,13 +48,12 @@ describe('RoundEffects', () => {
     initialPlayerStateMock = getInitialPlayerStateMock();
     initialRoundStateMock = getInitialRoundStateMock();
 
-    gameService = jasmine.createSpyObj('GameService', [
-      'calculateWinner',
-      'determineOutcome',
-      'getRandomEmptySquare',
-      'makeMediumCpuMove',
-      'makeHardCpuMove',
-    ]);
+    gameService = new GameService();
+    jest.spyOn(gameService, 'calculateWinner');
+    jest.spyOn(gameService, 'determineOutcome');
+    jest.spyOn(gameService, 'getRandomEmptySquare');
+    jest.spyOn(gameService, 'makeMediumCpuMove');
+    jest.spyOn(gameService, 'makeHardCpuMove');
 
     TestBed.configureTestingModule({
       providers: [
@@ -130,7 +129,7 @@ describe('RoundEffects', () => {
     mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
     mockStore.overrideSelector(selectGameBoard, mockGameBoard);
     mockStore.overrideSelector(selectGameDifficulty, GameDifficultyEnum.Easy);
-    gameService.getRandomEmptySquare.and.returnValue(position);
+    (gameService.getRandomEmptySquare as jest.Mock).mockReturnValue(position);
 
     const action = RoundActions.makeCPUMove();
 
@@ -165,7 +164,7 @@ describe('RoundEffects', () => {
     mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
     mockStore.overrideSelector(selectGameBoard, mockGameBoard);
     mockStore.overrideSelector(selectGameDifficulty, GameDifficultyEnum.Medium);
-    gameService.makeMediumCpuMove.and.returnValue(position);
+    (gameService.makeMediumCpuMove as jest.Mock).mockReturnValue(position);
 
     const action = RoundActions.makeCPUMove();
 
@@ -198,7 +197,7 @@ describe('RoundEffects', () => {
     mockStore.overrideSelector(selectCurrentPlayer, cpuPlayer);
     mockStore.overrideSelector(selectGameBoard, mockGameBoard);
     mockStore.overrideSelector(selectGameDifficulty, GameDifficultyEnum.Hard);
-    gameService.makeHardCpuMove.and.returnValue(position);
+    (gameService.makeHardCpuMove as jest.Mock).mockReturnValue(position);
 
     const action = RoundActions.makeCPUMove();
 
@@ -230,8 +229,10 @@ describe('RoundEffects', () => {
     const winningPositions = [0, 1, 2];
     const outcome = OutcomeEnum.Win;
 
-    gameService.calculateWinner.and.returnValue(winningPositions);
-    gameService.determineOutcome.and.returnValue(outcome);
+    (gameService.calculateWinner as jest.Mock).mockReturnValue(
+      winningPositions
+    );
+    (gameService.determineOutcome as jest.Mock).mockReturnValue(outcome);
 
     const expectedActions = [
       RoundActions.endRound({
@@ -261,8 +262,8 @@ describe('RoundEffects', () => {
     });
 
     const outcome = OutcomeEnum.Draw;
-    gameService.calculateWinner.and.returnValue(null);
-    gameService.determineOutcome.and.returnValue(outcome);
+    (gameService.calculateWinner as jest.Mock).mockReturnValue(null);
+    (gameService.determineOutcome as jest.Mock).mockReturnValue(outcome);
 
     actions$ = of(action);
 
@@ -286,8 +287,10 @@ describe('RoundEffects', () => {
       piece: currentPlayerMock.piece,
     });
 
-    gameService.calculateWinner.and.returnValue(null);
-    gameService.determineOutcome.and.returnValue(OutcomeEnum.None);
+    (gameService.calculateWinner as jest.Mock).mockReturnValue(null);
+    (gameService.determineOutcome as jest.Mock).mockReturnValue(
+      OutcomeEnum.None
+    );
 
     actions$ = of(action);
 
