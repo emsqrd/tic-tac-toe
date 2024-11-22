@@ -1,44 +1,43 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { SquareComponent } from './square.component';
 
 describe('SquareComponent', () => {
   let component: SquareComponent;
   let fixture: ComponentFixture<SquareComponent>;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [SquareComponent],
-    }).compileComponents();
+    });
 
     fixture = TestBed.createComponent(SquareComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  describe('initialization', () => {
+    test('renders without errors', () => {
+      expect(component).toBeTruthy();
+    });
   });
 
-  it('should display the game piece when a move is made', () => {
-    const gamePieceDiv =
-      fixture.debugElement.nativeElement.querySelector('.square');
+  describe('when displaying game pieces', () => {
+    test('adds x class to square element when X piece is played', () => {
+      component.gamePiece = 'X';
+      fixture.detectChanges();
 
-    component.gamePiece = 'X';
-
-    fixture.detectChanges();
-
-    expect(gamePieceDiv.classList).toContain('x');
+      const square = fixture.nativeElement.querySelector('.square');
+      expect(square.classList.contains('x')).toBe(true);
+    });
   });
 
-  it('should apply the win css class when the square is a winning square', () => {
-    const squareContainerDiv =
-      fixture.debugElement.nativeElement.querySelector('#squareContainer');
+  describe('when showing winning state', () => {
+    test('adds win class to container when square is part of winning combination', () => {
+      component.isWinner = true;
+      fixture.detectChanges();
 
-    component.isWinner = true;
-
-    fixture.detectChanges();
-
-    expect(squareContainerDiv.classList).toContain('win');
+      const squareContainer =
+        fixture.nativeElement.querySelector('#squareContainer');
+      expect(squareContainer.classList.contains('win')).toBe(true);
+    });
   });
 });
