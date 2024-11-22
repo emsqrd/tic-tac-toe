@@ -21,6 +21,8 @@ module.exports = {
     "!<rootDir>/src/**/index.ts",
     "!<rootDir>/src/main.ts",
     "!<rootDir>/src/polyfills.ts",
+    "!<rootDir>/src/app/app.config.ts",
+    "!<rootDir>/src/app/app.routes.ts",
   ],
   coverageDirectory: "coverage",
   coverageReporters: ["html", "lcov", "text-summary"],

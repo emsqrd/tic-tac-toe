@@ -543,16 +543,31 @@ describe('GameService', () => {
   });
 
   describe('performance', () => {
-    test('makes a decision in reasonable time', () => {
-      const gameBoard = createEmptyBoard();
-      jest
-        .spyOn(performance, 'now')
-        .mockReturnValueOnce(0)
-        .mockReturnValueOnce(100);
+    test('makeHardCpuMove performs within reasonable time compared to baseline', () => {
+      // Setup test board with a non-trivial position
+      let gameBoard = createEmptyBoard();
+      gameBoard = setSquare(gameBoard, 0, 'X');
+      gameBoard = setSquare(gameBoard, 4, 'O');
+      gameBoard = setSquare(gameBoard, 8, 'X');
 
-      service.makeHardCpuMove(gameBoard);
+      // Measure baseline performance (simple board operations)
+      const baselineStart = performance.now();
+      for (let i = 0; i < 1000; i++) {
+        service.calculateWinner(gameBoard);
+      }
+      const baselineTime = performance.now() - baselineStart;
 
-      expect(performance.now()).toBeLessThan(1000);
+      // Measure algorithm performance
+      const algorithmStart = performance.now();
+      const move = service.makeHardCpuMove(gameBoard);
+      const algorithmTime = performance.now() - algorithmStart;
+
+      // Verify valid move
+      validatePositionRange(move);
+
+      // Algorithm shouldn't be more than 100x slower than baseline
+      // This ratio can be adjusted based on requirements
+      expect(algorithmTime / baselineTime).toBeLessThan(100);
     });
   });
 
