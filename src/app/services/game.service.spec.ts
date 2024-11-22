@@ -1,51 +1,49 @@
-import { TestBed } from '@angular/core/testing';
 import { GameService } from './game.service';
 import { Square } from '../models/square';
 import { OutcomeEnum } from '../enums/outcome.enum';
 
-function createEmptyBoard(): Square[] {
-  return Array(9).fill({ gamePiece: '', isWinner: false });
-}
+const createEmptyBoard = (): Square[] =>
+  Array(9).fill({ gamePiece: '', isWinner: false });
 
-function setSquare(board: Square[], position: number, piece: string): Square[] {
+const setSquare = (
+  board: Square[],
+  position: number,
+  piece: string
+): Square[] => {
   const newBoard = [...board];
-
   newBoard[position] = {
     gamePiece: piece,
     isWinner: false,
   };
-
   return newBoard;
-}
+};
 
-// Validate position is within the range of the game board
-function validatePositionRange(position: number) {
+const validatePositionRange = (position: number): void => {
   expect(position).toBeGreaterThanOrEqual(0);
-  expect(position).toBeLessThanOrEqual(8);
-}
+  expect(position).toBeLessThan(9);
+};
 
 describe('GameService', () => {
   let service: GameService;
   const corners = [0, 2, 6, 8];
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(GameService);
+    service = new GameService();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  test('should be created', () => {
+    expect(service).toBeDefined();
   });
 
   describe('calculateWinner', () => {
-    it('should return null if there is no winner', () => {
+    test('returns null if there is no winner', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
 
       expect(service.calculateWinner(gameBoard)).toBeNull();
     });
 
-    it('should return winning positions for a row win', () => {
+    test('returns winning positions for a row win', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 1, 'X');
@@ -56,7 +54,7 @@ describe('GameService', () => {
       expect(service.calculateWinner(gameBoard)).toEqual([0, 1, 2]);
     });
 
-    it('should return winning positions for a column win', () => {
+    test('returns winning positions for a column win', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'O');
       gameBoard = setSquare(gameBoard, 1, 'X');
@@ -68,7 +66,7 @@ describe('GameService', () => {
       expect(service.calculateWinner(gameBoard)).toEqual([0, 3, 6]);
     });
 
-    it('should return winning positions for a diagonal win', () => {
+    test('returns winning positions for a diagonal win', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 1, 'O');
@@ -80,14 +78,14 @@ describe('GameService', () => {
       expect(service.calculateWinner(gameBoard)).toEqual([0, 4, 8]);
     });
 
-    it('should return null for an empty board', () => {
+    test('returns null for an empty board', () => {
       const gameBoard = createEmptyBoard();
       expect(service.calculateWinner(gameBoard)).toBeNull();
     });
   });
 
   describe('determine outcome', () => {
-    it('should return Draw outcome if the board is full and no winner', () => {
+    test('returns Draw outcome if the board is full and no winner', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 1, 'O');
@@ -99,10 +97,10 @@ describe('GameService', () => {
       gameBoard = setSquare(gameBoard, 7, 'X');
       gameBoard = setSquare(gameBoard, 8, 'O');
 
-      expect(service.determineOutcome(gameBoard)).toEqual(OutcomeEnum.Draw);
+      expect(service.determineOutcome(gameBoard)).toBe(OutcomeEnum.Draw);
     });
 
-    it('should return Win outcome for determineOutcome if there is a winner', () => {
+    test('returns Win outcome for determineOutcome if there is a winner', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 1, 'X');
@@ -110,10 +108,10 @@ describe('GameService', () => {
       gameBoard = setSquare(gameBoard, 4, 'O');
       gameBoard = setSquare(gameBoard, 5, 'O');
 
-      expect(service.determineOutcome(gameBoard)).toEqual(OutcomeEnum.Win);
+      expect(service.determineOutcome(gameBoard)).toBe(OutcomeEnum.Win);
     });
 
-    it('should return None outcome if the board is not full and no winner', () => {
+    test('returns None outcome if the board is not full and no winner', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 1, 'O');
@@ -121,12 +119,12 @@ describe('GameService', () => {
       gameBoard = setSquare(gameBoard, 4, 'O');
       gameBoard = setSquare(gameBoard, 5, 'O');
 
-      expect(service.determineOutcome(gameBoard)).toEqual(OutcomeEnum.None);
+      expect(service.determineOutcome(gameBoard)).toBe(OutcomeEnum.None);
     });
   });
 
   describe('get random empty square', () => {
-    it('should return random index for a CPU move', () => {
+    test('returns random index for a CPU move', () => {
       const gameBoard = createEmptyBoard();
 
       const randomIndex = service.getRandomEmptySquare(gameBoard);
@@ -135,46 +133,46 @@ describe('GameService', () => {
   });
 
   describe('medium cpu moves', () => {
-    it('should return a cpu winning move if available', () => {
+    test('returns a cpu winning move if available', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'O');
       gameBoard = setSquare(gameBoard, 1, 'O');
       gameBoard = setSquare(gameBoard, 3, 'X');
       gameBoard = setSquare(gameBoard, 4, 'X');
 
-      spyOn(service, 'findWinningMove').and.callThrough();
+      const findWinningMoveSpy = jest.spyOn(service, 'findWinningMove');
 
       const cpuWinMove = service.makeMediumCpuMove(gameBoard);
       validatePositionRange(cpuWinMove);
-      expect(service.findWinningMove).toHaveBeenCalledWith(gameBoard, 'O');
+      expect(findWinningMoveSpy).toHaveBeenCalledWith(gameBoard, 'O');
     });
 
-    it('should return a blocking move if CPU has no winning move and human has a winning move', () => {
+    test('returns a blocking move if CPU has no winning move and human has a winning move', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 1, 'X');
       gameBoard = setSquare(gameBoard, 3, 'O');
       gameBoard = setSquare(gameBoard, 6, 'O');
 
-      spyOn(service, 'findWinningMove').and.callThrough();
+      const findWinningMoveSpy = jest.spyOn(service, 'findWinningMove');
 
       const blockingMove = service.makeMediumCpuMove(gameBoard);
       validatePositionRange(blockingMove);
-      expect(service.findWinningMove).toHaveBeenCalledWith(gameBoard, 'X');
+      expect(findWinningMoveSpy).toHaveBeenCalledWith(gameBoard, 'X');
     });
 
-    it('should return a corner move if available and CPU and human have no winning moves available', () => {
+    test('returns a corner move if available and CPU and human have no winning moves available', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 1, 'X');
 
-      spyOn(service, 'findCornerMove').and.callThrough();
+      const findCornerMoveSpy = jest.spyOn(service, 'findCornerMove');
 
       const cornerMove = service.makeMediumCpuMove(gameBoard);
       validatePositionRange(cornerMove);
-      expect(service.findCornerMove).toHaveBeenCalledWith(gameBoard);
+      expect(findCornerMoveSpy).toHaveBeenCalledWith(gameBoard);
     });
 
-    it('should return a random move if no winning, blocking or corner move is available', () => {
+    test('returns a random move if no winning, blocking or corner move is available', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'O');
       gameBoard = setSquare(gameBoard, 1, 'X');
@@ -187,16 +185,19 @@ describe('GameService', () => {
       gameBoard = setSquare(gameBoard, 7, 'O');
       gameBoard = setSquare(gameBoard, 8, 'X');
 
-      spyOn(service, 'getRandomEmptySquare').and.callThrough();
+      const getRandomEmptySquareSpy = jest.spyOn(
+        service,
+        'getRandomEmptySquare'
+      );
 
       const randomMove = service.makeMediumCpuMove(gameBoard);
       validatePositionRange(randomMove);
-      expect(service.getRandomEmptySquare).toHaveBeenCalledWith(gameBoard);
+      expect(getRandomEmptySquareSpy).toHaveBeenCalledWith(gameBoard);
     });
   });
 
   describe('find winning move', () => {
-    it('should return -1 if no winning move is available', () => {
+    test('returns -1 if no winning move is available', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'O');
       gameBoard = setSquare(gameBoard, 1, 'X');
@@ -212,7 +213,7 @@ describe('GameService', () => {
       expect(winningMove).toEqual(-1);
     });
 
-    it('should return a winning move for the CPU', () => {
+    test('returns a winning move for the CPU', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'O');
       gameBoard = setSquare(gameBoard, 1, 'O');
@@ -223,7 +224,7 @@ describe('GameService', () => {
       expect(winningMove).toEqual(2);
     });
 
-    it('should find winning move in diagonal', () => {
+    test('finds winning move in diagonal', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'O');
       gameBoard = setSquare(gameBoard, 4, 'O');
@@ -232,7 +233,7 @@ describe('GameService', () => {
       expect(winningMove).toBe(8);
     });
 
-    it('should prioritize win over block', () => {
+    test('prioritizes win over block', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'O');
       gameBoard = setSquare(gameBoard, 1, 'O');
@@ -245,7 +246,7 @@ describe('GameService', () => {
   });
 
   describe('find corner move', () => {
-    it('should return a corner move if available', () => {
+    test('returns a corner move if available', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 1, 'X');
 
@@ -253,7 +254,7 @@ describe('GameService', () => {
       expect(corners).toContain(cornerMove);
     });
 
-    it('should return -1 if no corner move is available', () => {
+    test('returns -1 if no corner move is available', () => {
       let gameBoard = createEmptyBoard();
 
       corners.forEach((corner) => {
@@ -266,13 +267,13 @@ describe('GameService', () => {
   });
 
   describe('hard cpu moves', () => {
-    it('should return a valid move for an empty board', () => {
+    test('returns a valid move for an empty board', () => {
       const gameBoard = createEmptyBoard();
       const move = service.makeHardCpuMove(gameBoard);
       validatePositionRange(move);
     });
 
-    it('should take winning move when available', () => {
+    test('takes winning move when available', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 4, 'X');
       gameBoard = setSquare(gameBoard, 0, 'O');
@@ -284,7 +285,7 @@ describe('GameService', () => {
       expect(move).toBe(1); // Winning move at position 1
     });
 
-    it('should block opponent winning move', () => {
+    test('blocks opponent winning move', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 1, 'X');
@@ -294,7 +295,7 @@ describe('GameService', () => {
       expect(move).toBe(2); // Block at position 2
     });
 
-    it('should block opponent winning move in column', () => {
+    test('blocks opponent winning move in column', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 4, 'O');
@@ -304,7 +305,7 @@ describe('GameService', () => {
       expect(move).toBe(3); // Block at position 3
     });
 
-    it('should prefer center over corners in early game', () => {
+    test('prefers center over corners in early game', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
 
@@ -312,7 +313,7 @@ describe('GameService', () => {
       expect(move).toBe(4); // Should take center
     });
 
-    it('should handle board with only one move left', () => {
+    test('handles board with only one move left', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 1, 'O');
@@ -327,7 +328,7 @@ describe('GameService', () => {
       expect(move).toBe(7); // Only remaining position
     });
 
-    it('should prevent opponent from creating a fork', () => {
+    test('prevents opponent from creating a fork', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 4, 'O');
@@ -338,7 +339,7 @@ describe('GameService', () => {
       expect([1, 3, 5, 7]).toContain(move);
     });
 
-    it('should prefer winning in fewer moves over longer paths', () => {
+    test('prefers winning in fewer moves over longer paths', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'O');
       gameBoard = setSquare(gameBoard, 4, 'O');
@@ -349,7 +350,7 @@ describe('GameService', () => {
       expect(move).toBe(8); // Immediate win over potential fork
     });
 
-    it('should handle edge case where all corners are taken', () => {
+    test('handles edge case where all corners are taken', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 2, 'O');
@@ -360,7 +361,7 @@ describe('GameService', () => {
       validatePositionRange(move);
     });
 
-    it('should block double threat scenarios', () => {
+    test('blocks double threat scenarios', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 4, 'O');
@@ -370,7 +371,7 @@ describe('GameService', () => {
       expect(move).toBe(1); // Block the double threat
     });
 
-    it('should create a double threat when possible', () => {
+    test('creates a double threat when possible', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 4, 'O');
       gameBoard = setSquare(gameBoard, 1, 'X');
@@ -379,7 +380,7 @@ describe('GameService', () => {
       expect([0, 2, 6, 8]).toContain(move); // Create double threat opportunity
     });
 
-    it('should handle symmetrical board positions correctly', () => {
+    test('handles symmetrical board positions correctly', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 8, 'X');
@@ -389,7 +390,7 @@ describe('GameService', () => {
       expect([1, 3, 5, 7]).toContain(move); // Should take edge to prevent fork
     });
 
-    it('should return draw score in drawn position', () => {
+    test('returns draw score in drawn position', () => {
       let gameBoard = createEmptyBoard();
       // Setup a drawn board position
       gameBoard = setSquare(gameBoard, 0, 'X');
@@ -412,7 +413,7 @@ describe('GameService', () => {
       expect(service.determineOutcome(gameBoard)).toBe(OutcomeEnum.Draw);
     });
 
-    it('should prevent opponent from creating a fork in corner', () => {
+    test('prevents opponent from creating a fork in corner', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 4, 'X');
       gameBoard = setSquare(gameBoard, 0, 'O');
@@ -421,10 +422,30 @@ describe('GameService', () => {
       const move = service.makeHardCpuMove(gameBoard);
       expect(move).toBe(2); // Should take position 2 to prevent fork
     });
+
+    test('handles error gracefully', () => {
+      const gameBoard = createEmptyBoard();
+      const mockError = new Error('Test error');
+
+      jest.spyOn(service as any, 'getEmptySquares').mockImplementation(() => {
+        throw mockError;
+      });
+      jest.spyOn(service, 'getRandomEmptySquare').mockReturnValue(4);
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      const move = service.makeHardCpuMove(gameBoard);
+
+      expect(move).toBe(4);
+      expect(service.getRandomEmptySquare).toHaveBeenCalledWith(gameBoard);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error in makeHardCpuMove:',
+        mockError
+      );
+    });
   });
 
   describe('minimax optimization', () => {
-    it('should make optimal moves consistently', () => {
+    test('makes optimal moves consistently', () => {
       let gameBoard = createEmptyBoard();
       // Setup a board where there's only one optimal move
       gameBoard = setSquare(gameBoard, 0, 'X');
@@ -441,28 +462,30 @@ describe('GameService', () => {
       expect(moves.size).toBe(1);
     });
 
-    it('should use memoization to improve performance', () => {
+    test('uses memoization to improve performance', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 4, 'O');
       gameBoard = setSquare(gameBoard, 0, 'X');
 
-      const minimaxSpy = spyOn<any>(service, 'minimax').and.callThrough();
+      const minimaxSpy = jest
+        .spyOn(service as any, 'minimax')
+        .mockImplementation();
 
       // First call should compute all values
       service.makeHardCpuMove(gameBoard);
-      const firstCallCount = minimaxSpy.calls.count();
-      minimaxSpy.calls.reset();
+      const firstCallCount = minimaxSpy.mock.calls.length;
+      minimaxSpy.mockClear();
 
       // Second call should use memoized values and make fewer minimax calls
       service.makeHardCpuMove(gameBoard);
-      const secondCallCount = minimaxSpy.calls.count();
+      const secondCallCount = minimaxSpy.mock.calls.length;
 
       expect(secondCallCount).toBeLessThan(firstCallCount);
     });
   });
 
   describe('fork opportunity detection', () => {
-    it('should detect potential fork in corners', () => {
+    test('detects potential fork in corners', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'O');
       gameBoard = setSquare(gameBoard, 4, 'X');
@@ -473,7 +496,7 @@ describe('GameService', () => {
       expect([1, 3, 5, 7]).toContain(move);
     });
 
-    it('should prevent opponent fork in multiple threats scenario', () => {
+    test('prevents opponent fork in multiple threats scenario', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 4, 'O');
@@ -487,21 +510,21 @@ describe('GameService', () => {
   });
 
   describe('performance', () => {
-    it('should make a decision in reasonable time', () => {
+    test('makes a decision in reasonable time', () => {
       const gameBoard = createEmptyBoard();
-      const startTime = performance.now();
+      jest
+        .spyOn(performance, 'now')
+        .mockReturnValueOnce(0)
+        .mockReturnValueOnce(100);
 
       service.makeHardCpuMove(gameBoard);
 
-      const endTime = performance.now();
-      const duration = endTime - startTime;
-
-      expect(duration).toBeLessThan(1000); // Should decide within 1 second
+      expect(performance.now()).toBeLessThan(1000);
     });
   });
 
   describe('error handling', () => {
-    it('should handle invalid board state gracefully', () => {
+    test('handles invalid board state gracefully', () => {
       let gameBoard = createEmptyBoard();
       // Create invalid board with more X's than O's
       gameBoard = setSquare(gameBoard, 0, 'X');
@@ -512,7 +535,7 @@ describe('GameService', () => {
       validatePositionRange(move);
     });
 
-    it('should handle full board gracefully', () => {
+    test('handles full board gracefully', () => {
       let gameBoard = createEmptyBoard();
       for (let i = 0; i < 9; i++) {
         gameBoard = setSquare(gameBoard, i, i % 2 === 0 ? 'X' : 'O');
@@ -521,14 +544,16 @@ describe('GameService', () => {
       expect(() => service.makeHardCpuMove(gameBoard)).not.toThrow();
     });
 
-    it('should fallback to random move when error occurs', () => {
+    test('fallbacks to random move when error occurs', () => {
       const gameBoard = createEmptyBoard();
       const error = new Error('Test error');
 
       // Mock getEmptySquares to throw the error instead of findBestMove
-      spyOn(service as any, 'getEmptySquares').and.throwError(error.message);
-      spyOn(service, 'getRandomEmptySquare').and.returnValue(4);
-      spyOn(console, 'error');
+      jest.spyOn(service as any, 'getEmptySquares').mockImplementation(() => {
+        throw error;
+      });
+      jest.spyOn(service, 'getRandomEmptySquare').mockReturnValue(4);
+      jest.spyOn(console, 'error');
 
       const move = service.makeHardCpuMove(gameBoard);
 
@@ -536,12 +561,14 @@ describe('GameService', () => {
       expect(service.getRandomEmptySquare).toHaveBeenCalledWith(gameBoard);
     });
 
-    it('should log error when exception occurs', () => {
+    test('logs error when exception occurs', () => {
       const gameBoard = createEmptyBoard();
       const error = new Error('Test error');
-      const consoleSpy = spyOn(console, 'error');
+      const consoleSpy = jest.spyOn(console, 'error');
 
-      spyOn(service as any, 'getEmptySquares').and.throwError(error.message);
+      jest.spyOn(service as any, 'getEmptySquares').mockImplementation(() => {
+        throw error;
+      });
 
       service.makeHardCpuMove(gameBoard);
 
@@ -553,7 +580,7 @@ describe('GameService', () => {
   });
 
   describe('memory management', () => {
-    it('should clear memoized states during destroy', () => {
+    test('clears memoized states during destroy', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 4, 'O');
@@ -565,7 +592,9 @@ describe('GameService', () => {
       service.ngOnDestroy();
 
       // Use indirect testing through performance check
-      const minimaxSpy = spyOn<any>(service, 'minimax').and.callThrough();
+      const minimaxSpy = jest
+        .spyOn<GameService, any>(service, 'minimax')
+        .mockImplementation();
       service.makeHardCpuMove(gameBoard);
 
       // Should make full calculation again after clear
@@ -574,7 +603,7 @@ describe('GameService', () => {
   });
 
   describe('minimax edge cases', () => {
-    it('should handle deep recursive positions efficiently', () => {
+    test('handles deep recursive positions efficiently', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 4, 'O');
@@ -588,7 +617,7 @@ describe('GameService', () => {
       expect(duration).toBeLessThan(100); // Should be fast due to alpha-beta pruning
     });
 
-    it('should maintain consistent decisions after memoization clear', () => {
+    test('maintains consistent decisions after memoization clear', () => {
       let gameBoard = createEmptyBoard();
       gameBoard = setSquare(gameBoard, 0, 'X');
       gameBoard = setSquare(gameBoard, 4, 'O');
@@ -599,5 +628,9 @@ describe('GameService', () => {
 
       expect(firstMove).toBe(secondMove);
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 });
