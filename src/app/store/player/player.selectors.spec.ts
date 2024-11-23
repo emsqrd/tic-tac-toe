@@ -1,5 +1,4 @@
 import { getInitialPlayerStateMock } from '../mocks/player-mocks';
-import { PlayerState } from './player.reducer';
 import {
   selectPlayers,
   selectCurrentPlayer,
@@ -7,7 +6,7 @@ import {
 } from './player.selectors';
 
 describe('Player Selectors', () => {
-  let initialPlayerStateMock: PlayerState;
+  let initialPlayerStateMock: ReturnType<typeof getInitialPlayerStateMock>;
 
   beforeEach(() => {
     initialPlayerStateMock = getInitialPlayerStateMock();

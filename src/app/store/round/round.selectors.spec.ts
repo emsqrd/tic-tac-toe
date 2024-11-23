@@ -7,33 +7,45 @@ import {
 } from './round.selectors';
 
 describe('Round Selectors', () => {
-  let initialRoundStateMock = getInitialRoundStateMock();
+  let initialRoundStateMock: ReturnType<typeof getInitialRoundStateMock>;
 
-  it('should have a valid initial state mock', () => {
+  beforeEach(() => {
+    initialRoundStateMock = getInitialRoundStateMock();
+  });
+
+  test('initial state mock has required properties', () => {
     expect(initialRoundStateMock).toBeDefined();
     expect(initialRoundStateMock.gameBoard).toBeDefined();
     expect(initialRoundStateMock.outcome).toBeDefined();
   });
 
-  it('should select the game board', () => {
-    const result = selectGameBoard.projector(initialRoundStateMock);
-    expect(result).toEqual(initialRoundStateMock.gameBoard);
+  describe('selectGameBoard', () => {
+    test('returns game board from state', () => {
+      const result = selectGameBoard.projector(initialRoundStateMock);
+      expect(result).toBe(initialRoundStateMock.gameBoard);
+    });
   });
 
-  it('should select the outcome', () => {
-    const result = selectOutcome.projector(initialRoundStateMock);
-    expect(result).toEqual(initialRoundStateMock.outcome);
+  describe('selectOutcome', () => {
+    test('returns outcome from state', () => {
+      const result = selectOutcome.projector(initialRoundStateMock);
+      expect(result).toBe(initialRoundStateMock.outcome);
+    });
   });
 
-  it('should select the processing move', () => {
-    const result = selectProcessingMove.projector(initialRoundStateMock);
-    expect(result).toEqual(initialRoundStateMock.processingMove);
+  describe('selectProcessingMove', () => {
+    test('returns processing move status from state', () => {
+      const result = selectProcessingMove.projector(initialRoundStateMock);
+      expect(result).toBe(initialRoundStateMock.processingMove);
+    });
   });
 
-  it('should select the round starting player index', () => {
-    const result = selectRoundStartingPlayerIndex.projector(
-      initialRoundStateMock
-    );
-    expect(result).toEqual(initialRoundStateMock.roundStartingPlayerIndex);
+  describe('selectRoundStartingPlayerIndex', () => {
+    test('returns round starting player index from state', () => {
+      const result = selectRoundStartingPlayerIndex.projector(
+        initialRoundStateMock
+      );
+      expect(result).toBe(initialRoundStateMock.roundStartingPlayerIndex);
+    });
   });
 });
