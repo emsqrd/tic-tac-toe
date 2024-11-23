@@ -116,7 +116,7 @@ describe('SquareComponent', () => {
       expect(component.isWinner).toBe(false);
       expect(component.winType).toBeUndefined();
       expect(component.gamePiece).toBeUndefined();
-      expect(component.displayGrideLines).toBe(false);
+      expect(component.displayGridLines).toBe(false);
     });
   });
 });
