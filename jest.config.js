@@ -10,7 +10,7 @@ module.exports = {
 
   // Keep existing setup
   collectCoverage: false,
-  setupFilesAfterEnv: ["<rootDir>/src/setup-jest.ts"],
+  setupFilesAfterEnv: ["<rootDir>/setup-jest.ts"],
   transform: {
     "^.+\\.(ts|mjs|js|html)$": [
       "jest-preset-angular",
