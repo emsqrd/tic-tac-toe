@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import { Observable, of, toArray } from 'rxjs';
+import { Observable, of, toArray, firstValueFrom } from 'rxjs';
 import { GameEffects } from './game.effects';
 import { startGame } from './game.actions';
 import { setCpuPlayer } from '../player/player.actions';
@@ -50,33 +50,23 @@ describe('GameEffects', () => {
     mockStore.resetSelectors();
   });
 
-  it('should dispatch only startRound action if starting a new game not in single player game mode', (done) => {
+  test('should only dispatch startRound action for two player game mode', async () => {
     const action = startGame({ gameMode: GameModeEnum.TwoPlayer });
-
     actions$ = of(action);
 
-    effects.startGame$.subscribe((result) => {
-      expect(result).toEqual(RoundActions.startRound());
-      done();
-    });
+    const result = await firstValueFrom(effects.startGame$);
+    expect(result).toStrictEqual(RoundActions.startRound());
   });
 
-  it('should dispatch setCpuPlayer action if starting a new game in single player game mode', (done) => {
-    const singlePlayerMode = GameModeEnum.SinglePlayer;
-
-    const action = startGame({ gameMode: singlePlayerMode });
-
-    mockStore.overrideSelector(selectGameMode, singlePlayerMode);
-
+  test('should dispatch setCpuPlayer and startRound actions for single player game mode', async () => {
+    const action = startGame({ gameMode: GameModeEnum.SinglePlayer });
+    mockStore.overrideSelector(selectGameMode, GameModeEnum.SinglePlayer);
     actions$ = of(action);
 
-    // Expect the effect to dispatch multiple actions
-    effects.startGame$.pipe(toArray()).subscribe((results) => {
-      expect(results).toEqual([
-        setCpuPlayer({ gamePiece: 'O' }),
-        RoundActions.startRound(),
-      ]);
-      done();
-    });
+    const results = await firstValueFrom(effects.startGame$.pipe(toArray()));
+    expect(results).toStrictEqual([
+      setCpuPlayer({ gamePiece: 'O' }),
+      RoundActions.startRound(),
+    ]);
   });
 });
