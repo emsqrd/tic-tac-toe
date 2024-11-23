@@ -7,17 +7,20 @@ describe('Square', () => {
     square = new Square();
   });
 
-  it('should create with default values', () => {
+  test('should initialize with empty game piece', () => {
     expect(square.gamePiece).toBe('');
-    expect(square.isWinner).toBeFalsy();
   });
 
-  it('should allow setting game piece', () => {
+  test('should initialize with winner state as false', () => {
+    expect(square.isWinner).toBe(false);
+  });
+
+  test('should update game piece when value is set', () => {
     square.gamePiece = 'X';
     expect(square.gamePiece).toBe('X');
   });
 
-  it('should allow setting winner state', () => {
+  test('should update winner state when value is set', () => {
     square.isWinner = true;
     expect(square.isWinner).toBe(true);
   });
