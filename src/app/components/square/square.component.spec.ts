@@ -59,7 +59,7 @@ describe('SquareComponent', () => {
 
   describe('grid lines', () => {
     test('shows grid lines svg when displayGrideLines is true', () => {
-      component.displayGrideLines = true;
+      component.displayGridLines = true;
       fixture.detectChanges();
 
       const gridLines = fixture.nativeElement.querySelector('.grid-lines');
