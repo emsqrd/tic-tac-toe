@@ -12,80 +12,87 @@ import { getInitialPlayerStateMock } from '../mocks/player-mocks';
 import { PlayerState } from '../player/player.reducer';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 
-describe('Game Reducer', () => {
-  let initialGameStateMock: GameState;
-  let initialPlayerStateMock: PlayerState;
+let initialGameStateMock: GameState;
+let initialPlayerStateMock: PlayerState;
 
-  beforeEach(() => {
-    initialGameStateMock = getInitialGameStateMock();
-    initialPlayerStateMock = getInitialPlayerStateMock();
-  });
+beforeEach(() => {
+  initialGameStateMock = getInitialGameStateMock();
+  initialPlayerStateMock = getInitialPlayerStateMock();
+});
 
-  it('should return the initial state', () => {
+describe('gameReducer', () => {
+  test('should return initial state when undefined state is provided', () => {
     const state = gameReducer(undefined, { type: '@@INIT' });
     expect(state).toEqual(initialGameStateMock);
   });
 
-  it('should handle startGame action', () => {
-    const state = gameReducer(
-      initialGameStateMock,
-      startGame({ gameMode: initialGameStateMock.gameMode })
-    );
+  describe('startGame', () => {
+    test('should set game mode when startGame action is dispatched', () => {
+      const state = gameReducer(
+        initialGameStateMock,
+        startGame({ gameMode: initialGameStateMock.gameMode })
+      );
 
-    expect(state.gameMode).toEqual(initialGameStateMock.gameMode);
+      expect(state.gameMode).toBe(initialGameStateMock.gameMode);
+    });
   });
 
-  it('should handle switchGameMode action and switch game modes', () => {
-    const state = gameReducer(initialGameStateMock, switchGameMode());
-    expect(state.gameMode).toEqual(GameModeEnum.SinglePlayer);
+  describe('switchGameMode', () => {
+    test('should switch from two player to single player mode', () => {
+      const state = gameReducer(initialGameStateMock, switchGameMode());
+      expect(state.gameMode).toBe(GameModeEnum.SinglePlayer);
+    });
+
+    test('should switch from single player to two player mode', () => {
+      const state = gameReducer(
+        { ...initialGameStateMock, gameMode: GameModeEnum.SinglePlayer },
+        switchGameMode()
+      );
+      expect(state.gameMode).toBe(GameModeEnum.TwoPlayer);
+    });
   });
 
-  it('should handle switchGameMode action and switch game modes back', () => {
-    const state = gameReducer(
-      { ...initialGameStateMock, gameMode: GameModeEnum.SinglePlayer },
-      switchGameMode()
-    );
-    expect(state.gameMode).toEqual(GameModeEnum.TwoPlayer);
+  describe('draws', () => {
+    test('should reset draws count to zero', () => {
+      const state = gameReducer(
+        { ...initialGameStateMock, draws: 5 },
+        resetDraws()
+      );
+      expect(state.draws).toBe(0);
+    });
+
+    test('should increment draws count by one', () => {
+      const state = gameReducer(
+        { ...initialGameStateMock, draws: 0 },
+        updateDraws()
+      );
+      expect(state.draws).toBe(1);
+    });
   });
 
-  it('should handle resetDraws action', () => {
-    const state = gameReducer(
-      { ...initialGameStateMock, draws: 5 },
-      resetDraws()
-    );
-    expect(state.draws).toEqual(0);
-  });
+  describe('switchGameDifficulty', () => {
+    test('should switch from easy to medium difficulty', () => {
+      const state = gameReducer(
+        { ...initialGameStateMock, gameDifficulty: GameDifficultyEnum.Easy },
+        switchGameDifficulty()
+      );
+      expect(state.gameDifficulty).toBe(GameDifficultyEnum.Medium);
+    });
 
-  it('should handle updateDraws action and update the draw count', () => {
-    const state = gameReducer(
-      { ...initialGameStateMock, draws: 0 },
-      updateDraws()
-    );
+    test('should switch from medium to hard difficulty', () => {
+      const state = gameReducer(
+        { ...initialGameStateMock, gameDifficulty: GameDifficultyEnum.Medium },
+        switchGameDifficulty()
+      );
+      expect(state.gameDifficulty).toBe(GameDifficultyEnum.Hard);
+    });
 
-    expect(state.draws).toEqual(1);
-  });
-
-  it('should handle switchGameDifficulty action and switch game difficulty from easy to medium', () => {
-    const state = gameReducer(
-      { ...initialGameStateMock, gameDifficulty: GameDifficultyEnum.Easy },
-      switchGameDifficulty()
-    );
-    expect(state.gameDifficulty).toEqual(GameDifficultyEnum.Medium);
-  });
-
-  it('should handle switchGameDifficulty action and switch game difficulty from medium to hard', () => {
-    const state = gameReducer(
-      { ...initialGameStateMock, gameDifficulty: GameDifficultyEnum.Medium },
-      switchGameDifficulty()
-    );
-    expect(state.gameDifficulty).toEqual(GameDifficultyEnum.Hard);
-  });
-
-  it('should handle switchGameDifficulty action and switch game difficulty from hard to easy', () => {
-    const state = gameReducer(
-      { ...initialGameStateMock, gameDifficulty: GameDifficultyEnum.Hard },
-      switchGameDifficulty()
-    );
-    expect(state.gameDifficulty).toEqual(GameDifficultyEnum.Easy);
+    test('should switch from hard to easy difficulty', () => {
+      const state = gameReducer(
+        { ...initialGameStateMock, gameDifficulty: GameDifficultyEnum.Hard },
+        switchGameDifficulty()
+      );
+      expect(state.gameDifficulty).toBe(GameDifficultyEnum.Easy);
+    });
   });
 });

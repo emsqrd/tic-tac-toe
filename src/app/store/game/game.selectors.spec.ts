@@ -2,15 +2,19 @@ import { selectDraws, selectGameMode } from './game.selectors';
 import { getInitialGameStateMock } from '../mocks/game-mocks';
 
 describe('Game Selectors', () => {
-  const intitalGameStateMock = getInitialGameStateMock();
+  let initialGameStateMock: ReturnType<typeof getInitialGameStateMock>;
 
-  it('should select the number of draws', () => {
-    const result = selectDraws.projector(intitalGameStateMock);
-    expect(result).toEqual(intitalGameStateMock.draws);
+  beforeEach(() => {
+    initialGameStateMock = getInitialGameStateMock();
   });
 
-  it('should select the game mode', () => {
-    const result = selectGameMode.projector(intitalGameStateMock);
-    expect(result).toEqual(intitalGameStateMock.gameMode);
+  test('should select the number of draws', () => {
+    const result = selectDraws.projector(initialGameStateMock);
+    expect(result).toBe(initialGameStateMock.draws);
+  });
+
+  test('should select the game mode', () => {
+    const result = selectGameMode.projector(initialGameStateMock);
+    expect(result).toBe(initialGameStateMock.gameMode);
   });
 });

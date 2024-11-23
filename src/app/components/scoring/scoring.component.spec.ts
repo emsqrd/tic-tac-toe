@@ -7,10 +7,9 @@ import { GameState } from '../../store/game/game.reducer';
 import { PlayerState } from '../../store/player/player.reducer';
 import { getInitialPlayerStateMock } from '../../store/mocks/player-mocks';
 import { getInitialGameStateMock } from '../../store/mocks/game-mocks';
-import { selectCurrentPlayer } from '../../store/player/player.selectors';
-import { selectOutcome } from '../../store/round/round.selectors';
 import { getInitialRoundStateMock } from '../../store/mocks/round-mocks';
 import { RoundState } from '../../store/round/round.reducer';
+import { firstValueFrom } from 'rxjs';
 
 describe('ScoringComponent', () => {
   let component: ScoringComponent;
@@ -21,12 +20,14 @@ describe('ScoringComponent', () => {
   let initialRoundStateMock: RoundState;
   let currentPlayerMock: Player;
 
-  beforeEach(async () => {
+  beforeAll(() => {
     initialGameStateMock = getInitialGameStateMock();
     initialPlayerStateMock = getInitialPlayerStateMock();
     initialRoundStateMock = getInitialRoundStateMock();
+  });
 
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       providers: [
         provideMockStore({
           initialState: {
@@ -36,107 +37,122 @@ describe('ScoringComponent', () => {
           },
         }),
       ],
-    }).compileComponents();
+    });
 
     storeMock = TestBed.inject(MockStore);
     fixture = TestBed.createComponent(ScoringComponent);
-
-    initialGameStateMock = getInitialGameStateMock();
-    initialPlayerStateMock = getInitialPlayerStateMock();
-    initialRoundStateMock = getInitialRoundStateMock();
-
+    component = fixture.componentInstance;
     currentPlayerMock =
       initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
 
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   afterEach(() => {
+    jest.clearAllMocks();
     storeMock.resetSelectors();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should select players from the store', (done) => {
-    component.players$.subscribe((players) => {
-      expect(players.length).toBe(2);
-      expect(players[0].name).toBe('Player 1');
-      expect(players[1].name).toBe('Player 2');
-      done();
+  describe('initialization', () => {
+    test('should create component', () => {
+      expect(component).toBeDefined();
     });
   });
 
-  it('should select current player from the store', (done) => {
-    component.currentPlayer$.subscribe((currentPlayer) => {
-      expect(currentPlayer.name).toBe('Player 1');
-      done();
-    });
-  });
+  describe('store selectors', () => {
+    test('should fetch players from store', async () => {
+      const players = await firstValueFrom(component.players$);
 
-  it('should select outcome from the store', (done) => {
-    component.outcome$.subscribe((outcome) => {
+      expect(players).toHaveLength(2);
+      expect(players[0]).toEqual(expect.objectContaining({ name: 'Player 1' }));
+      expect(players[1]).toEqual(expect.objectContaining({ name: 'Player 2' }));
+    });
+
+    test('should fetch current player from store', async () => {
+      const currentPlayer = await firstValueFrom(component.currentPlayer$);
+      expect(currentPlayer).toEqual(
+        expect.objectContaining({ name: 'Player 1' })
+      );
+    });
+
+    test('should fetch outcome from store', async () => {
+      const outcome = await firstValueFrom(component.outcome$);
       expect(outcome).toBe(OutcomeEnum.None);
-      done();
     });
-  });
 
-  it('should select draws from the store', (done) => {
-    component.draws$.subscribe((draws) => {
+    test('should fetch draws count from store', async () => {
+      const draws = await firstValueFrom(component.draws$);
       expect(draws).toBe(0);
-      done();
     });
   });
 
-  it('should return true for isResult when outcome is Win', () => {
-    component.outcome = OutcomeEnum.Win;
-    expect(component.isResult).toBeTrue();
-  });
+  describe('game state conditions', () => {
+    describe('isResult', () => {
+      test.each([
+        [OutcomeEnum.Win, true],
+        [OutcomeEnum.Draw, true],
+        [OutcomeEnum.None, false],
+      ])('when outcome is %s, should return %s', (outcome, expected) => {
+        component.outcome = outcome;
+        expect(component.isResult).toBe(expected);
+      });
+    });
 
-  it('should return true for isResult when outcome is Draw', () => {
-    component.outcome = OutcomeEnum.Draw;
-    expect(component.isResult).toBeTrue();
-  });
+    describe('player selection', () => {
+      test.each([
+        [
+          'currentPlayer is player1',
+          () => {
+            component.currentPlayer = currentPlayerMock;
+          },
+        ],
+        [
+          'game has result',
+          () => {
+            component.outcome = OutcomeEnum.Win;
+          },
+        ],
+      ])('should select player1 when %s', (_, setup) => {
+        setup();
+        expect(component.selectPlayer1).toBe(true);
+      });
 
-  it('should return false for isResult when outcome is None', () => {
-    component.outcome = OutcomeEnum.None;
-    expect(component.isResult).toBeFalse();
-  });
+      test.each([
+        [
+          'currentPlayer is player2',
+          () => {
+            component.currentPlayer = {
+              name: 'Player 2',
+              piece: 'O',
+              wins: 0,
+              isCpu: false,
+            };
+          },
+        ],
+        [
+          'game has result',
+          () => {
+            component.outcome = OutcomeEnum.Win;
+          },
+        ],
+      ])('should select player2 when %s', (_, setup) => {
+        setup();
+        expect(component.selectPlayer2).toBe(true);
+      });
+    });
 
-  it('should return true for selectPlayer1 when current player is player1', () => {
-    component.currentPlayer = currentPlayerMock;
-    expect(component.selectPlayer1).toBeTrue();
-  });
+    describe('draw conditions', () => {
+      beforeEach(() => {
+        component.outcome = OutcomeEnum.Draw;
+      });
 
-  it('should return true for selectPlayer1 when isResult is true', () => {
-    component.outcome = OutcomeEnum.Win;
-    expect(component.selectPlayer1).toBeTrue();
-  });
+      test('should indicate draw selection', () => {
+        expect(component.selectDraw).toBe(true);
+      });
 
-  it('should return true for selectPlayer2 when current player is player2', () => {
-    component.currentPlayer = {
-      name: 'Player 2',
-      piece: 'O',
-      wins: 0,
-      isCpu: false,
-    };
-    expect(component.selectPlayer2).toBeTrue();
-  });
-
-  it('should return true for selectPlayer2 when isResult is true', () => {
-    component.outcome = OutcomeEnum.Win;
-    expect(component.selectPlayer2).toBeTrue();
-  });
-
-  it('should return true for selectDraw when outcome is Draw', () => {
-    component.outcome = OutcomeEnum.Draw;
-    expect(component.selectDraw).toBeTrue();
-  });
-
-  it('should return true for isDraw when outcome is Draw', () => {
-    component.outcome = OutcomeEnum.Draw;
-    expect(component.isDraw).toBeTrue();
+      test('should indicate game is a draw', () => {
+        expect(component.isDraw).toBe(true);
+      });
+    });
   });
 });

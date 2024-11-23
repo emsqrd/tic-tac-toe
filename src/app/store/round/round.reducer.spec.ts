@@ -1,4 +1,3 @@
-import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import { Player } from '../../models/player';
 import { GameState } from '../game/game.reducer';
@@ -23,45 +22,45 @@ describe('Round Reducer', () => {
       initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
   });
 
-  it('should return the initial state', () => {
+  test('should return initial state', () => {
     const state = roundReducer(undefined, { type: '@@INIT' });
-    expect(state).toEqual(initialRoundStateMock);
+    expect(state).toStrictEqual(initialRoundStateMock);
   });
 
-  it('should handle startRound action', () => {
+  test('should handle startRound', () => {
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.startRound()
     );
 
-    expect(state.gameBoard).toEqual(
+    expect(state.gameBoard).toStrictEqual(
       Array(9).fill({ gamePiece: '', isWinner: false })
     );
-    expect(state.outcome).toEqual(OutcomeEnum.None);
+    expect(state.outcome).toBe(OutcomeEnum.None);
   });
 
-  it('should handle endRound action with a win', () => {
+  test('should handle endRound with win condition', () => {
     const winningPositions = [0, 1, 2];
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.endRound({ outcome: OutcomeEnum.Win, winningPositions })
     );
 
-    expect(state.outcome).toEqual(OutcomeEnum.Win);
+    expect(state.outcome).toBe(OutcomeEnum.Win);
     expect(state.gameBoard[0].isWinner).toBe(true);
     expect(state.gameBoard[1].isWinner).toBe(true);
     expect(state.gameBoard[2].isWinner).toBe(true);
   });
 
-  it('should handle endRound action with a draw', () => {
+  test('should handle endRound with draw condition', () => {
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.endRound({ outcome: OutcomeEnum.Draw, winningPositions: [] })
     );
-    expect(state.outcome).toEqual(OutcomeEnum.Draw);
+    expect(state.outcome).toBe(OutcomeEnum.Draw);
   });
 
-  it('should handle setProcessingMove action', () => {
+  test('should handle setProcessingMove', () => {
     const processingMove = true;
     const state = roundReducer(
       initialRoundStateMock,
@@ -70,7 +69,7 @@ describe('Round Reducer', () => {
     expect(state.processingMove).toBe(processingMove);
   });
 
-  it('should set the board position', () => {
+  test('should set board position with player piece', () => {
     const position = 0;
     const piece = currentPlayerMock.piece;
     const state = roundReducer(
@@ -81,7 +80,7 @@ describe('Round Reducer', () => {
     expect(state.gameBoard[0].gamePiece).toBe(piece);
   });
 
-  it('should switch the round starting player index', () => {
+  test('should switch round starting player index', () => {
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.switchRoundStartingPlayerIndex()
@@ -90,7 +89,7 @@ describe('Round Reducer', () => {
     expect(state.roundStartingPlayerIndex).toBe(1);
   });
 
-  it('should reset the round starting player index to 0', () => {
+  test('should reset round starting player index to 0', () => {
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.resetRoundStartingPlayerIndex()

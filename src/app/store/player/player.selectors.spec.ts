@@ -1,5 +1,4 @@
 import { getInitialPlayerStateMock } from '../mocks/player-mocks';
-import { PlayerState } from './player.reducer';
 import {
   selectPlayers,
   selectCurrentPlayer,
@@ -7,28 +6,34 @@ import {
 } from './player.selectors';
 
 describe('Player Selectors', () => {
-  let initialPlayerStateMock: PlayerState;
+  let initialPlayerStateMock: ReturnType<typeof getInitialPlayerStateMock>;
 
   beforeEach(() => {
     initialPlayerStateMock = getInitialPlayerStateMock();
   });
 
-  it('should select the players', () => {
+  test('should return all players from state', () => {
     const result = selectPlayers.projector(initialPlayerStateMock);
-    expect(result).toEqual(initialPlayerStateMock.players);
+
+    expect(result).toStrictEqual(initialPlayerStateMock.players);
   });
 
-  it('should select the current player index', () => {
+  test('should return current player index from state', () => {
     const result = selectCurrentPlayerIndex.projector(initialPlayerStateMock);
-    expect(result).toEqual(initialPlayerStateMock.currentPlayerIndex);
+
+    expect(result).toBe(initialPlayerStateMock.currentPlayerIndex);
   });
 
-  it('should select the current player', () => {
-    const curentPlayerIndex = 0;
+  test('should return current player based on current index', () => {
+    const currentPlayerIndex = 0;
+
     const result = selectCurrentPlayer.projector(
       initialPlayerStateMock.players,
-      curentPlayerIndex
+      currentPlayerIndex
     );
-    expect(result).toEqual(initialPlayerStateMock.players[curentPlayerIndex]);
+
+    expect(result).toStrictEqual(
+      initialPlayerStateMock.players[currentPlayerIndex]
+    );
   });
 });
