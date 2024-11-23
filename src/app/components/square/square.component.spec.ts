@@ -67,7 +67,7 @@ describe('SquareComponent', () => {
     });
 
     test('hides grid lines svg when displayGrideLines is false', () => {
-      component.displayGrideLines = false;
+      component.displayGridLines = false;
       fixture.detectChanges();
 
       const gridLines = fixture.nativeElement.querySelector('.grid-lines');
