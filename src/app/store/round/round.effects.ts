@@ -117,7 +117,7 @@ export class RoundEffects {
         this.store.select(selectGameDifficulty),
         this.store.select(selectCurrentPlayer)
       ),
-      this.applyDelay(500),
+      this.applyDelay(750),
       mergeMap(([{ boardState }, difficulty, player]) => {
         const position = this.calculateCPUMove(boardState, difficulty);
         return [

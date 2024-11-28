@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Observable, combineLatest, firstValueFrom } from 'rxjs';
 import { Store, STORE_FEATURES } from '@ngrx/store';
 import {
   switchGameMode,
@@ -25,7 +25,7 @@ import {
   selectRoundStartingPlayerIndex,
 } from '../../store/round/round.selectors';
 import { RoundActions } from '../../store/round/round.actions';
-import { map, withLatestFrom, take } from 'rxjs/operators';
+import { map, withLatestFrom, take, first, tap } from 'rxjs/operators';
 import { LineCalculatorService } from '../../services/line-calculator.service';
 
 @Component({
@@ -110,42 +110,45 @@ export class GameBoardComponent implements OnInit {
     }
   }
 
-  attemptMove(position: number) {
-    this.currentPlayer$
-      .pipe(withLatestFrom(this.gameBoard$), take(1))
-      .subscribe(([currentPlayer, gameBoard]) => {
-        if (gameBoard[position].gamePiece !== '') {
-          return;
-        }
-        this.store.dispatch(
-          RoundActions.processHumanMove({
-            position,
-            piece: currentPlayer.piece,
-          })
-        );
-      });
+  async attemptMove(position: number) {
+    const [currentPlayer, gameBoard] = await firstValueFrom(
+      combineLatest([this.currentPlayer$, this.gameBoard$])
+    );
+
+    if (gameBoard[position].gamePiece !== '') {
+      return;
+    }
+
+    this.store.dispatch(
+      RoundActions.processHumanMove({
+        position,
+        piece: currentPlayer.piece,
+      })
+    );
   }
 
-  gameModeClick() {
+  async gameModeClick() {
     this.store.dispatch(switchGameMode());
-    this.startNewGame();
+    await firstValueFrom(this.startNewGame());
   }
 
-  gameDifficultyClick() {
+  async gameDifficultyClick() {
     this.store.dispatch(switchGameDifficulty());
-    this.startNewGame();
+    await firstValueFrom(this.startNewGame());
   }
 
   resetGame() {
+    console.log('resetting game');
     this.store.dispatch(RoundActions.resetRoundStartingPlayerIndex());
     this.store.dispatch(resetPlayers());
     this.store.dispatch(resetDraws());
   }
 
-  startNewGame() {
-    this.resetGame();
-    this.gameMode$.pipe(take(1)).subscribe((gameMode) => {
-      this.store.dispatch(startGame({ gameMode }));
-    });
+  startNewGame(): Observable<void> {
+    return this.gameMode$.pipe(
+      first(),
+      tap(() => this.resetGame()),
+      map((gameMode) => this.store.dispatch(startGame({ gameMode })))
+    );
   }
 }
