@@ -2,8 +2,22 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { GameState } from '../game/game.reducer';
 import { PlayerState } from '../player/player.reducer';
-import { Store } from '@ngrx/store';
-import { withLatestFrom, switchMap, of, delay, concat } from 'rxjs';
+import { Action, Store } from '@ngrx/store';
+import {
+  withLatestFrom,
+  switchMap,
+  of,
+  delay,
+  concat,
+  from,
+  concatMap,
+  map,
+  catchError,
+  mergeMap,
+  EMPTY,
+  take,
+  mergeAll,
+} from 'rxjs';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import {
   setCurrentPlayer,
@@ -19,8 +33,11 @@ import {
   selectGameBoard,
   selectRoundStartingPlayerIndex,
 } from './round.selectors';
-import { selectGameDifficulty } from '../game/game.selectors';
+import { selectGameDifficulty, selectGameMode } from '../game/game.selectors';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
+import { GameModeEnum } from '../../enums/game-mode.enum';
+import { Player } from '../../models/player';
+import { Square } from '../../models/square';
 
 @Injectable()
 export class RoundEffects {
@@ -38,110 +55,142 @@ export class RoundEffects {
     return delay<T>(duration);
   }
 
-  startRound$ = createEffect(() =>
+  initializeRound$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(RoundActions.startRound),
-      withLatestFrom(this.store.select(selectRoundStartingPlayerIndex)),
-      switchMap(([_, roundStartingPlayerIndex]) => {
-        return of(
-          setCurrentPlayer({ currentPlayerIndex: roundStartingPlayerIndex })
-        );
-      })
-    )
-  );
-
-  makeHumanMove$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(RoundActions.makeHumanMove),
-      withLatestFrom(this.store.select(selectCurrentPlayer)),
-      switchMap(([action, currentPlayer]) => {
-        return concat(
-          of(RoundActions.setProcessingMove({ processingMove: true })),
-          of(
-            RoundActions.setBoardPosition({
-              position: action.position,
-              piece: currentPlayer.piece,
-            })
-          )
-        );
-      })
-    )
-  );
-
-  makeCpuMove$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(RoundActions.makeCPUMove),
+      ofType(RoundActions.initializeRound),
       withLatestFrom(
-        this.store.select(selectGameBoard),
-        this.store.select(selectCurrentPlayer),
-        this.store.select(selectGameDifficulty)
+        this.store.select(selectRoundStartingPlayerIndex),
+        this.store.select(selectGameMode),
+        this.store.select(selectGameBoard)
       ),
-      switchMap(([_, gameBoard, currentPlayer, gameDifficulty]) => {
-        let position!: number;
-        switch (gameDifficulty) {
-          case GameDifficultyEnum.Easy:
-            position = this.gameService.getRandomEmptySquare(gameBoard);
-            break;
-          case GameDifficultyEnum.Medium:
-            position = this.gameService.makeMediumCpuMove(gameBoard);
-            break;
-          case GameDifficultyEnum.Hard:
-            position = this.gameService.makeHardCpuMove(gameBoard);
-            break;
+      mergeMap(([_, startingPlayerIndex, gameMode, boardState]) => {
+        const actions: Action[] = [
+          RoundActions.setProcessingState({ isProcessing: false }),
+          RoundActions.updateBoard({ clear: true }),
+          setCurrentPlayer({ currentPlayerIndex: startingPlayerIndex }),
+        ];
+
+        if (
+          gameMode === GameModeEnum.SinglePlayer &&
+          startingPlayerIndex === 1
+        ) {
+          actions.push(RoundActions.processCPUMove({ boardState }));
         }
 
-        return concat(
-          of(RoundActions.setProcessingMove({ processingMove: true })),
-          of(
-            RoundActions.setBoardPosition({
-              position,
-              piece: currentPlayer.piece,
-            })
-          ).pipe(this.applyDelay(500))
-        );
+        return actions;
+      }),
+      catchError((error) => {
+        console.error('Error initializing round:', error);
+        return EMPTY;
       })
     )
   );
 
-  setBoardPosition$ = createEffect(() =>
+  completeRound$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(RoundActions.setBoardPosition),
-      withLatestFrom(this.store.select(selectGameBoard)),
-      switchMap(([_, gameBoard]) => {
-        let actions = [];
+      ofType(RoundActions.completeRound),
+      mergeMap(({ outcome }) => {
+        const actions = [];
 
-        const winningPositions = this.gameService.calculateWinner(gameBoard);
-        const outcome = this.gameService.determineOutcome(gameBoard);
-
-        if (outcome !== OutcomeEnum.None) {
-          actions.push(RoundActions.endRound({ outcome, winningPositions }));
-        } else {
-          actions.push(switchPlayer());
-        }
-
-        actions.push(RoundActions.setProcessingMove({ processingMove: false }));
-
-        return of(...actions);
-      })
-    )
-  );
-
-  endRound$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(RoundActions.endRound),
-      switchMap((action) => {
-        let actions = [];
-
-        if (action.outcome === OutcomeEnum.Win) {
+        if (outcome === OutcomeEnum.Win) {
           actions.push(updatePlayerWins());
-        } else if (action.outcome === OutcomeEnum.Draw) {
+        } else if (outcome === OutcomeEnum.Draw) {
           actions.push(updateDraws());
         }
 
+        // Always switch starting player for next round
         actions.push(RoundActions.switchRoundStartingPlayerIndex());
 
-        return of(...actions);
+        return actions;
+      }),
+      catchError((error) => {
+        console.error('Error completing round:', error);
+        return EMPTY;
       })
     )
   );
+
+  processCPUMove$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RoundActions.processCPUMove),
+      withLatestFrom(
+        this.store.select(selectGameDifficulty),
+        this.store.select(selectCurrentPlayer)
+      ),
+      this.applyDelay(500),
+      mergeMap(([{ boardState }, difficulty, player]) => {
+        const position = this.calculateCPUMove(boardState, difficulty);
+        return [
+          RoundActions.setProcessingState({ isProcessing: true }),
+          RoundActions.updateBoard({ position, piece: player.piece }),
+          RoundActions.evaluateRoundStatus({
+            boardState: boardState.map((square, index) =>
+              index === position
+                ? { ...square, gamePiece: player.piece }
+                : square
+            ),
+          }),
+          RoundActions.setProcessingState({ isProcessing: false }),
+        ];
+      })
+    )
+  );
+
+  processHumanMove$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RoundActions.processHumanMove),
+      switchMap(({ position, piece }) =>
+        concat(
+          [
+            RoundActions.setProcessingState({ isProcessing: true }),
+            RoundActions.updateBoard({ position, piece }),
+          ],
+          this.store.select(selectGameBoard).pipe(
+            take(1),
+            map((boardState) => [
+              RoundActions.evaluateRoundStatus({ boardState }),
+              RoundActions.setProcessingState({ isProcessing: false }),
+            ])
+          )
+        )
+      ),
+      mergeMap((actions) => (Array.isArray(actions) ? actions : [actions]))
+    )
+  );
+
+  evaluateRoundStatus$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RoundActions.evaluateRoundStatus),
+      withLatestFrom(
+        this.store.select(selectGameMode),
+        this.store.select(selectCurrentPlayer),
+        this.store.select(selectGameBoard)
+      ),
+      mergeMap(([_, gameMode, currentPlayer, boardState]) => {
+        const outcome = this.gameService.determineOutcome(boardState);
+        const winningPositions =
+          this.gameService.calculateWinner(boardState) ?? undefined;
+
+        if (outcome !== OutcomeEnum.None) {
+          return of(RoundActions.completeRound({ outcome, winningPositions }));
+        } else {
+          return of(switchPlayer());
+        }
+      })
+    )
+  );
+
+  private calculateCPUMove(
+    boardState: Square[],
+    difficulty: GameDifficultyEnum
+  ): number {
+    switch (difficulty) {
+      case GameDifficultyEnum.Hard:
+        return this.gameService.makeHardCpuMove(boardState);
+      case GameDifficultyEnum.Medium:
+        return this.gameService.makeMediumCpuMove(boardState);
+      default:
+        return this.gameService.getRandomEmptySquare(boardState);
+    }
+  }
 }

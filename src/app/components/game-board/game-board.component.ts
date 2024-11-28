@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import { Store, STORE_FEATURES } from '@ngrx/store';
 import {
   switchGameMode,
@@ -100,23 +100,30 @@ export class GameBoardComponent implements OnInit {
   // Clicking a square triggers a move
   // If the game is over, clicking a square should start a new game
   //  and switch the player
-  squareClick(position: number) {
-    this.outcome$.pipe(take(1)).subscribe((outcome) => {
-      if (outcome !== OutcomeEnum.None) {
-        this.store.dispatch(RoundActions.startRound());
-      } else {
-        this.attemptMove(position);
-      }
-    });
+  async squareClick(position: number) {
+    const outcome = await firstValueFrom(this.outcome$);
+
+    if (outcome !== OutcomeEnum.None) {
+      this.store.dispatch(RoundActions.initializeRound());
+    } else {
+      this.attemptMove(position);
+    }
   }
 
   attemptMove(position: number) {
-    this.gameBoard$.pipe(take(1)).subscribe((gameBoard) => {
-      if (gameBoard[position].gamePiece !== '') {
-        return;
-      }
-      this.store.dispatch(RoundActions.makeHumanMove({ position }));
-    });
+    this.currentPlayer$
+      .pipe(withLatestFrom(this.gameBoard$), take(1))
+      .subscribe(([currentPlayer, gameBoard]) => {
+        if (gameBoard[position].gamePiece !== '') {
+          return;
+        }
+        this.store.dispatch(
+          RoundActions.processHumanMove({
+            position,
+            piece: currentPlayer.piece,
+          })
+        );
+      });
   }
 
   gameModeClick() {
