@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
 import { Observable, combineLatest, firstValueFrom } from 'rxjs';
-import { Store, STORE_FEATURES } from '@ngrx/store';
+import { Store } from '@ngrx/store';
 import {
   switchGameMode,
   startGame,
@@ -15,7 +15,7 @@ import {
   selectGameMode,
 } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
+import { resetPlayers } from '../../store/player/player.actions';
 import { selectCurrentPlayer } from '../../store/player/player.selectors';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import {
@@ -25,7 +25,7 @@ import {
   selectRoundStartingPlayerIndex,
 } from '../../store/round/round.selectors';
 import { RoundActions } from '../../store/round/round.actions';
-import { map, withLatestFrom, take, first, tap } from 'rxjs/operators';
+import { map, withLatestFrom, first, tap } from 'rxjs/operators';
 import { LineCalculatorService } from '../../services/line-calculator.service';
 
 @Component({
@@ -94,6 +94,7 @@ export class GameBoardComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
+    console.log('ngOnInit called');
     this.store.dispatch(startGame({ gameMode: GameModeEnum.TwoPlayer }));
   }
 
@@ -101,6 +102,7 @@ export class GameBoardComponent implements OnInit {
   // If the game is over, clicking a square should start a new game
   //  and switch the player
   async squareClick(position: number) {
+    console.log('squareClick called with position:', position);
     const outcome = await firstValueFrom(this.outcome$);
 
     if (outcome !== OutcomeEnum.None) {
@@ -138,7 +140,7 @@ export class GameBoardComponent implements OnInit {
   }
 
   resetGame() {
-    console.log('resetting game');
+    console.log('resetGame');
     this.store.dispatch(RoundActions.resetRoundStartingPlayerIndex());
     this.store.dispatch(resetPlayers());
     this.store.dispatch(resetDraws());

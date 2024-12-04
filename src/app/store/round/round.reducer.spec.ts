@@ -30,7 +30,7 @@ describe('Round Reducer', () => {
   test('should handle startRound', () => {
     const state = roundReducer(
       initialRoundStateMock,
-      RoundActions.startRound()
+      RoundActions.initializeRound()
     );
 
     expect(state.gameBoard).toStrictEqual(
@@ -43,7 +43,7 @@ describe('Round Reducer', () => {
     const winningPositions = [0, 1, 2];
     const state = roundReducer(
       initialRoundStateMock,
-      RoundActions.endRound({ outcome: OutcomeEnum.Win, winningPositions })
+      RoundActions.completeRound({ outcome: OutcomeEnum.Win, winningPositions })
     );
 
     expect(state.outcome).toBe(OutcomeEnum.Win);
@@ -55,7 +55,10 @@ describe('Round Reducer', () => {
   test('should handle endRound with draw condition', () => {
     const state = roundReducer(
       initialRoundStateMock,
-      RoundActions.endRound({ outcome: OutcomeEnum.Draw, winningPositions: [] })
+      RoundActions.completeRound({
+        outcome: OutcomeEnum.Draw,
+        winningPositions: [],
+      })
     );
     expect(state.outcome).toBe(OutcomeEnum.Draw);
   });
@@ -64,7 +67,7 @@ describe('Round Reducer', () => {
     const processingMove = true;
     const state = roundReducer(
       initialRoundStateMock,
-      RoundActions.setProcessingMove({ processingMove })
+      RoundActions.setProcessingState({ isProcessing: processingMove })
     );
     expect(state.processingMove).toBe(processingMove);
   });
@@ -74,7 +77,7 @@ describe('Round Reducer', () => {
     const piece = currentPlayerMock.piece;
     const state = roundReducer(
       initialRoundStateMock,
-      RoundActions.setBoardPosition({ position, piece })
+      RoundActions.updateBoard({ position, piece })
     );
 
     expect(state.gameBoard[0].gamePiece).toBe(piece);

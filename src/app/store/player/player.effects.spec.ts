@@ -44,17 +44,19 @@ describe('PlayerEffects', () => {
   });
 
   describe('switchPlayer$', () => {
-    test('dispatches makeCPUMove when current player is CPU', async () => {
+    test('dispatches processCPUMove when current player is CPU', async () => {
       const cpuCurrentPlayer = {
         ...initialPlayerState.players[1],
         isCpu: true,
       };
 
+      const boardState = Array(9).fill({ gamePiece: '', isWinner: false });
+
       store.overrideSelector(selectCurrentPlayer, cpuCurrentPlayer);
       actions$ = of(switchPlayer());
 
       const result = await firstValueFrom(effects.switchPlayer$);
-      expect(result).toEqual(RoundActions.makeCPUMove());
+      expect(result).toEqual(RoundActions.processCPUMove({ boardState }));
     });
 
     test('dispatches NO_OP when current player is human', async () => {

@@ -9,14 +9,11 @@ import {
   of,
   delay,
   concat,
-  from,
-  concatMap,
   map,
   catchError,
   mergeMap,
   EMPTY,
   take,
-  mergeAll,
 } from 'rxjs';
 import { OutcomeEnum } from '../../enums/outcome.enum';
 import {
@@ -36,7 +33,6 @@ import {
 import { selectGameDifficulty, selectGameMode } from '../game/game.selectors';
 import { GameDifficultyEnum } from '../../enums/game-difficulty.enum';
 import { GameModeEnum } from '../../enums/game-mode.enum';
-import { Player } from '../../models/player';
 import { Square } from '../../models/square';
 
 @Injectable()
@@ -78,10 +74,6 @@ export class RoundEffects {
         }
 
         return actions;
-      }),
-      catchError((error) => {
-        console.error('Error initializing round:', error);
-        return EMPTY;
       })
     )
   );

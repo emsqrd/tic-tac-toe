@@ -101,18 +101,34 @@ describe('GameBoardComponent', () => {
   });
 
   describe('game moves', () => {
-    test('dispatches makeHumanMove when clicking empty square during active game', () => {
+    test('dispatches processHumanMove when clicking empty square during active game', async () => {
+      // Setup initial state with empty board and active game
+      const emptyBoard = Array(9).fill({ gamePiece: '', isWinner: false });
       store.overrideSelector(selectOutcome, OutcomeEnum.None);
+      store.overrideSelector(selectGameBoard, emptyBoard);
+      store.overrideSelector(selectCurrentPlayer, currentPlayerMock);
       store.refreshState();
-      fixture.detectChanges();
 
-      const square: DebugElement = fixture.debugElement.query(
-        By.css('t3-square')
-      );
-      square.triggerEventHandler('click', null);
+      // Wait for component initialization
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Clear any previous dispatch calls
+      dispatchSpy.mockClear();
+
+      // Get all squares and click the first one
+      const squares = fixture.debugElement.queryAll(By.css('t3-square'));
+      expect(squares.length).toBeGreaterThan(0);
+      squares[0].triggerEventHandler('click', 0);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
 
       expect(dispatchSpy).toHaveBeenCalledWith(
-        RoundActions.makeHumanMove({ position: 0 })
+        RoundActions.processHumanMove({
+          position: 0,
+          piece: currentPlayerMock.piece,
+        })
       );
     });
 
@@ -129,7 +145,10 @@ describe('GameBoardComponent', () => {
       component.squareClick(position);
 
       expect(dispatchSpy).not.toHaveBeenCalledWith(
-        RoundActions.makeHumanMove({ position })
+        RoundActions.processHumanMove({
+          position,
+          piece: currentPlayerMock.piece,
+        })
       );
     });
 
@@ -285,18 +304,19 @@ describe('GameBoardComponent', () => {
       expect(dispatchSpy).toHaveBeenCalledWith(resetDraws());
     });
 
-    test('resets game and starts new game when startNewGame called', () => {
+    test('resets game and starts new game when startNewGame called', (done) => {
       store.overrideSelector(selectGameMode, GameModeEnum.TwoPlayer);
       store.refreshState();
       fixture.detectChanges();
 
       const resetSpy = jest.spyOn(component, 'resetGame');
-      component.startNewGame();
-
-      expect(resetSpy).toHaveBeenCalled();
-      expect(dispatchSpy).toHaveBeenCalledWith(
-        startGame({ gameMode: GameModeEnum.TwoPlayer })
-      );
+      component.startNewGame().subscribe(() => {
+        expect(resetSpy).toHaveBeenCalled();
+        expect(dispatchSpy).toHaveBeenCalledWith(
+          startGame({ gameMode: GameModeEnum.TwoPlayer })
+        );
+        done();
+      });
     });
   });
 
