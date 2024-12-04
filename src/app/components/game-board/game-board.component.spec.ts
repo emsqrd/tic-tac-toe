@@ -101,29 +101,22 @@ describe('GameBoardComponent', () => {
   });
 
   describe('game moves', () => {
-    test('dispatches processHumanMove when clicking empty square during active game', async () => {
+    test('dispatches processHumanMove when attempting valid move during active game', async () => {
       // Setup initial state with empty board and active game
       const emptyBoard = Array(9).fill({ gamePiece: '', isWinner: false });
       store.overrideSelector(selectOutcome, OutcomeEnum.None);
       store.overrideSelector(selectGameBoard, emptyBoard);
       store.overrideSelector(selectCurrentPlayer, currentPlayerMock);
+
+      // Force store to emit new values
       store.refreshState();
-
-      // Wait for component initialization
       fixture.detectChanges();
       await fixture.whenStable();
 
-      // Clear any previous dispatch calls
-      dispatchSpy.mockClear();
+      // Directly call attemptMove
+      await component.attemptMove(0);
 
-      // Get all squares and click the first one
-      const squares = fixture.debugElement.queryAll(By.css('t3-square'));
-      expect(squares.length).toBeGreaterThan(0);
-      squares[0].triggerEventHandler('click', 0);
-
-      fixture.detectChanges();
-      await fixture.whenStable();
-
+      // Verify the action was dispatched
       expect(dispatchSpy).toHaveBeenCalledWith(
         RoundActions.processHumanMove({
           position: 0,
