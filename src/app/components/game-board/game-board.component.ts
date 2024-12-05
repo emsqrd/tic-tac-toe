@@ -2,8 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SquareComponent } from '../square/square.component';
 import { ScoringComponent } from '../scoring/scoring.component';
-import { Observable } from 'rxjs';
-import { Store, STORE_FEATURES } from '@ngrx/store';
+import { Observable, combineLatest, firstValueFrom } from 'rxjs';
+import { Store } from '@ngrx/store';
 import {
   switchGameMode,
   startGame,
@@ -15,7 +15,7 @@ import {
   selectGameMode,
 } from '../../store/game/game.selectors';
 import { OutcomeEnum } from '../../enums/outcome.enum';
-import { resetPlayers, switchPlayer } from '../../store/player/player.actions';
+import { resetPlayers } from '../../store/player/player.actions';
 import { selectCurrentPlayer } from '../../store/player/player.selectors';
 import { GameModeEnum } from '../../enums/game-mode.enum';
 import {
@@ -25,7 +25,7 @@ import {
   selectRoundStartingPlayerIndex,
 } from '../../store/round/round.selectors';
 import { RoundActions } from '../../store/round/round.actions';
-import { map, withLatestFrom, take } from 'rxjs/operators';
+import { map, withLatestFrom, first, tap } from 'rxjs/operators';
 import { LineCalculatorService } from '../../services/line-calculator.service';
 
 @Component({
@@ -100,33 +100,41 @@ export class GameBoardComponent implements OnInit {
   // Clicking a square triggers a move
   // If the game is over, clicking a square should start a new game
   //  and switch the player
-  squareClick(position: number) {
-    this.outcome$.pipe(take(1)).subscribe((outcome) => {
-      if (outcome !== OutcomeEnum.None) {
-        this.store.dispatch(RoundActions.startRound());
-      } else {
-        this.attemptMove(position);
-      }
-    });
+  async squareClick(position: number) {
+    const outcome = await firstValueFrom(this.outcome$);
+
+    if (outcome !== OutcomeEnum.None) {
+      this.store.dispatch(RoundActions.initializeRound());
+    } else {
+      this.attemptMove(position);
+    }
   }
 
-  attemptMove(position: number) {
-    this.gameBoard$.pipe(take(1)).subscribe((gameBoard) => {
-      if (gameBoard[position].gamePiece !== '') {
-        return;
-      }
-      this.store.dispatch(RoundActions.makeHumanMove({ position }));
-    });
+  async attemptMove(position: number) {
+    const [currentPlayer, gameBoard] = await firstValueFrom(
+      combineLatest([this.currentPlayer$, this.gameBoard$])
+    );
+
+    if (gameBoard[position].gamePiece !== '') {
+      return;
+    }
+
+    this.store.dispatch(
+      RoundActions.processHumanMove({
+        position,
+        piece: currentPlayer.piece,
+      })
+    );
   }
 
-  gameModeClick() {
+  async gameModeClick() {
     this.store.dispatch(switchGameMode());
-    this.startNewGame();
+    await firstValueFrom(this.startNewGame());
   }
 
-  gameDifficultyClick() {
+  async gameDifficultyClick() {
     this.store.dispatch(switchGameDifficulty());
-    this.startNewGame();
+    await firstValueFrom(this.startNewGame());
   }
 
   resetGame() {
@@ -135,10 +143,11 @@ export class GameBoardComponent implements OnInit {
     this.store.dispatch(resetDraws());
   }
 
-  startNewGame() {
-    this.resetGame();
-    this.gameMode$.pipe(take(1)).subscribe((gameMode) => {
-      this.store.dispatch(startGame({ gameMode }));
-    });
+  startNewGame(): Observable<void> {
+    return this.gameMode$.pipe(
+      first(),
+      tap(() => this.resetGame()),
+      map((gameMode) => this.store.dispatch(startGame({ gameMode })))
+    );
   }
 }

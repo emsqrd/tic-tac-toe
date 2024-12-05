@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Square } from '../models/square';
 import { OutcomeEnum } from '../enums/outcome.enum';
+import { take, map } from 'rxjs';
+import { selectGameBoard } from '../store/round/round.selectors';
 
 @Injectable({
   providedIn: 'root',

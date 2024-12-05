@@ -14,6 +14,7 @@ import { selectGameMode } from './game.selectors';
 import { RoundActions } from '../round/round.actions';
 import { RoundState } from '../round/round.reducer';
 import { getInitialRoundStateMock } from '../mocks/round-mocks';
+import { selectPlayers } from '../player/player.selectors';
 
 describe('GameEffects', () => {
   let actions$: Observable<any>;
@@ -55,18 +56,19 @@ describe('GameEffects', () => {
     actions$ = of(action);
 
     const result = await firstValueFrom(effects.startGame$);
-    expect(result).toStrictEqual(RoundActions.startRound());
+    expect(result).toStrictEqual(RoundActions.initializeRound());
   });
 
   test('should dispatch setCpuPlayer and startRound actions for single player game mode', async () => {
     const action = startGame({ gameMode: GameModeEnum.SinglePlayer });
     mockStore.overrideSelector(selectGameMode, GameModeEnum.SinglePlayer);
+    mockStore.overrideSelector(selectPlayers, initialPlayerStateMock.players);
     actions$ = of(action);
 
     const results = await firstValueFrom(effects.startGame$.pipe(toArray()));
     expect(results).toStrictEqual([
-      setCpuPlayer({ gamePiece: 'O' }),
-      RoundActions.startRound(),
+      setCpuPlayer({ gamePiece: initialPlayerStateMock.players[1].piece }),
+      RoundActions.initializeRound(),
     ]);
   });
 });
