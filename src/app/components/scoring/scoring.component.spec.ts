@@ -154,5 +154,65 @@ describe('ScoringComponent', () => {
         expect(component.isDraw).toBe(true);
       });
     });
+
+    describe('selectPlayer1 combinations', () => {
+      beforeEach(() => {
+        component.player1 = {
+          name: 'Player 1',
+          piece: 'X',
+          wins: 0,
+          isCpu: false,
+        };
+      });
+
+      test.each([
+        [
+          'matches current player and no result',
+          'Player 1',
+          OutcomeEnum.None,
+          true,
+        ],
+        [
+          'matches current player with result',
+          'Player 1',
+          OutcomeEnum.Win,
+          true,
+        ],
+        [
+          'is different player but has result',
+          'Player 2',
+          OutcomeEnum.Win,
+          true,
+        ],
+        [
+          'is different player and no result',
+          'Player 2',
+          OutcomeEnum.None,
+          false,
+        ],
+      ])(
+        'when currentPlayer %s',
+        (
+          scenario: string,
+          playerName: string,
+          outcome: OutcomeEnum,
+          expected: boolean
+        ) => {
+          // Arrange
+          component.currentPlayer = {
+            name: playerName,
+            piece: playerName === 'Player 1' ? 'X' : 'O',
+            wins: 0,
+            isCpu: false,
+          };
+          component.outcome = outcome;
+
+          // Act & Assert
+          expect(component.selectPlayer1).toBe(expected);
+          // Also verify isResult is working as expected
+          expect(component.isResult).toBe(outcome !== OutcomeEnum.None);
+        }
+      );
+    });
   });
 });

@@ -22,12 +22,12 @@ describe('Round Reducer', () => {
       initialPlayerStateMock.players[initialPlayerStateMock.currentPlayerIndex];
   });
 
-  test('should return initial state', () => {
+  test('returns initial state', () => {
     const state = roundReducer(undefined, { type: '@@INIT' });
     expect(state).toStrictEqual(initialRoundStateMock);
   });
 
-  test('should handle startRound', () => {
+  test('initializes round with empty board and no outcome', () => {
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.initializeRound()
@@ -39,7 +39,7 @@ describe('Round Reducer', () => {
     expect(state.outcome).toBe(OutcomeEnum.None);
   });
 
-  test('should handle endRound with win condition', () => {
+  test('marks winning positions when round completes with win', () => {
     const winningPositions = [0, 1, 2];
     const state = roundReducer(
       initialRoundStateMock,
@@ -52,7 +52,37 @@ describe('Round Reducer', () => {
     expect(state.gameBoard[2].isWinner).toBe(true);
   });
 
-  test('should handle endRound with draw condition', () => {
+  test('does not mark winning positions when round completes with draw', () => {
+    const state = roundReducer(
+      initialRoundStateMock,
+      RoundActions.completeRound({
+        outcome: OutcomeEnum.Draw,
+        winningPositions: [],
+      })
+    );
+
+    expect(state.outcome).toBe(OutcomeEnum.Draw);
+    state.gameBoard.forEach((square) => {
+      expect(square.isWinner).toBe(false);
+    });
+  });
+
+  test('handles undefined winning positions when completing round', () => {
+    const state = roundReducer(
+      initialRoundStateMock,
+      RoundActions.completeRound({
+        outcome: OutcomeEnum.Draw,
+        winningPositions: undefined,
+      })
+    );
+
+    expect(state.outcome).toBe(OutcomeEnum.Draw);
+    state.gameBoard.forEach((square) => {
+      expect(square.isWinner).toBe(false);
+    });
+  });
+
+  test('updates outcome when round ends in draw', () => {
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.completeRound({
@@ -63,7 +93,7 @@ describe('Round Reducer', () => {
     expect(state.outcome).toBe(OutcomeEnum.Draw);
   });
 
-  test('should handle setProcessingMove', () => {
+  test('updates processing move state', () => {
     const processingMove = true;
     const state = roundReducer(
       initialRoundStateMock,
@@ -72,7 +102,7 @@ describe('Round Reducer', () => {
     expect(state.processingMove).toBe(processingMove);
   });
 
-  test('should set board position with player piece', () => {
+  test('updates board position with player piece', () => {
     const position = 0;
     const piece = currentPlayerMock.piece;
     const state = roundReducer(
@@ -83,7 +113,18 @@ describe('Round Reducer', () => {
     expect(state.gameBoard[0].gamePiece).toBe(piece);
   });
 
-  test('should switch round starting player index', () => {
+  test('clears board when update board action is called with clear flag', () => {
+    const state = roundReducer(
+      initialRoundStateMock,
+      RoundActions.updateBoard({ clear: true, position: 0, piece: '' })
+    );
+
+    expect(state.gameBoard).toStrictEqual(
+      Array(9).fill({ gamePiece: '', isWinner: false })
+    );
+  });
+
+  test('increments round starting player index', () => {
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.switchRoundStartingPlayerIndex()
@@ -92,7 +133,7 @@ describe('Round Reducer', () => {
     expect(state.roundStartingPlayerIndex).toBe(1);
   });
 
-  test('should reset round starting player index to 0', () => {
+  test('resets round starting player index to 0', () => {
     const state = roundReducer(
       initialRoundStateMock,
       RoundActions.resetRoundStartingPlayerIndex()

@@ -94,10 +94,6 @@ export class RoundEffects {
         actions.push(RoundActions.switchRoundStartingPlayerIndex());
 
         return actions;
-      }),
-      catchError((error) => {
-        console.error('Error completing round:', error);
-        return EMPTY;
       })
     )
   );
