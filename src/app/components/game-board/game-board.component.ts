@@ -29,11 +29,10 @@ import { map, withLatestFrom, first, tap } from 'rxjs/operators';
 import { LineCalculatorService } from '../../services/line-calculator.service';
 
 @Component({
-  selector: 't3-game-board',
-  standalone: true,
-  imports: [CommonModule, SquareComponent, ScoringComponent],
-  templateUrl: './game-board.component.html',
-  styleUrl: './game-board.component.scss',
+    selector: 't3-game-board',
+    imports: [CommonModule, SquareComponent, ScoringComponent],
+    templateUrl: './game-board.component.html',
+    styleUrl: './game-board.component.scss'
 })
 export class GameBoardComponent implements OnInit {
   private readonly store = inject(Store);

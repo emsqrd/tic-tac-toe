@@ -12,11 +12,10 @@ import {
 import { selectOutcome } from '../../store/round/round.selectors';
 
 @Component({
-  selector: 't3-scoring',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './scoring.component.html',
-  styleUrl: './scoring.component.scss',
+    selector: 't3-scoring',
+    imports: [CommonModule],
+    templateUrl: './scoring.component.html',
+    styleUrl: './scoring.component.scss'
 })
 export class ScoringComponent {
   players$: Observable<Player[]>;
