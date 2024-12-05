@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { EMPTY, mergeMap, of, withLatestFrom } from 'rxjs';
+import { EMPTY, mergeMap, of, switchMap, withLatestFrom } from 'rxjs';
 import { GameState } from '../game/game.reducer';
 import { PlayerState } from './player.reducer';
 import { switchPlayer } from './player.actions';
@@ -26,7 +26,7 @@ export class PlayerEffects {
         this.store.select(selectCurrentPlayer),
         this.store.select(selectGameBoard)
       ),
-      mergeMap(([_, gameMode, currentPlayer, boardState]) => {
+      switchMap(([_, gameMode, currentPlayer, boardState]) => {
         // Process CPU Move if we've swtiched to a CPU player
         if (gameMode === GameModeEnum.SinglePlayer && currentPlayer.isCpu) {
           return of(RoundActions.processCPUMove({ boardState }));

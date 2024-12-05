@@ -94,7 +94,6 @@ export class GameBoardComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
-    console.log('ngOnInit called');
     this.store.dispatch(startGame({ gameMode: GameModeEnum.TwoPlayer }));
   }
 
@@ -102,7 +101,6 @@ export class GameBoardComponent implements OnInit {
   // If the game is over, clicking a square should start a new game
   //  and switch the player
   async squareClick(position: number) {
-    console.log('squareClick called with position:', position);
     const outcome = await firstValueFrom(this.outcome$);
 
     if (outcome !== OutcomeEnum.None) {
@@ -140,7 +138,6 @@ export class GameBoardComponent implements OnInit {
   }
 
   resetGame() {
-    console.log('resetGame');
     this.store.dispatch(RoundActions.resetRoundStartingPlayerIndex());
     this.store.dispatch(resetPlayers());
     this.store.dispatch(resetDraws());

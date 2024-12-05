@@ -111,7 +111,6 @@ describe('GameBoardComponent', () => {
       // Force store to emit new values
       store.refreshState();
       fixture.detectChanges();
-      await fixture.whenStable();
 
       // Directly call attemptMove
       await component.attemptMove(0);
