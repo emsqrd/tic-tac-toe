@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 't3-square',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './square.component.html',
   styleUrl: './square.component.scss',
