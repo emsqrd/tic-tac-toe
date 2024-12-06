@@ -70,11 +70,10 @@ describe('Game Flow', () => {
     });
 
     // Verify board is in draw state
-    // * Need to update so that a draw class is added instead of just applying blink to all divs
-    // cy.get('.game-board-content').should('have.class', 'draw');
+    cy.get('[data-draw="true"]').should('exist');
 
     // Verify clicking after draw starts a new game
     cy.get('[data-testid="board-square"]').eq(0).click();
-    cy.get('.game-board-content').should('not.have.class', 'draw');
+    cy.get('[data-draw="true"]').should('not.exist');
   });
 });

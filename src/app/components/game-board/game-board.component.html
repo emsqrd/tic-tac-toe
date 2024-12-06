@@ -28,7 +28,11 @@
     </div>
     }
   </section>
-  <section class="game-board-content" [ngClass]="{ draw: isDraw$ | async }">
+  <section
+    [attr.data-draw]="isDraw$ | async"
+    class="game-board-content"
+    [ngClass]="{ draw: isDraw$ | async }"
+  >
     <div
       class="game-board-grid"
       [ngClass]="{
