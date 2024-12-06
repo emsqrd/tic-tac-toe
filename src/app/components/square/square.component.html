@@ -8,7 +8,11 @@
     <line class="grid-line antiDiagonal" x1="50" y1="-50" x2="-50" y2="50" />
   </svg>
   }
-  <div class="square" [class]="gamePiece?.toLowerCase() || ''">
+  <div
+    data-testid="square-content"
+    class="square"
+    [class]="gamePiece?.toLowerCase() || ''"
+  >
     @if(displayXPiece) {
     <svg viewBox="-50 -50 100 100">
       <line class="x-line-left" x1="-35" y1="-35" x2="35" y2="35" />
