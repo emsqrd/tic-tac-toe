@@ -1,4 +1,8 @@
-<div id="squareContainer" [ngClass]="{ win: isWinner }">
+<div
+  id="squareContainer"
+  [ngClass]="{ win: isWinner }"
+  [attr.data-winner]="isWinner"
+>
   <!-- Grid lines -->
   @if (displayGridLines) {
   <svg class="grid-lines" viewBox="-50 -50 100 100">

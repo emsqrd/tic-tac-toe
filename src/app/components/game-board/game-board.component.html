@@ -17,7 +17,12 @@
     </div>
     @if (showDifficultyButton$ | async) {
     <div>
-      <a id="btnGameDifficulty" type="button" (click)="gameDifficultyClick()">
+      <a
+        data-testid="difficulty-button"
+        id="btnGameDifficulty"
+        type="button"
+        (click)="gameDifficultyClick()"
+      >
         {{ gameDifficultyButtonText$ | async }}
       </a>
     </div>
