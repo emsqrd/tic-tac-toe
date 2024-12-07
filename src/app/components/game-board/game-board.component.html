@@ -1,23 +1,38 @@
 <article
+  data-testid="game-board"
   class="game-board-container"
   [ngClass]="{ 'processing-move': processingMove$ | async }"
 >
   <!--? Idea for toggle: https://codepen.io/Enki/pen/oBqBqG?editors=1100 -->
   <section class="game-nav-container">
     <div>
-      <a id="btnGameMode" type="button" (click)="gameModeClick()">
+      <a
+        data-testid="game-mode-button"
+        id="btnGameMode"
+        type="button"
+        (click)="gameModeClick()"
+      >
         {{ gameModeButtonText$ | async }}
       </a>
     </div>
     @if (showDifficultyButton$ | async) {
     <div>
-      <a id="btnGameDifficulty" type="button" (click)="gameDifficultyClick()">
+      <a
+        data-testid="difficulty-button"
+        id="btnGameDifficulty"
+        type="button"
+        (click)="gameDifficultyClick()"
+      >
         {{ gameDifficultyButtonText$ | async }}
       </a>
     </div>
     }
   </section>
-  <section class="game-board-content" [ngClass]="{ draw: isDraw$ | async }">
+  <section
+    [attr.data-draw]="isDraw$ | async"
+    class="game-board-content"
+    [ngClass]="{ draw: isDraw$ | async }"
+  >
     <div
       class="game-board-grid"
       [ngClass]="{
@@ -26,6 +41,7 @@
     >
       @for (square of gameBoard$ | async; track $index){
       <t3-square
+        data-testid="board-square"
         class="game-board-square"
         [gamePiece]="square.gamePiece"
         [isWinner]="square.isWinner"

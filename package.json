@@ -9,7 +9,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:coverage:watch": "jest --coverage --watchAll"
+    "test:coverage:watch": "jest --coverage --watchAll",
+    "e2e": "ng e2e",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "private": true,
   "dependencies": {
@@ -32,8 +35,10 @@
     "@angular-devkit/build-angular": "^18.2.2",
     "@angular/cli": "^18.2.2",
     "@angular/compiler-cli": "^18.2.0",
+    "@cypress/schematic": "^2.5.2",
     "@ngrx/schematics": "^18.1.0",
     "@types/jest": "^29.5.12",
+    "cypress": "^13.16.1",
     "jest": "^29.7.0",
     "jest-preset-angular": "^14.0.3",
     "typescript": "~5.5.2"
