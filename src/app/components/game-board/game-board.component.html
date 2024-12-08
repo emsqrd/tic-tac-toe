@@ -4,7 +4,7 @@
   [ngClass]="{ 'processing-move': processingMove$ | async }"
 >
   <!-- Add this button wherever you want in your existing template -->
-  <button (click)="toggleTheme()">Toggle Dark Mode</button>
+  <a type="button" (click)="toggleTheme()">Dark Mode</a>
 
   <!--? Idea for toggle: https://codepen.io/Enki/pen/oBqBqG?editors=1100 -->
   <section class="game-nav-container">
