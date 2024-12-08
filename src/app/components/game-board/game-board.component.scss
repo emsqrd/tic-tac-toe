@@ -85,8 +85,8 @@
 }
 
 .game-board-square {
-  border-right: 4px solid black;
-  border-bottom: 4px solid black;
+  border-right: 4px solid var(--cell-border);
+  border-bottom: 4px solid var(--cell-border);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -143,7 +143,7 @@
   overflow: visible;
 
   line {
-    stroke: #000;
+    stroke: var(--cell-border);
     stroke-width: 6px;
     stroke-linecap: round;
     stroke-dasharray: 425;

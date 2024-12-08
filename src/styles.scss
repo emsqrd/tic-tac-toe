@@ -1,6 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
+:root {
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --board-color: #f0f0f0;
+  --cell-border: #000000;
+}
+
+.dark-mode {
+  --background-color: #1a1a1a;
+  --text-color: #ffffff;
+  --board-color: #2d2d2d;
+  --cell-border: #ffffff;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
 * {
   // base styling
   margin: 0;
