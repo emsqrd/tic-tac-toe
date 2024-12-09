@@ -98,10 +98,6 @@ export class GameBoardComponent implements OnInit {
     this.store.dispatch(startGame({ gameMode: GameModeEnum.TwoPlayer }));
   }
 
-  toggleTheme(): void {
-    this.themeService.toggleTheme();
-  }
-
   // Clicking a square triggers a move
   // If the game is over, clicking a square should start a new game
   //  and switch the player
