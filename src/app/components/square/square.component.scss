@@ -30,7 +30,7 @@
 
   .x-line-left,
   .x-line-right {
-    stroke: #000;
+    stroke: var(--cell-border);
     stroke-width: 12px;
     stroke-linecap: round;
     stroke-dasharray: 100;
@@ -60,7 +60,7 @@
 
   .animated-circle {
     stroke-width: 12px;
-    stroke: #000;
+    stroke: var(--cell-border);
     fill: none;
     transform: rotate(90deg) scale(-1, 1);
     stroke-linecap: round;
@@ -77,7 +77,7 @@
   pointer-events: none;
 
   .grid-line {
-    stroke: #ddd;
+    stroke: var(--cell-border);
     stroke-width: 2px;
     stroke-linecap: round;
   }
