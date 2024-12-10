@@ -1,7 +1,11 @@
-<a data-testid="theme-toggle" type="button" (click)="toggleTheme()">
-  @if(isDarkMode$ | async){
-  <i class="fa-solid fa-moon"></i>
-  } @else {
-  <i class="fa-solid fa-sun"></i>
-  }
-</a>
+<div class="container">
+  <span class="theme-toggle">
+    <a data-testid="theme-toggle" type="button" (click)="toggleTheme()">
+      @if(isDarkMode$ | async){
+      <i class="fa-solid fa-moon fa-2xl"></i>
+      } @else {
+      <i class="fa-solid fa-sun fa-2xl"></i>
+      }
+    </a>
+  </span>
+</div>
