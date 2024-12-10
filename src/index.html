@@ -10,6 +10,14 @@
       src="https://kit.fontawesome.com/238e86832b.js"
       crossorigin="anonymous"
     ></script>
+    <script>
+      (function () {
+        const theme = localStorage.getItem("theme");
+        if (theme && JSON.parse(theme)) {
+          document.documentElement.classList.add("dark-mode");
+        }
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>
