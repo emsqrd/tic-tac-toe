@@ -1,4 +1,7 @@
-<!-- Add this button wherever you want in your existing template -->
-<a data-testid="theme-toggle" type="button" (click)="toggleTheme()"
-  ><i class="fa-solid fa-moon"></i
-></a>
+<a data-testid="theme-toggle" type="button" (click)="toggleTheme()">
+  @if(isDarkMode$ | async){
+  <i class="fa-solid fa-moon"></i>
+  } @else {
+  <i class="fa-solid fa-sun"></i>
+  }
+</a>

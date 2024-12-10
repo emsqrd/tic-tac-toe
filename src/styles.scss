@@ -15,7 +15,7 @@
 }
 
 :root {
-  --background-color: #ffffff;
+  --background-color: #f5f5f5;
   --text-color: #22252a;
   --board-color: #f0f0f0;
   --cell-border: #22252a;
@@ -23,9 +23,9 @@
 
 .dark-mode {
   --background-color: #22252a;
-  --text-color: #ffffff;
+  --text-color: #f5f5f5;
   --board-color: #22252a;
-  --cell-border: #ffffff;
+  --cell-border: #f5f5f5;
 }
 
 body {
