@@ -1,5 +1,6 @@
 .container {
   --viewport-padding: 32px;
+  padding-top: 2rem;
   display: grid;
   grid-template-columns:
     1fr min(25rem, calc(100% - var(--viewport-padding) * 2))
@@ -9,9 +10,6 @@
 
 .theme-toggle {
   grid-area: toggle;
-  justify-items: right;
-}
-
-a {
-  padding: 2rem;
+  display: flex;
+  justify-content: end;
 }
