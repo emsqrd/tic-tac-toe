@@ -13,9 +13,9 @@
         (click)="gameModeClick()"
       >
         @if ((gameModeButtonText$ | async) === '1P') {
-        <i class="fa-solid fa-user fa-xl"></i>
+        <i data-testid="game-mode-1p" class="fa-solid fa-user fa-xl"></i>
         } @else {
-        <i class="fa-solid fa-user-group fa-xl"></i>
+        <i data-testid="game-mode-2p" class="fa-solid fa-user-group fa-xl"></i>
         }
       </a>
     </span>

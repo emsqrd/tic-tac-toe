@@ -11,14 +11,14 @@ describe('Theme Switching', () => {
     cy.get('html').should('have.class', 'dark-mode');
     cy.get('body')
       .should('have.css', 'background-color')
-      .and('not.eq', 'rgb(255, 255, 255)');
+      .and('eq', 'rgb(34, 37, 42)');
 
     // Reload and verify persistence
     cy.reload();
     cy.get('html').should('have.class', 'dark-mode');
     cy.get('body')
       .should('have.css', 'background-color')
-      .and('not.eq', 'rgb(255, 255, 255)');
+      .and('eq', 'rgb(34, 37, 42)');
   });
 
   it('toggles between light and dark themes correctly', () => {
@@ -26,20 +26,20 @@ describe('Theme Switching', () => {
     cy.get('html').should('not.have.class', 'dark-mode');
     cy.get('body')
       .should('have.css', 'background-color')
-      .and('eq', 'rgb(255, 255, 255)');
+      .and('eq', 'rgb(245, 245, 245)');
 
     // Toggle to dark theme
     cy.get('[data-testid="theme-toggle"]').click();
     cy.get('html').should('have.class', 'dark-mode');
     cy.get('body')
       .should('have.css', 'background-color')
-      .and('not.eq', 'rgb(255, 255, 255)');
+      .and('eq', 'rgb(34, 37, 42)');
 
     // Toggle back to light theme
     cy.get('[data-testid="theme-toggle"]').click();
     cy.get('html').should('not.have.class', 'dark-mode');
     cy.get('body')
       .should('have.css', 'background-color')
-      .and('eq', 'rgb(255, 255, 255)');
+      .and('eq', 'rgb(245, 245, 245)');
   });
 });

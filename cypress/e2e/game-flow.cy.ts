@@ -26,9 +26,16 @@ describe('Game Flow', () => {
   });
 
   it('should handle game mode switching', () => {
+    // Default is two player
+    cy.get('[data-testid="game-mode-2p')
+      .should('exist')
+      .and('have.class', 'fa-user-group');
+
     // Switch to single player
     cy.get('[data-testid="game-mode-button"]').click();
-    cy.get('[data-testid="game-mode-button"]').should('contain', '1P');
+    cy.get('[data-testid="game-mode-1p"]')
+      .should('exist')
+      .and('have.class', 'fa-user');
 
     // Verify CPU moves after human move
     cy.get('[data-testid="board-square"]').eq(4).click();
