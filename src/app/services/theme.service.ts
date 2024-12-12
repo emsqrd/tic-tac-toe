@@ -19,7 +19,10 @@ export class ThemeService {
   }
 
   private applyTheme(isDark: boolean): void {
-    document.documentElement.classList[isDark ? 'add' : 'remove']('dark-mode');
+    document.documentElement.classList.toggle('dark-mode', isDark);
+
+    // Remove no-transition class after theme is applied
+    document.documentElement.classList.remove('no-transition');
   }
 
   toggleTheme(): void {
