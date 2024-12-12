@@ -16,6 +16,9 @@
         if (theme && JSON.parse(theme)) {
           document.documentElement.classList.add("dark-mode");
         }
+
+        // Add a temporary class to disable transitions during load
+        document.documentElement.classList.add("no-transition");
       })();
     </script>
   </head>
