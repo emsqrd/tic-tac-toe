@@ -19,9 +19,11 @@ describe('Game Board', () => {
   });
 
   it('should display correct initial game mode and player turn', () => {
-    cy.get('[data-testid="game-mode-button"]')
-      .should('be.visible')
-      .and('contain.text', '2P');
+    cy.get('[data-testid="game-mode-button"]').should('be.visible');
+
+    cy.get('[data-testid="game-mode-2p')
+      .should('exist')
+      .and('have.class', 'fa-user-group');
 
     cy.get('[data-testid="player-1"]').should('have.class', 'select-result');
     cy.get('[data-testid="player-1-score"]').should(

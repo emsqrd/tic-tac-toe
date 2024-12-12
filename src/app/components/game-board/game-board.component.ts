@@ -27,6 +27,7 @@ import {
 import { RoundActions } from '../../store/round/round.actions';
 import { map, withLatestFrom, first, tap } from 'rxjs/operators';
 import { LineCalculatorService } from '../../services/line-calculator.service';
+import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 't3-game-board',
@@ -91,7 +92,7 @@ export class GameBoardComponent implements OnInit {
     subscriber.next(false)
   );
 
-  constructor() {}
+  constructor(private themeService: ThemeService) {}
 
   ngOnInit(): void {
     this.store.dispatch(startGame({ gameMode: GameModeEnum.TwoPlayer }));

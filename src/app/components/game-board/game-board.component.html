@@ -5,18 +5,22 @@
 >
   <!--? Idea for toggle: https://codepen.io/Enki/pen/oBqBqG?editors=1100 -->
   <section class="game-nav-container">
-    <div>
+    <span class="icon-container">
       <a
         data-testid="game-mode-button"
         id="btnGameMode"
         type="button"
         (click)="gameModeClick()"
       >
-        {{ gameModeButtonText$ | async }}
+        @if ((gameModeButtonText$ | async) === '1P') {
+        <i data-testid="game-mode-1p" class="fa-solid fa-user fa-xl"></i>
+        } @else {
+        <i data-testid="game-mode-2p" class="fa-solid fa-user-group fa-xl"></i>
+        }
       </a>
-    </div>
+    </span>
     @if (showDifficultyButton$ | async) {
-    <div>
+    <span class="icon-container">
       <a
         data-testid="difficulty-button"
         id="btnGameDifficulty"
@@ -25,7 +29,7 @@
       >
         {{ gameDifficultyButtonText$ | async }}
       </a>
-    </div>
+    </span>
     }
   </section>
   <section
