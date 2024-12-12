@@ -27,6 +27,7 @@ import {
 import {
   selectGameBoard,
   selectOutcome,
+  selectProcessingMove,
 } from '../../store/round/round.selectors';
 import {
   resetDraws,
@@ -38,6 +39,8 @@ import { resetPlayers } from '../../store/player/player.actions';
 import { getInitialPlayerStateMock } from '../../store/mocks/player-mocks';
 import { getInitialGameStateMock } from '../../store/mocks/game-mocks';
 import { getInitialRoundStateMock } from '../../store/mocks/round-mocks';
+import { ThemeService } from '../../services/theme.service';
+import { LineCalculatorService } from '../../services/line-calculator.service';
 
 describe('GameBoardComponent', () => {
   let component: GameBoardComponent;
@@ -48,6 +51,22 @@ describe('GameBoardComponent', () => {
   let initialPlayerStateMock: PlayerState;
   let initialRoundStateMock: RoundState;
   let currentPlayerMock: Player;
+
+  const initialState = {
+    game: {
+      mode: GameModeEnum.SinglePlayer,
+      // ...other game state
+    },
+    round: {
+      processingMove: false,
+      gameBoard: Array(9).fill({ gamePiece: '', isWinner: false }),
+      // ...other round state
+    },
+    player: {
+      currentPlayer: { piece: 'X' },
+      // ...other player state
+    },
+  };
 
   beforeEach(async () => {
     initialGameStateMock = getInitialGameStateMock();
@@ -64,6 +83,8 @@ describe('GameBoardComponent', () => {
             round: initialRoundStateMock,
           },
         }),
+        ThemeService,
+        LineCalculatorService,
       ],
     }).compileComponents();
 
@@ -157,6 +178,44 @@ describe('GameBoardComponent', () => {
       expect(dispatchSpy).toHaveBeenCalledWith(
         startGame({ gameMode: initialGameStateMock.gameMode })
       );
+    });
+
+    describe('during CPU processing', () => {
+      beforeEach(() => {
+        store.overrideSelector(selectProcessingMove, true);
+        store.refreshState();
+        fixture.detectChanges();
+      });
+
+      test('applies processing-move class to game board', (done) => {
+        // We need to wait for the async pipe to update the class
+        component.processingMove$.subscribe(() => {
+          const boardElement = fixture.debugElement.query(
+            By.css('[data-testid="game-board"]')
+          );
+          const element: HTMLElement = boardElement.nativeElement;
+          expect(element.classList.contains('processing-move')).toBeTruthy();
+          done();
+        });
+      });
+
+      test('does not call attemptMove when square is clicked', () => {
+        const attemptMoveSpy = jest.spyOn(component, 'attemptMove');
+        const square = fixture.debugElement.query(
+          By.css('[data-testid="board-square"]')
+        );
+
+        square.triggerEventHandler('click', null);
+
+        expect(attemptMoveSpy).not.toHaveBeenCalled();
+      });
+
+      test('board shows correct processing state', (done) => {
+        component.processingMove$.subscribe((isProcessing) => {
+          expect(isProcessing).toBe(true);
+          done();
+        });
+      });
     });
   });
 

@@ -105,22 +105,32 @@ export class RoundEffects {
         this.store.select(selectGameDifficulty),
         this.store.select(selectCurrentPlayer)
       ),
-      this.applyDelay(750),
-      mergeMap(([{ boardState }, difficulty, player]) => {
-        const position = this.calculateCPUMove(boardState, difficulty);
-        return [
-          RoundActions.setProcessingState({ isProcessing: true }),
-          RoundActions.updateBoard({ position, piece: player.piece }),
-          RoundActions.evaluateRoundStatus({
-            boardState: boardState.map((square, index) =>
-              index === position
-                ? { ...square, gamePiece: player.piece }
-                : square
-            ),
-          }),
-          RoundActions.setProcessingState({ isProcessing: false }),
-        ];
-      })
+      mergeMap(([action, difficulty, player]) =>
+        concat(
+          of(RoundActions.setProcessingState({ isProcessing: true })),
+          of(action).pipe(
+            this.applyDelay(750),
+            map(() => {
+              const position = this.calculateCPUMove(
+                action.boardState,
+                difficulty
+              );
+              return [
+                RoundActions.updateBoard({ position, piece: player.piece }),
+                RoundActions.evaluateRoundStatus({
+                  boardState: action.boardState.map((square, index) =>
+                    index === position
+                      ? { ...square, gamePiece: player.piece }
+                      : square
+                  ),
+                }),
+                RoundActions.setProcessingState({ isProcessing: false }),
+              ];
+            }),
+            mergeMap((actions) => actions)
+          )
+        )
+      )
     )
   );
 
