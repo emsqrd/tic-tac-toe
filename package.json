@@ -1,11 +1,10 @@
 {
   "name": "tic-tac-toe",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "build:prod": "ng build --configuration production",
+    "build": "ng build --prod --base-href /tic-tac-toe/ --deploy-url /tic-tac-toe/",
     "watch": "ng build --watch --configuration development",
     "test": "jest",
     "test:watch": "jest --watch",
